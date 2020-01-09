@@ -1,0 +1,6 @@
+wheel_width : 0.3
+wheel_radius: 0.5
+wheel_base : 1
+chassis_length : 1
+chassis_thickness: 0.1
+
