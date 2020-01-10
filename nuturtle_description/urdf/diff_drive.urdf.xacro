@@ -12,7 +12,7 @@
           <box size="${a['chassis_length']} ${a['wheel_base']-a['wheel_width']} ${a['chassis_thickness']} "/>
       </geometry>
       <material name="color1">
-        <color rgba="0.1 0.3 1 1"/>
+        <color rgba="0.1 0.3 1 0.6"/>
       </material>
     </visual>
   </link>
@@ -45,7 +45,7 @@
           <cylinder length="${a['wheel_width']}" radius="${a['wheel_radius']}" />
       </geometry>
       <material name="color3">
-        <color rgba="0.3 0.44 0.1 1"/>
+        <color rgba="0.3 0.44 0.1 0.6"/>
       </material>
     </visual>
   </link>
