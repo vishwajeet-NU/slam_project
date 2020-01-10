@@ -1,4 +1,4 @@
-"ME495 Sensing, Navigation, and Machine Learning" <br/>
+"ME495 Sensing, Navigation, and Machine Learning"
 Author : Vishwajeet Karmarkar 
 
 # Tasks Submitted 
