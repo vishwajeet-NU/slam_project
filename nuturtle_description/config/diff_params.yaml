@@ -1,6 +1,12 @@
+#this .yaml file contains the paramters 
+#that can tweak the dimensions of the diff_drive robot
+#without making changes to the urdf file
+#wheel base and wheel width are used to find width of chassis of the robot
+# width = wheelbase - wheel width
+# other parameter specify dimensions as per their names
 wheel_width : 0.3
 wheel_radius: 0.5
-wheel_base : 1
-chassis_length : 1
-chassis_thickness: 0.1
+wheel_base : 2
+chassis_length : 3
+chassis_thickness: 0.2
 
