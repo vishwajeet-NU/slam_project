@@ -1,5 +1,5 @@
 <launch>
-
+<!--The launch file is used to start multiple nodes and the rviz, loaded with the robot model with only one command-->
 <!--this finds the xacro file and loads it in parameter server --> 
    <param name="robot_description" command= "$(find xacro)/xacro --inorder '$(find nuturtle_description)/urdf/diff_drive.urdf.xacro'" /> 
 

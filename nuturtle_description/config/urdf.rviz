@@ -9,6 +9,7 @@ Panels:
         - /TF1/Frames1
         - /TF1/Tree1
         - /TF2/Frames1
+        - /Axes1
       Splitter Ratio: 0.8073089718818665
     Tree Height: 796
   - Class: rviz/Selection
@@ -147,6 +148,13 @@ Visualization Manager:
             {}
       Update Interval: 0
       Value: true
+    - Class: rviz/Axes
+      Enabled: true
+      Length: 1
+      Name: Axes
+      Radius: 0.10000000149011612
+      Reference Frame: <Fixed Frame>
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 163; 163; 163
@@ -190,10 +198,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5653965473175049
+      Pitch: 0.3403961658477783
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.3754220008850098
+      Yaw: 1.3904199600219727
     Saved: ~
 Window Geometry:
   Displays:
