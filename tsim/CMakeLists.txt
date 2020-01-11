@@ -204,3 +204,8 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(turtle_rect src/turtle_rect.cpp)
+target_link_libraries(turtle_rect ${catkin_LIBRARIES})
+add_dependencies(turtle_rect tsim_generate_messages_cpp)
+
