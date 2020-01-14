@@ -2,7 +2,7 @@
 <package format="2">
   <name>tsim</name>
   <version>0.0.1</version>
-  <description>The tsim package contains code to make a turtle follow a rectangle</description>
+  <description>The task of this project is to make a turtle follwo a rectangle trajectory</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -52,7 +52,6 @@
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
-  <build_depend>std_srvs</build_depend>  
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
   <exec_depend>roscpp</exec_depend>

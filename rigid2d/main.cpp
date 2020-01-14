@@ -1,3 +1,9 @@
+/// \file
+/// \brief This file comprises the main chunk of code 
+/// which calls all the methods and structures defined 
+/// and makes use of them to create a program capable 
+/// of tranforming Twists, Vectors and Transformation Matrices
+
 #include "rigid2d.hpp"
 
 #include<iostream>
@@ -7,20 +13,27 @@ using namespace rigid2d;
 using namespace std;
 int main(void)
 {
-
+/// \brief create the classes for all necessary transforms
 Transform2D T_ab, T_bc, T_ba,T_cb,T_ac,T_ca;
 
+/// \brief create the structures for all necessary vectors
+
 Vector2D vec, vec_a, vec_b, vec_c;
+
+/// \brief create the structures for all necessary twists
+
 Twist2D twi, twi_a, twi_b, twi_c;
 
-cout<<"Start entering T_ab";
+cout<<"Start entering T_ab \n";
 
 operator>>(cin, T_ab);
 
-cout<<"Start entering T_bc";
+cout<<"Start entering T_bc \n";
 
 operator>>(cin, T_bc);
 
+/// \brief apply the methods defined earlier to find all 
+/// tranforms in other reference frames
 T_ba = T_ab.inv();
 T_ac = operator*(T_ab,T_bc ); 
 T_cb = T_bc.inv();
@@ -35,44 +48,58 @@ operator<<(cout,T_ca);
 
 
 operator>>(cin, vec);
-//operator>>(cin,twi); add this to the input
+operator>>(cin,twi); 
 char letter ;
-cout<< " enter the reference frame for vector ";
+cout<< "enter the reference frame for vector:";
 cin >> letter;
+/// create a switch case for various reference frame definitions 
 switch (letter )
 {
 case 'a':
         vec_a = vec;
         vec_b = T_ba.operator()(vec);
         vec_c = T_ca.operator()(vec);
-        //adding the twist here :: twist in a remains the same
-        // twist in b and c change 
-        // twist in b = adjoint(Tba) * twist a 
-        // twist in c = adjoint(tca) * twist a
-        // so twist_c = T_ca.operator(twist)
-
-        cout<<"did a ";
+        twi_a = twi;
+        twi_b = T_ba.operator()(twi);
+        twi_c = T_ca.operator()(twi);
+        
     break;
 case 'b':
         vec_b = vec;
         vec_a = T_ab.operator()(vec);
         vec_c = T_cb.operator()(vec);
-        cout<<"did b "; 
+        twi_b = twi;
+        twi_a = T_ab.operator()(twi);
+        twi_c = T_cb.operator()(twi);
+
+
     break;
 case 'c':
         vec_c = vec;
         vec_a = T_ac.operator()(vec);
         vec_b = T_bc.operator()(vec);
-        cout<<"did c ";
+        twi_c = twi;
+        twi_a = T_ac.operator()(twi);
+        twi_b = T_bc.operator()(twi);
+
     break;
 
 default:
     break;
 }
-
+cout<<"vector in a \n";
 operator<<(cout,vec_a);
+cout<<"vector in b \n";
 operator<<(cout,vec_b);
+cout<<"vector in c \n";
 operator<<(cout,vec_c);
+
+cout<<"twist in a \n";
+operator<<(cout,twi_a);
+cout<<"twist in b \n";
+operator<<(cout,twi_b);
+cout<<"twist in c \n";
+operator<<(cout,twi_c);
 
 
 }

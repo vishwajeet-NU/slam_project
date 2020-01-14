@@ -1,11 +1,15 @@
 <launch>
+   <arg name = "gui" default = "True" />
+   <param name= "plot_gui" value = "$(arg gui)" />
+   <rosparam command="load" file="$(find tsim)/config/turtle_params.yaml" />  
 
    <node name="turtlesim_node" pkg="turtlesim" type="turtlesim_node" />
 
    <node name="turtle_rect" pkg="tsim" type="turtle_rect" />
 
+   <group if="$(arg gui)">
+   <node name ="error" pkg = "rqt_plot" type = "rqt_plot" args = '/turtle1/pose_err'/>
+   </group>
 
-
-<rosparam command="load" file="$(find tsim)/config/turtle_params.yaml" />  
-
+   
 </launch>
