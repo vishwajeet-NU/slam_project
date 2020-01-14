@@ -8,5 +8,6 @@ Launch file to run the program
 
 roslaunch tsim trect.launch gui:=True
 
+I was unable to add images to this README. Please find them in the tsim package
 link to video:
 https://drive.google.com/open?id=13kDw6Ccrzg0Q2-zGFcWn0g7e_uwt3Q76
