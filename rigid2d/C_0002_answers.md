@@ -30,10 +30,15 @@ type declaration, which which will lead to wrong result. Thus it is a good bug p
 Q.4:
 maths: sqrt(x*x + y*y) = mag
 normalized out = x/mag , y/mag
-design 1:
-design 2:
-design 3:
+design 1: change the Vector2D to a class. Declare a constructor which will normalize the vector by default, and store
+the normalized vector into another class of the same type
+This method seems unnecessary because we might not have to normalize a vector, and so it will take up memory and processing everyime a class is created, while also creating a class containing the normal vector
 
+design 2: Create a member function inside the struct Vector2D which when called will return the normalized values
+of the vector. :: I prefer this method and have implelemted the same in point 5
+
+design 3:Create a member function inside the Transfrom2D class such that whenever a vector is input to the istream it
+gets called, and thus creates a normalized vector class. 
 
 Q.6 Why is Transform2D::inv() declared const while Transform2D::operator*=() is not?
 

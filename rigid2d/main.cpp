@@ -87,6 +87,8 @@ case 'c':
 default:
     break;
 }
+
+
 cout<<"vector in a \n";
 operator<<(cout,vec_a);
 cout<<"vector in b \n";
@@ -101,5 +103,12 @@ operator<<(cout,twi_b);
 cout<<"twist in c \n";
 operator<<(cout,twi_c);
 
+/// \brief uncomment this if you  want normalized form
+//vec_a = vec_a.Normalize();
+///vec_b = vec_b.Normalize();
+///vec_c = vec_c.Normalize();
 
+///cout<<"normal Va = [" <<vec_a.norm_x<<" "<<vec_a.norm_y<<"]\n";
+///cout<<"normal Vb = [" <<vec_b.norm_x<<" "<<vec_b.norm_y<<"]\n";
+///cout<<"normal Vc = [" <<vec_c.norm_x<<" "<<vec_c.norm_y<<"]\n";
 }

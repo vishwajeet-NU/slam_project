@@ -84,6 +84,13 @@ namespace rigid2d
     {
         double x = 0.0;
         double y = 0.0;
+        double norm_x =0.0;
+        double norm_y = 0.0;
+        ///\brief this function normalizes the vector when called
+        /// and changes it self parameters
+        /// input = none 
+        /// output = self after normal done 
+        Vector2D Normalize();
     };
     /// \brief A 2-Dimensional Twist
     struct Twist2D
@@ -91,7 +98,6 @@ namespace rigid2d
         double w = 0.0;
         double v_x = 0.0;
         double v_y = 0.0;
-
 
     };
 

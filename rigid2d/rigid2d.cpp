@@ -161,7 +161,15 @@ m8 =0;
 m9 =1;
 
 }
+/// the new function for normalizing the vector
+Vector2D Vector2D::Normalize(){
 
+    double magnitude;
+    magnitude = sqrt(x*x + y*y);
+    norm_x = x/magnitude;
+    norm_y = y/magnitude;
+    return *this;
+}
 Vector2D Transform2D::operator()(Vector2D v) const {
 Vector2D VEC;
 VEC.x = m1*v.x + m2*v.y + m3;
