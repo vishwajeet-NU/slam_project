@@ -1,3 +1,8 @@
+/// \file
+/// \brief This file defines the methods that have been 
+/// initialized in the header file.
+
+
 #include "rigid2d.hpp"
 #include<iostream>
 #include<math.h>
@@ -5,21 +10,29 @@
 namespace rigid2d
 {
 
-
-
-
-// Member functions definitions
-
+/// \brief Member functions definitions
+/// for more information on each function, refer the comments
+/// in header file
 
 
  std::ostream & operator<<(std::ostream & os, const Vector2D & v)
 
  {
 
-os<<"["<<v.x <<"\t"<< v.y<<"]";
+os<<"["<<v.x <<"\t"<< v.y<<"] \n";
 
 return os ;     
  }
+
+std::ostream & operator<<(std::ostream & os, const Twist2D & tv)
+
+ {
+
+os<<"["<<tv.w <<"\t"<< tv.v_x<<"\t"<<tv.v_y<<"] \n";
+
+return os ;     
+ }
+
 
 std::ostream & operator<<(std::ostream & os, const Transform2D & tf)
 
@@ -42,20 +55,20 @@ Vector2D vect;
 double angle_1;
 
 
-std::cout<< " input an angle (degrees)";
+
+std::cout<< "input an angle (degrees):";
 is >> angle_1;
 angle_1 = deg2rad(angle_1);
-std::cout<< " input dx";
+std::cout<< "input dx:";
 is >> vect.x;
 
-std::cout<< " input dy";
+std::cout<< "input dy:";
 is >> vect.y;
 
 Transform2D buffer_TT(vect,angle_1);
 
 tf = buffer_TT;
-Twist2D Adjoint(tf);//created the adjoint
-
+tf.Adjoint();
 return is;
 
 }
@@ -66,31 +79,29 @@ return is;
 std::istream & operator>>(std::istream & is, Vector2D &v)
 {
 //Vector2D vector_2;    
-std::cout<< " input x component";  
+std::cout<< "input x component:";  
 is >> v.x;
-std::cout<< " input y component";
+std::cout<< "input y component:";
 is >> v.y;
 
 return is;
 }
 
 //add this to friend so that it can access the variables in transform
-std::istream & operator>>(std::istream & is, Twist2D & tv_in)
+std::istream & operator>>(std::istream & is, Twist2D & tv)
 {
-std::cout<< " input w component of twist";  
-is >> tv_in.w;
+std::cout<< "input w component of twist:";  
+is >> tv.w;
 
-std::cout<< " input v_x component of twist";
-is >> tv_in.v_x;
+std::cout<< "input v_x component of twist:";
+is >> tv.v_x;
 
-std::cout<< " input v_y component of twist";
-is >> tv_in.v_y;
+std::cout<< "input v_y component of twist:";
+is >> tv.v_y;
 
+return is;
 
 }
-
-
-
 
 Transform2D::Transform2D()
 {
@@ -158,37 +169,32 @@ VEC.y = m4*v.x + m5*v.y + m6;
 return VEC;
 }
 
-//somehow write a method that does the above
-//what all will you need?
-// adjoint is a 4*4 matrix. : thus you will need a 
+Twist2D Transform2D::operator()(Twist2D tv) const {
 
-function(){
+Twist2D Twist;
+Twist.w  = z15* tv.w;
+Twist.v_x = z21*tv.w+ z22*tv.v_x + z23* tv.v_y;
+Twist.v_y = z27*tv.w+ z28 *tv.v_x + z29 * tv.v_y;
 
-Twist2D Twist_change;
+return Twist;
 
-Twist_change.w = z1 * tw.w + z2* tw.v_x + z3* tw.v_y + z4 * 1;
-Twist_change.v_x = z1 * tw.w + z2* tw.v_x + z3* tw.v_y + z4 * 1;
-Twist_change.v_y = z1 * tw.w + z2* tw.v_x + z3* tw.v_y + z4 * 1;
-return Twist_change;
 }
 
-
-//somehow add this to the transorm 2d// where will this be added?
-void Twist2D::Adjoint(Transform2D & adtf)
+void Transform2D::Adjoint()
 {
 
-z1 = adtf.m1;
-z2 = adtf.m2;
-z5 = adtf.m4;
-z6 = adtf.m5;
-z9 = adtf.m3;
-z10 = -adtf.m6;
-z11 = adtf.m1;
-z12 = adtf.m2;
-z13 = adtf.m6;
-z14 = adtf.m3;
-z15 = adtf.m4;
-z16 = adtf.m5;
+z1 = m1;
+z2 = m2;
+z7 = m4;
+z8 = m5;
+z21 =m6;
+z22 = m1;
+z23 = m2;
+z25 = -m6*m1-m3*m4;
+z26 = -m6*m2-m3*m5;
+z27 =-m3;
+z28 = m4;
+z29 = m5;
 
 }
 
@@ -206,6 +212,7 @@ T2.m6 = -1* (m2 * m3 + m5 * m6);
 T2.m7 = m7;
 T2.m8 = m8;
 T2.m9 = m9;
+T2.Adjoint();
 
 return T2;
 

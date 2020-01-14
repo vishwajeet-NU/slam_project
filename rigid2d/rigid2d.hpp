@@ -2,10 +2,11 @@
 #define RIGID2D_INCLUDE_GUARD_HPP
 #include <math.h>
 #include <iostream>
+#include<iosfwd> // contains forward definitions for iostream objects
+
 /// \file
 /// \brief Library for two-dimensional rigid body transformations.
 
-//#include<iosfwd> // contains forward definitions for iostream objects
 
 namespace rigid2d
 {
@@ -30,6 +31,14 @@ namespace rigid2d
     {
         return(false);
     }
+
+    /// \brief convert degrees to radians
+    /// \param deg - angle in degrees
+    /// \returns radians
+    /// NOTE: implement this in the header file
+    /// constexpr means that the function can be computed at compile time
+    /// if given a compile-time constant as input
+   
     
     }
 
@@ -38,17 +47,35 @@ namespace rigid2d
         return(deg*PI/180);
     }
 
+    /// \brief convert radians to degrees
+    /// \param rad - angle in radians
+    /// \returns the angle in degrees
+   
      constexpr double rad2deg(double rad)
     {
         return(rad*180/PI);
     }
 
-
+    /// static_assertions test compile time assumptions.
+    /// You should write at least one more test for each function
+    /// You should also purposely (and temporarily) make one of these tests fail
+    /// just to see what happens
+   
     static_assert(almost_equal(0, 0), "is_zero failed");
     static_assert(almost_equal(0.001, 0.005, 1.0e-2), "is_zero failed");
-    static_assert(almost_equal(deg2rad(0.0), 0.0), "deg2rad failed");
+    ///new statement 1   
+    static_assert(almost_equal(0.0002, 0.0000001, 1.0e-3), "is_zero failed");
+    
 
+    static_assert(almost_equal(deg2rad(0.0), 0.0), "deg2rad failed");
+    
+    ///new statement 2
+    static_assert(almost_equal(deg2rad(180.0), PI), "deg2rad failed");   
+    
     static_assert(almost_equal(rad2deg(0.0), 0.0), "rad2deg) failed");
+
+    ///new statement 3
+    static_assert(almost_equal(rad2deg(PI/2), 90.0), "rad2deg) failed");
 
     static_assert(almost_equal(deg2rad(rad2deg(2.1)), 2.1), "deg2rad failed");
 
@@ -58,18 +85,13 @@ namespace rigid2d
         double x = 0.0;
         double y = 0.0;
     };
-
-    class Twist2D
+    /// \brief A 2-Dimensional Twist
+    struct Twist2D
     {
-        public: 
-
         double w = 0.0;
         double v_x = 0.0;
         double v_y = 0.0;
-        float z1,z2,z5,z6;
-        float z3,z4,z7,z8=0;
-        float z9,z10,z11,z12,z13,z14,z15,z16;
-        void Twist2D::Adjoint(Transform2D & adtf);
+
 
     };
 
@@ -79,38 +101,112 @@ namespace rigid2d
 
     std::ostream & operator<<(std::ostream & os, const Vector2D & v);
 
+    ///\brief outputs a 2 dimensional twist( w_z, V_x, V_y) to the output stream
+    /// os - stream to output to
+    /// Twist - twist to print  
+    std::ostream & operator<<(std::ostream & os, const Twist2D & Twist);
+
+    /// \brief input a 2 dimensional vector
+    ///   You should be able to read vectors entered as two numbers
+    ///   separated by a newline or a space, or entered as [xcomponent ycomponent]
+    /// is - stream from which to read
+    /// v [out] - output vector
+    /// Hint: The following may be useful:
+    /// https://en.cppreference.com/w/cpp/io/basic_istream/peek
+    /// https://en.cppreference.com/w/cpp/io/basic_istream/get
 
     std::istream & operator>>(std::istream & is, Vector2D & v);
+
+
+    /// \brief takes in a twist from the user
+    /// is - stream to read twist from 
+    /// tv_in - output twist
+    std::istream & operator>>(std::istream & is, Twist2D & tv_in);
 
 
 
  class Transform2D
     {
     public:
-           
+    /// \brief m variables represent matrix number of a SE(2) transform matrix
+    //// z variables represnet members of a 6X6 Adjoint       
     float m1,m2,m3,m4,m5,m6;
     float m7= 0;
     float m8 =0;
     float m9 =1;
-
+    float z1, z2, z7,z8,z21,z22,z23,z25,z26,z27,z28,z29;
+    float z15 = 1; 
+ 
+    /// \brief Create an identity transformation
 
     Transform2D();
+    
+    /// \brief create a transformation that is a pure translation
+    /// \param trans - the vector by which to translate
+    
     explicit Transform2D(const Vector2D & trans);    
+    
+    /// \brief create a pure rotation
+    /// \param radians - angle of the rotation, in radians
     explicit Transform2D(double radians);
+    
+    /// \brief Create a transformation with a translational and rotational
+    /// component
+    /// \param trans - the translation
+    /// \param rot - the rotation, in radians
+ 
     Transform2D(const Vector2D & trans, double radians);
 
+    /// \brief Creates Adjoint representation 
+    void Adjoint();
 
+    /// \brief apply a transformation to a Vector2D
+    /// \param v - the vector to transform
+    /// \return a vector in the new coordinate system
     Vector2D operator()(Vector2D v) const;
+    
+    /// \brief applies a tranformation to a Twist2D
+    /// \param tv - the twist to tranform
+    /// \return a twist in the new coordinate system
+    Twist2D operator()(Twist2D tv) const;
+
+    /// \brief invert the transformation
+    /// \return the inverse transformation. 
     Transform2D inv() const;
+    
+    /// \brief compose this transform with another and store the result 
+    /// in this object
+    /// \param rhs - the first transform to apply
+    /// \returns a reference to the newly transformed operator
+
     Transform2D & operator*=(const Transform2D & rhs);
+    
+    
+    /// \brief \see operator<<(...) (declared outside this class)
+    /// for a description
     friend std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
      
      };
-     
-    std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
-    std::istream & operator>>(std::istream & is, Transform2D & tf);
-    Transform2D operator*(Transform2D lhs, const Transform2D & rhs);
 
+    
+    /// \brief should print a human readable version of the transform:
+    /// An example output:
+    /// dtheta (degrees): 90 dx: 3 dy: 5
+    /// \param os - an output stream
+    /// \param tf - the transform to print 
+    std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
+
+
+    /// \brief Read a transformation from stdin
+    /// Should be able to read input either as output by operator<< or
+    /// as 3 numbers (degrees, dx, dy) separated by spaces or newlines
+    std::istream & operator>>(std::istream & is, Transform2D & tf);
+
+    /// \brief multiply two transforms together, returning their composition
+    /// \param lhs - the left hand operand
+    /// \param rhs - the right hand operand
+    /// \return the composition of the two transforms
+    Transform2D operator*(Transform2D lhs, const Transform2D & rhs);
 
 
 }
