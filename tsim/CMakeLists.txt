@@ -3,8 +3,12 @@ project(tsim)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror" )
 
+add_compile_options(-Wall -Werror -pipe)
+## Compile at 17 standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -16,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   std_srvs
   message_generation
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -127,7 +132,7 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
+#add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/tsim.cpp
 # )
 
@@ -173,9 +178,9 @@ include_directories(
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
- install(TARGETS turtle_rect turtle_way traj_reset 
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+# install(TARGETS turtle_rect turtle_way traj_reset 
+#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
@@ -216,6 +221,7 @@ add_executable(turtle_rect src/turtle_rect.cpp)
 add_executable(traj_reset src/traj_reset.cpp)
 add_executable(turtle_way src/turtle_way.cpp)
 
+
 target_link_libraries(turtle_rect ${catkin_LIBRARIES})
 target_link_libraries(traj_reset ${catkin_LIBRARIES})
 target_link_libraries(turtle_way ${catkin_LIBRARIES} )
@@ -224,3 +230,4 @@ target_link_libraries(turtle_way ${catkin_LIBRARIES} )
 add_dependencies(turtle_rect tsim_generate_messages_cpp)
 add_dependencies(traj_reset tsim_gencpp)
 add_dependencies(turtle_way tsim_generate_messages_cpp)
+

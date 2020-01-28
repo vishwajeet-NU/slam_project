@@ -54,7 +54,7 @@ Visualization Manager:
         Z: 0
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: <Fixed Frame>
+      Reference Frame: odom
       Value: true
     - Alpha: 1
       Class: rviz/RobotModel
@@ -103,33 +103,7 @@ Visualization Manager:
           Value: false
         left_wheel:
           Value: false
-        right_wheel:
-          Value: false
-      Marker Scale: 1
-      Name: TF
-      Show Arrows: true
-      Show Axes: true
-      Show Names: true
-      Tree:
-        base_link:
-          caster:
-            {}
-          left_wheel:
-            {}
-          right_wheel:
-            {}
-      Update Interval: 0
-      Value: true
-    - Class: rviz/TF
-      Enabled: true
-      Frame Timeout: 15
-      Frames:
-        All Enabled: false
-        base_link:
-          Value: false
-        caster:
-          Value: false
-        left_wheel:
+        odom:
           Value: true
         right_wheel:
           Value: false
@@ -146,6 +120,40 @@ Visualization Manager:
             {}
           right_wheel:
             {}
+        odom:
+          {}
+      Update Interval: 0
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        base_link:
+          Value: false
+        caster:
+          Value: false
+        left_wheel:
+          Value: true
+        odom:
+          Value: true
+        right_wheel:
+          Value: false
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        base_link:
+          caster:
+            {}
+          left_wheel:
+            {}
+          right_wheel:
+            {}
+        odom:
+          {}
       Update Interval: 0
       Value: true
     - Class: rviz/Axes
@@ -183,7 +191,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.7809500694274902
+      Distance: 18.477928161621094
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -198,10 +206,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3403961658477783
+      Pitch: 1.0453959703445435
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.3904199600219727
+      Yaw: 2.7854204177856445
     Saved: ~
 Window Geometry:
   Displays:
@@ -220,4 +228,4 @@ Window Geometry:
     collapsed: false
   Width: 1853
   X: 67
-  Y: 27
+  Y: 1107

@@ -57,6 +57,11 @@ int main(int argc, char** argv)
             right_wheel = incoming_right_wheel - right_wheel;
             turtle_odo.feedforward(left_wheel, right_wheel);
 
+            WheelVelocities temp_wheel;
+            temp_wheel.U1 = left_wheel;
+            temp_wheel.U2 = right_wheel;
+
+
             left_wheel = incoming_left_wheel;
             right_wheel = incoming_right_wheel;
 
@@ -67,44 +72,39 @@ int main(int argc, char** argv)
             y = current_position.v_y;
             th = current_position.w;
             geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);   
-       //first, we'll publish the transform over tf
-       //geometry_msgs::TransformStamped odom_trans;
-       //odom_trans.header.stamp = current_time;
-       //odom_trans.header.frame_id = "odom";
-       //odom_trans.child_frame_id = "base_link";
+            
+            geometry_msgs::TransformStamped odom_trans;
+            odom_trans.header.stamp = current_time;
+            odom_trans.header.frame_id = "odom";
+            odom_trans.child_frame_id = "base_link";
    
-//       odom_trans.transform.translation.x = x;
- //      odom_trans.transform.translation.y = y;
- //      odom_trans.transform.translation.z = 0.0;
-  //     odom_trans.transform.rotation = odom_quat;
+            odom_trans.transform.translation.x = x;
+            odom_trans.transform.translation.y = y;
+            odom_trans.transform.translation.z = 0.0;
+            odom_trans.transform.rotation = odom_quat;
    
-       //send the transform
-    //   odom_broadcaster.sendTransform(odom_trans);
+            odom_broadcaster.sendTransform(odom_trans);
    
-       //next, we'll publish the odometry message over ROS
-       nav_msgs::Odometry odom;
-       odom.header.stamp = current_time;
-       odom.header.frame_id = "odom";
+            nav_msgs::Odometry odom;
+            odom.header.stamp = current_time;
+            odom.header.frame_id = "odom";
    
-       //set the position
-       odom.pose.pose.position.x = x;
-       odom.pose.pose.position.y = y;
-//       odom.pose.pose.position.z = 0.0;
-       odom.pose.pose.orientation = odom_quat;
+            odom.pose.pose.position.x = x;
+            odom.pose.pose.position.y = y;
+            odom.pose.pose.position.z = 0.0;
+            odom.pose.pose.orientation = odom_quat;
 
-       //set the velocity
-       odom.child_frame_id = "base_link";
-       odom.twist.twist.linear.x = Vb.v_x;
-       odom.twist.twist.linear.y = Vb.v_y;
-       odom.twist.twist.angular.z = Vb.w;
+            odom.child_frame_id = "base_link";
+            Vb = turtle_odo.wheelsToTwist(temp_wheel);
+            odom.twist.twist.linear.x = Vb.v_x;
+            odom.twist.twist.linear.y = Vb.v_y;
+            odom.twist.twist.angular.z = Vb.w;
    
-        //publish the message
-       odom_pub.publish(odom);
+            odom_pub.publish(odom);
    
-       last_time = current_time;
-       r.sleep();
+           last_time = current_time;
+           r.sleep();
      }
     
-
-   
+ 
 }

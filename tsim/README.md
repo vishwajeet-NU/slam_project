@@ -12,3 +12,16 @@ I was unable to add images to this README. Please find them in the tsim package 
  
 link to video: </br>
 https://drive.google.com/open?id=13kDw6Ccrzg0Q2-zGFcWn0g7e_uwt3Q76
+
+
+**** homework 1 additions
+to launch turtle_waypoints which starts turtleway , fake encoder 
+and odometry
+
+roslaunch tsim turtle_pent.launch gui:=True
+
+#to launch turtle way points and rviz visualization 
+
+roslaunch tsim turtle_odom.launch
+
+screenshot added in folder , name: hw1

@@ -6,7 +6,7 @@
 <!-- starts the node- joint state publisher node. it reads robot_description parameter and published Jointstatemessage-->
    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
    <!--use_gui is set to true for joint slider -->
-   <param name="use_gui" value="true" />
+   <param name="use_gui" value="false" />
 
 
 <!-- starts the node- robot state publisher. it subscibes to jointstate message and publishes state to the TF library-->
@@ -18,6 +18,5 @@
 
 <!--loads parameter from the yaml file into parameter server-->
 <rosparam command="load" file="$(find nuturtle_description)/config/diff_params.yaml" />  
-
 
 </launch>

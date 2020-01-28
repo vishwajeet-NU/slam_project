@@ -43,8 +43,8 @@ int main(int argc, char **argv)
         wheel_rotations = turtle_go.twistToWheels(forward_velocity_body);
         jt_output.header.stamp = ros::Time::now();
         jt_output.name.resize(2);
-        jt_output.name[0] = "left_wheel";
-        jt_output.name[1] = "right_wheel";
+        jt_output.name[0] = "left_wheel_axle";
+        jt_output.name[1] = "right_wheel_axle";
 
         jt_output.position.resize(2);
         jt_output.position[0] = turtle_go.left_wheel_angle;

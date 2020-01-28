@@ -4,7 +4,13 @@ project(rigid2d)
 ## Compile as C++11, supported in ROS Kinetic and newer
 #add_compile_options(-std=c++11)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror" )
+#set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror" )
+
+add_compile_options(-Wall -Werror -pipe)
+## Compile at 17 standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -174,7 +180,7 @@ target_link_libraries(fake_diff_encoder ${catkin_LIBRARIES} rigid2d)
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
- install(TARGETS rigid2d_node fake_diff_encoder odometer test_compile.bash
+ install(TARGETS rigid2d_node fake_diff_encoder odometer 
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
