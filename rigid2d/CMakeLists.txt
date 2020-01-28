@@ -1,22 +1,24 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(tsim)
+project(rigid2d)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror" )
+#add_compile_options(-std=c++11)
 
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror" )
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  rigid2d
-  roscpp
-  std_msgs
-  geometry_msgs
-  std_srvs
-  message_generation
+find_package(catkin REQUIRED
+COMPONENTS roscpp
+COMPONENTS std_msgs
+COMPONENTS geometry_msgs
+COMPONENTS sensor_msgs
+COMPONENTS tf
 )
+if (CATKIN_ENABLE_TESTING)
+   find_package(rostest REQUIRED)
+endif()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -52,17 +54,15 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   PoseError.msg
+# add_message_files(
+#   FILES
 #   Message1.msg
 #   Message2.msg
- )
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
 #   FILES
-
 #   Service1.srv
 #   Service2.srv
 # )
@@ -75,10 +75,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
- )
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs  # Or other packages containing msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -110,9 +110,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS /home/vishwajeet/me495/src/karmarkar_vishwajeet_Navigation/rigid2d/include
-# LIBRARIES rigid2d
-  CATKIN_DEPENDS roscpp std_msgs message_runtime rigid2d geometry_msgs
+  INCLUDE_DIRS include
+  LIBRARIES rigid2d 
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs 
 #  DEPENDS system_lib
 )
 
@@ -123,15 +123,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  ${catkin_INCLUDE_DIRS}
+ include
+ ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/tsim.cpp
-# )
-
-
+ add_library(${PROJECT_NAME} src/rigid2d.cpp src/diff_drive.cpp src/waypoints.cpp 
+ )
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -140,7 +138,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/tsim_node.cpp)
+add_executable(${PROJECT_NAME}_node src/rigid2d_node.cpp src/diff_drive.cpp src/waypoints.cpp)
+add_executable(odometer src/odometer.cpp )
+add_executable(fake_diff_encoder src/fake_diff_encoder.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,9 +153,10 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(odometer ${catkin_LIBRARIES} rigid2d)
+target_link_libraries(fake_diff_encoder ${catkin_LIBRARIES} rigid2d)
+
 
 #############
 ## Install ##
@@ -173,24 +174,24 @@ include_directories(
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
- install(TARGETS turtle_rect turtle_way traj_reset 
+ install(TARGETS rigid2d_node fake_diff_encoder odometer test_compile.bash
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+ install(TARGETS ${PROJECT_NAME}
+   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+ )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+ install(DIRECTORY include/${PROJECT_NAME}/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+   FILES_MATCHING PATTERN "*.h"
+   PATTERN ".svn" EXCLUDE
+ )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
@@ -202,25 +203,18 @@ include_directories(
 #############
 ## Testing ##
 #############
+if (CATKIN_ENABLE_TESTING)
+catkin_add_gtest(mytest test/test.cpp )
+target_link_libraries(mytest ${PROJECT_NAME} gtest_main ${catkin_libraries} rigid2d)
+
+
+endif()
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_tsim.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_rigid2d.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
-add_executable(turtle_rect src/turtle_rect.cpp)
-add_executable(traj_reset src/traj_reset.cpp)
-add_executable(turtle_way src/turtle_way.cpp)
-
-target_link_libraries(turtle_rect ${catkin_LIBRARIES})
-target_link_libraries(traj_reset ${catkin_LIBRARIES})
-target_link_libraries(turtle_way ${catkin_LIBRARIES} )
-
-
-add_dependencies(turtle_rect tsim_generate_messages_cpp)
-add_dependencies(traj_reset tsim_gencpp)
-add_dependencies(turtle_way tsim_generate_messages_cpp)

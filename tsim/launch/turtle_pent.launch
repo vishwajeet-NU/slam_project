@@ -1,0 +1,18 @@
+<launch>
+   <arg name = "gui" default = "True" doc = " this decides whether to activate the rqt_plot" />
+   <param name= "plot_gui" value = "$(arg gui)" />
+
+   <node name="turtlesim_node" pkg="turtlesim" type="turtlesim_node" />
+
+   <node name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" />
+    
+   <node name="odometer" pkg="rigid2d" type="odometer" />  
+
+   <node name="turtle_way" pkg="tsim" type="turtle_way" />
+
+   <group if="$(arg gui)">
+   <node name ="error" pkg = "rqt_plot" type = "rqt_plot" args = '/turtle1/pose_err'/>
+   </group>
+
+   
+</launch>

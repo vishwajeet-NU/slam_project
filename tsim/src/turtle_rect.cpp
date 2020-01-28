@@ -60,7 +60,7 @@ void poseCallback(const turtlesim::Pose &pose){
 /// <template typename T>
 /// horizontal(h,w,v,r,x,y,pub,sub,x_err,y_err,the_err,marker)
 void horizontal(int height,int width,int trans_vel,int rot_vel,int abs_x,int abs_y, 
-ros::Publisher vel_pub, ros::Publisher err_pub, float x_error, float y_error,float theta_error, int marker ){
+ros::Publisher vel_pub, ros::Publisher err_pub, float x_er, float y_er,float theta_er, int marker ){
 
 ros::NodeHandle n;
 
@@ -76,18 +76,18 @@ ros::spinOnce();
 float secs;
 secs = inner_time1.toSec(); 
 if(marker == 0){
-x_error = turtle_pose::x - (secs*trans_vel + abs_x);
-y_error = turtle_pose::y - abs_y;
-theta_error = turtle_pose::theta - 0;
+x_er = turtle_pose::x - (secs*trans_vel + abs_x);
+y_er = turtle_pose::y - abs_y;
+theta_er = turtle_pose::theta - 0;
 }
 else{
-x_error = turtle_pose::x - (abs_x + width - secs*trans_vel );
-y_error = turtle_pose::y - (abs_y+height);
-theta_error = turtle_pose::theta - 3.14159;
+x_er = turtle_pose::x - (abs_x + width - secs*trans_vel );
+y_er = turtle_pose::y - (abs_y+height);
+theta_er = turtle_pose::theta - 3.14159;
 }
-er.x_error = x_error;
-er.y_error = y_error;
-er.theta_error = theta_error;
+er.x_error = x_er;
+er.y_error = y_er;
+er.theta_error = theta_er;
 err_pub.publish(er);
 
 }
@@ -114,7 +114,7 @@ vel_pub.publish(msg);
 /// <template typename T>
 /// vertical(h,w,v,r,x,y,pub,sub,x_err,y_err,the_err,marker)
 void vertical(int height,int width,int trans_vel,int rot_vel,int abs_x,int abs_y, 
-ros::Publisher vel_pub, ros::Publisher err_pub, float x_error, float y_error,float theta_error, int marker ){
+ros::Publisher vel_pub, ros::Publisher err_pub, float x_err, float y_err,float theta_err, int marker ){
 
 ros::NodeHandle n;
 
@@ -130,20 +130,20 @@ ros::spinOnce();
 float secs;
 secs = inner_time1.toSec(); 
 if(marker == 0){
-x_error = turtle_pose::x - (abs_x+width) ;
-y_error = turtle_pose::y - (secs*trans_vel + abs_y);
-theta_error = turtle_pose::theta -1.57079 ;
+x_err = turtle_pose::x - (abs_x+width) ;
+y_err = turtle_pose::y - (secs*trans_vel + abs_y);
+theta_err = turtle_pose::theta -1.57079 ;
 
 }
 else{
-x_error = turtle_pose::x - (abs_x) ;
-y_error = turtle_pose::y - (abs_y+ height - secs*trans_vel );
-theta_error = turtle_pose::theta +1.57079 ;
+x_err = turtle_pose::x - (abs_x) ;
+y_err = turtle_pose::y - (abs_y+ height - secs*trans_vel );
+theta_err = turtle_pose::theta +1.57079 ;
 
 }
-er.x_error = x_error;
-er.y_error = y_error;
-er.theta_error = theta_error;
+er.x_error = x_err;
+er.y_error = y_err;
+er.theta_error = theta_err;
 err_pub.publish(er);
 
 }
@@ -162,7 +162,9 @@ vel_pub.publish(msg);
 int main(int argc, char **argv)
 {
 int width, height, trans_vel, rot_vel, abs_x , abs_y,frequency;
-float x_error, y_error, theta_error;
+float x_error = 0.0;
+float y_error = 0.0;
+float theta_error = 0.0;
 
 
 ros::init(argc,argv,"turtle_rect");
@@ -203,6 +205,7 @@ client2.call(srv2);
 ros::Rate rate(frequency);
 while (ros::ok())
 {
+rate.sleep();    
 /// calling all functions to complete the rectangle 
 horizontal(height,width,trans_vel,rot_vel,abs_x,abs_y,vel_pub, err_pub,x_error,y_error, theta_error,0);
 vertical(height,width,trans_vel,rot_vel,abs_x,abs_y,vel_pub, err_pub,x_error,y_error,theta_error,0);
