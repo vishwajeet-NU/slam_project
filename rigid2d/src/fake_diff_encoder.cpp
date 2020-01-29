@@ -51,6 +51,7 @@ int main(int argc, char **argv)
         jt_output.position[1] = turtle_go.right_wheel_angle;
 
         joint_state_publisher.publish(jt_output);
+        
         rate.sleep();
 
     }

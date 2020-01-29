@@ -72,8 +72,6 @@ void pose_odom_Callback(const nav_msgs::Odometry &odom_pose){
    tf::Quaternion q(quatx, quaty, quatz, quatw);
    tf::Matrix3x3 m(q);
    m.getRPY(roll, pitch, yaw);
-//    ROS_INFO_STREAM(yaw);
-//    ROS_INFO_STREAM(turtle_odom_pose::y);
 }
 
 /// \brief is called at every ros::spin. passes all information of that particular
@@ -91,8 +89,9 @@ void poseCallback(const turtlesim::Pose &pose){
 /// the desired orientation is achieved
 /// inputs: ang_rotation and publisher
 /// \returns nothing
-void move_angular(float ang_speed, ros::Publisher vel_pub)
-{
+void move_angular(float ang_speed, ros::Publisher vel_pub, ros::Publisher err_pub)
+{   
+    ros::NodeHandle n;
     ros::spinOnce();    
     if(ang_speed ==0 )
     {
@@ -102,9 +101,15 @@ void move_angular(float ang_speed, ros::Publisher vel_pub)
         {
             ros::spinOnce();    
             vel_pub.publish(msg);
+            er.x_error = turtle_pose::x - turtle_odom_pose::x;
+            er.y_error = turtle_pose::y - turtle_odom_pose::y;
+            er.theta_error = turtle_pose::theta - yaw;
+            err_pub.publish(er);
+
         }
     msg.angular.z = 0;
-    vel_pub.publish(msg);    
+    vel_pub.publish(msg);
+    
     }
 
     else
@@ -116,9 +121,15 @@ void move_angular(float ang_speed, ros::Publisher vel_pub)
     {
         ros::spinOnce();    
         vel_pub.publish(msg);
+        er.x_error = turtle_pose::x - turtle_odom_pose::x;
+        er.y_error = turtle_pose::y - turtle_odom_pose::y;
+        er.theta_error = turtle_pose::theta - yaw;
+        err_pub.publish(er);
+
     }
     msg.angular.z = 0;
     vel_pub.publish(msg);
+
     }
 }
 
@@ -127,7 +138,7 @@ void move_angular(float ang_speed, ros::Publisher vel_pub)
 /// the desired distance/position is achieved
 /// inputs: linear distance , publisher, current x,y positions
 /// \returns nothing
-void move_linear(float linear_speed, ros::Publisher vel_pub, double x_p, double y_p)
+void move_linear(float linear_speed, ros::Publisher vel_pub, double x_p, double y_p, ros::Publisher err_pub)
 {
     ros::spinOnce();    
     msg.linear.x = linear_speed/10;
@@ -137,13 +148,20 @@ void move_linear(float linear_speed, ros::Publisher vel_pub, double x_p, double 
     {
         ros::spinOnce();    
         vel_pub.publish(msg);
+        er.x_error = turtle_pose::x - turtle_odom_pose::x;
+        er.y_error = turtle_pose::y - turtle_odom_pose::y;
+        er.theta_error = turtle_pose::theta - yaw;
+        err_pub.publish(er);
+
     }
     msg.linear.x = 0;
     vel_pub.publish(msg);
+
 }
 
 int main(int argc, char **argv)
 {
+    
     Waypoints whereto;
     Twist2D iamhere;    
 
@@ -159,6 +177,7 @@ int main(int argc, char **argv)
     ros::Subscriber odom_sub = n.subscribe("/odom", 1, pose_odom_Callback);
     ros::service::waitForService("spawn");
 
+
     ros::ServiceClient client2 = n.serviceClient<turtlesim::SetPen>("turtle1/set_pen");
     turtlesim::SetPen srv2;
     srv2.request.r =0;
@@ -169,17 +188,20 @@ int main(int argc, char **argv)
     client2.call(srv2);
     ros::ServiceClient client = n.serviceClient<turtlesim::TeleportAbsolute>("turtle1/teleport_absolute");
     turtlesim::TeleportAbsolute srv;
-    srv.request.x =4;
-    srv.request.y =2;
+    srv.request.x =5.5;
+    srv.request.y =0;
     srv.request.theta =0;
     client.call(srv);
     srv2.request.off =0;
+    ros::service::waitForService("turtle1/teleport_absolute");
     client2.call(srv2);
+   
 
     ros::Rate rate(60);
 
     while (ros::ok())
     {
+
         unsigned int i =0;    
         for(i = 0; i<(x_cors.size()-1); i ++)
             {
@@ -192,18 +214,14 @@ int main(int argc, char **argv)
                 iamhere.w=yaw;
   
                 Twist2D whatsthespeed = whereto.nextWaypoint(iamhere);
-                move_angular(whatsthespeed.w, vel_pub);
-                move_linear(whatsthespeed.v_x, vel_pub, iamhere.v_x, iamhere.v_y);
+                move_angular(whatsthespeed.w, vel_pub, err_pub);
+                move_linear(whatsthespeed.v_x, vel_pub, iamhere.v_x, iamhere.v_y, err_pub);
 
-                er.x_error = turtle_pose::x - turtle_odom_pose::x;
-                er.y_error = turtle_pose::y - turtle_odom_pose::y;
-                er.theta_error = turtle_pose::theta - turtle_odom_pose::theta;
+            }  
 
-                err_pub.publish(er);
-
-    }
     i = 0;
     rate.sleep();
     }   
+
 }
 

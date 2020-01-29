@@ -97,12 +97,8 @@ void DiffDrive::feedforward(float left_wheel, float right_wheel)
     in.U1 = left_wheel;
     in.U2 = right_wheel;
     Vb = wheelsToTwist(in);
-    Vb.v_x = Vb.v_x ;
-    Vb.v_y = Vb.v_y ;
-    Vb.w = Vb.w ;
 
 
-/*
 if(Vb.w ==0)
 {
   T_bb.m1 = T.m1;
@@ -116,36 +112,16 @@ if(Vb.w ==0)
 else{
 
 T_bb = T.integrateTwist(Vb);
-
 }
 
 delta_qb.v_x = T_bb.m3;
 delta_qb.v_y = T_bb.m6;
-delta_qb.w = acos(T_bb.m1);
+delta_qb.w = Vb.w;
 
 
-position.w = position.w + delta_qb.w;
 position.v_x = position.v_x + cos(position.w) * delta_qb.v_x - sin(position.w)* delta_qb.v_y;
 position.v_y = position.v_y+ sin(position.w) * delta_qb.v_x + cos(position.w)* delta_qb.v_y;
-*/
-
-    if(Vb.w == 0)
-    {
-      delta_qb.w = 0;
-      delta_qb.v_x = Vb.v_x ;
-      delta_qb.v_y = Vb.v_y;
-    }
-    else
-    {
-
-      delta_qb.w = Vb.w;
-      delta_qb.v_x = Vb.v_x * sin(Vb.w) + Vb.v_y * (cos(Vb.w)- 1)/Vb.w;
-      delta_qb.v_y = Vb.v_y * sin(Vb.w) + Vb.v_x * (1-cos(Vb.w))/Vb.w;
-    }
-  
-  position.v_x = position.v_x + cos(position.w) * delta_qb.v_x - sin(position.w)* delta_qb.v_y;
-  position.v_y = position.v_y+ sin(position.w) * delta_qb.v_x + cos(position.w)* delta_qb.v_y;
-  position.w = position.w + delta_qb.w;
+position.w = position.w + delta_qb.w;
 }
 
 /// \brief gives body pose when required 

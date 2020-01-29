@@ -113,15 +113,14 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        base_link:
-          caster:
-            {}
-          left_wheel:
-            {}
-          right_wheel:
-            {}
         odom:
-          {}
+          base_link:
+            caster:
+              {}
+            left_wheel:
+              {}
+            right_wheel:
+              {}
       Update Interval: 0
       Value: true
     - Class: rviz/TF
@@ -145,15 +144,14 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        base_link:
-          caster:
-            {}
-          left_wheel:
-            {}
-          right_wheel:
-            {}
         odom:
-          {}
+          base_link:
+            caster:
+              {}
+            left_wheel:
+              {}
+            right_wheel:
+              {}
       Update Interval: 0
       Value: true
     - Class: rviz/Axes
@@ -161,7 +159,7 @@ Visualization Manager:
       Length: 1
       Name: Axes
       Radius: 0.10000000149011612
-      Reference Frame: <Fixed Frame>
+      Reference Frame: odom
       Value: true
   Enabled: true
   Global Options:
@@ -206,10 +204,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0453959703445435
+      Pitch: 0.6153959631919861
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.7854204177856445
+      Yaw: 2.9904227256774902
     Saved: ~
 Window Geometry:
   Displays:
@@ -228,4 +226,4 @@ Window Geometry:
     collapsed: false
   Width: 1853
   X: 67
-  Y: 1107
+  Y: 27

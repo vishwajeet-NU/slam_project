@@ -26,6 +26,7 @@ public:
     Twist2D position;
     Transform2D T;
     Transform2D T_bb;
+    Transform2D T_out;
 
     double wheel_base;
     double wheel_radius;
@@ -68,6 +69,7 @@ public:
      /// \brief get the wheel speeds, based on the last encoder update
     /// \returns the velocity of the wheels, which is equivalent to
     /// displacement because \Delta T = 1
+
     WheelVelocities wheelVelocities() const;
 
     /// \brief reset the robot to the given position/orientation

@@ -71,6 +71,10 @@ int main(int argc, char** argv)
             x = current_position.v_x;
             y = current_position.v_y;
             th = current_position.w;
+            std::cout<<"x"<<x<<"\n";
+            std::cout<<"y"<<y<<"\n";
+            std::cout<<"theta"<<th<<"\n";
+            
             geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);   
             
             geometry_msgs::TransformStamped odom_trans;
