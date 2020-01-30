@@ -55,11 +55,20 @@ namespace rigid2d
     {
         return(rad*180/PI);
     }
-   constexpr double normalize_angle(double rad)
-{
-    rad = atan2(sin(rad),cos(rad));
-    return rad;
-}
+    constexpr double normalize_angle( int deg)
+    {
+       deg = deg % 360;
+       if (deg > 180) 
+        {
+           deg -= (360);
+        }
+    	if (deg < -180)
+       	{
+            deg += (360);
+    	}
+    	return deg2rad(deg);
+    
+    }
 
     /// static_assertions test compile time assumptions.
     /// You should write at least one more test for each function
@@ -71,7 +80,13 @@ namespace rigid2d
     ///new statement 1   
     static_assert(almost_equal(0.0002, 0.0000001, 1.0e-3), "is_zero failed");
 
-//   static_assert(almost_equal(normalize_angle(0),(0),1.0e-2),"normalize failed"); 
+    // static asserts for normalizing angles 
+    static_assert(almost_equal(normalize_angle(0),(0),1.0e-2),"normalize failed"); 
+    static_assert(almost_equal(normalize_angle(720),(0.0),1.0e-2),"normalize failed"); 
+    static_assert(almost_equal(normalize_angle(225),(-2.36),1.0e-2),"normalize failed"); 
+
+
+    static_assert(almost_equal(normalize_angle(0.0),(0.0),1.0e-2),"normalize failed"); 
 
     static_assert(almost_equal(deg2rad(0.0), 0.0), "deg2rad failed");
     

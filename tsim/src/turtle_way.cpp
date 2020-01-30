@@ -41,7 +41,7 @@ geometry_msgs::Twist msg;
 tsim::PoseError er;
 turtlesim::Pose pose;
 nav_msgs::Odometry odom2;
-double roll, pitch, yaw;
+static double roll, pitch, yaw;
    
 
 namespace turtle_pose{
@@ -89,7 +89,7 @@ void poseCallback(const turtlesim::Pose &pose){
 /// the desired orientation is achieved
 /// inputs: ang_rotation and publisher
 /// \returns nothing
-void move_angular(float ang_speed, ros::Publisher vel_pub, ros::Publisher err_pub)
+void move_angular(float ang_speed, ros::Publisher vel_pub, ros::Publisher err_pub, float w_max)
 {   
     ros::NodeHandle n;
     ros::spinOnce();    
@@ -138,7 +138,7 @@ void move_angular(float ang_speed, ros::Publisher vel_pub, ros::Publisher err_pu
 /// the desired distance/position is achieved
 /// inputs: linear distance , publisher, current x,y positions
 /// \returns nothing
-void move_linear(float linear_speed, ros::Publisher vel_pub, double x_p, double y_p, ros::Publisher err_pub)
+void move_linear(float linear_speed, ros::Publisher vel_pub, double x_p, double y_p, ros::Publisher err_pub, float v_max)
 {
     ros::spinOnce();    
     msg.linear.x = linear_speed/10;
@@ -161,15 +161,30 @@ void move_linear(float linear_speed, ros::Publisher vel_pub, double x_p, double 
 
 int main(int argc, char **argv)
 {
-    
+    double x0,x1,x2,x3,x4,x5;
+    double y0,y1,y2,y3,y4,y5;
+
+    float max_lin_speed = 0.5;
+    float max_ang_speed = 0.5;
     Waypoints whereto;
     Twist2D iamhere;    
 
-    std::vector<double> x_cors = {0.5+5,0.8090+5,0.0+5,-0.8090+5,-0.5+5,0.5+5};
-    std::vector<double>y_cors = {0.0, 0.9511, 1.5389, 0.9511, 0.0, 0.0};
     ros::init(argc,argv,"turtle_way");
     ros::NodeHandle n;
 
+    n.getParam("x0",x0);
+    n.getParam("x1",x1);
+    n.getParam("x2",x2);
+    n.getParam("x3",x3);
+    n.getParam("x4",x4);
+    n.getParam("x5",x5);
+    n.getParam("y0",y0);
+    n.getParam("y1",y1);
+    n.getParam("y2",y2);
+    n.getParam("y3",y3);
+    n.getParam("y4",y4);
+    n.getParam("y5",y5);
+    
     ros::Publisher vel_pub = n.advertise<geometry_msgs::Twist>("turtle1/cmd_vel", 1);
     ros::Publisher err_pub = n.advertise<tsim::PoseError>("turtle1/pose_err", 1);
 
@@ -177,6 +192,10 @@ int main(int argc, char **argv)
     ros::Subscriber odom_sub = n.subscribe("/odom", 1, pose_odom_Callback);
     ros::service::waitForService("spawn");
 
+
+    std::vector<double> x_cors = {x0,x1,x2,x3,x4,x5};
+    std::vector<double>y_cors = {y0,y1,y2,y3,y4,y5};
+    
 
     ros::ServiceClient client2 = n.serviceClient<turtlesim::SetPen>("turtle1/set_pen");
     turtlesim::SetPen srv2;
@@ -193,10 +212,10 @@ int main(int argc, char **argv)
     srv.request.theta =0;
     client.call(srv);
     srv2.request.off =0;
-    ros::service::waitForService("turtle1/teleport_absolute");
     client2.call(srv2);
+    ros::service::waitForService("turtle1/teleport_absolute");
    
-
+    ros::Duration(0.5).sleep(); 
     ros::Rate rate(60);
 
     while (ros::ok())
@@ -214,8 +233,8 @@ int main(int argc, char **argv)
                 iamhere.w=yaw;
   
                 Twist2D whatsthespeed = whereto.nextWaypoint(iamhere);
-                move_angular(whatsthespeed.w, vel_pub, err_pub);
-                move_linear(whatsthespeed.v_x, vel_pub, iamhere.v_x, iamhere.v_y, err_pub);
+                move_angular(whatsthespeed.w, vel_pub, err_pub, max_ang_speed);
+                move_linear(whatsthespeed.v_x, vel_pub, iamhere.v_x, iamhere.v_y, err_pub, max_lin_speed);
 
             }  
 
