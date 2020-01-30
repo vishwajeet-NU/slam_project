@@ -215,7 +215,7 @@ int main(int argc, char **argv)
     client2.call(srv2);
     ros::service::waitForService("turtle1/teleport_absolute");
    
-    ros::Duration(0.5).sleep(); 
+    ros::Duration(1).sleep(); 
     ros::Rate rate(60);
 
     while (ros::ok())

@@ -10,26 +10,43 @@ using namespace rigid2d;
 #include"rigid2d/waypoints.hpp"
 
 
-// tests that need to be written 
-// normalize
-
-// adjoint 
-// operator(vector2d)
-// operator(twist)
-// inv()
-// operator*=
-// operator<<
-// displacement
-// operator>>
-// operator*
 Transform2D TT;
 Transform2D T,T2;
+
 Twist2D twist;
 Vector2D vec1;
 Vector2D vec2;
 DiffDrive test_diff;
 rigid2d::WheelVelocities testvel;
 
+TEST (rigid2d, adjoint)
+{
+	Transform2D test;
+	test.Adjoint();
+	ASSERT_EQ(1,test.z5);
+	ASSERT_EQ(0,test.z6);
+	ASSERT_EQ(0,test.z8);
+	ASSERT_EQ(1,test.z9);
+		
+}
+TEST (rigid2d, inv)
+{
+
+	Transform2D test2, inv_m;
+	test2.m1 = 0.8766;
+	test2.m2 = -0.4794;
+	test2.m3 = 3;
+	test2.m4 = 0.4794;
+	test2.m5 = 0.8766;
+	test2.m6 = 1;
+	inv_m = test2.inv();
+	ASSERT_NEAR(0.8766,inv_m.m1,1e-2);
+	ASSERT_NEAR(0.4793,inv_m.m2,1e-2);
+	ASSERT_NEAR(-3.1122,inv_m.m3,1e-2);
+	ASSERT_NEAR(0.5607,inv_m.m6,1e-2);
+
+
+}
 TEST(addtest, twos) { 
     ASSERT_EQ(5, TT.dummy(2,3));
 }
@@ -96,13 +113,6 @@ TEST(VectorCheck, scalar_product_check)
 ASSERT_EQ(50, operator*(vec1,vec2));
 }
 
-
-
-// ros test to check twist to wheel
-// ros test to check wheel to twist 
-// ros test to check feedforawd + update odometry moving straight 
-// turning
-// turning and translating 
 
 TEST(DiffDrive, constructor)
 	{
