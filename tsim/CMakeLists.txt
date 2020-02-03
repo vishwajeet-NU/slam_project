@@ -153,6 +153,20 @@ include_directories(
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 # set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 
+add_executable(turtle_rect src/turtle_rect.cpp)
+add_executable(traj_reset src/traj_reset.cpp)
+add_executable(turtle_way src/turtle_way.cpp)
+
+
+target_link_libraries(turtle_rect ${catkin_LIBRARIES})
+target_link_libraries(traj_reset ${catkin_LIBRARIES})
+target_link_libraries(turtle_way ${catkin_LIBRARIES} )
+
+
+add_dependencies(turtle_rect tsim_generate_messages_cpp)
+add_dependencies(traj_reset tsim_gencpp)
+add_dependencies(turtle_way tsim_generate_messages_cpp)
+
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -178,9 +192,9 @@ include_directories(
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-# install(TARGETS turtle_rect turtle_way traj_reset 
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+ install(TARGETS turtle_rect turtle_way traj_reset 
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
@@ -216,18 +230,4 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-
-add_executable(turtle_rect src/turtle_rect.cpp)
-add_executable(traj_reset src/traj_reset.cpp)
-add_executable(turtle_way src/turtle_way.cpp)
-
-
-target_link_libraries(turtle_rect ${catkin_LIBRARIES})
-target_link_libraries(traj_reset ${catkin_LIBRARIES})
-target_link_libraries(turtle_way ${catkin_LIBRARIES} )
-
-
-add_dependencies(turtle_rect tsim_generate_messages_cpp)
-add_dependencies(traj_reset tsim_gencpp)
-add_dependencies(turtle_way tsim_generate_messages_cpp)
 

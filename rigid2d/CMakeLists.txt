@@ -21,10 +21,8 @@ COMPONENTS std_msgs
 COMPONENTS geometry_msgs
 COMPONENTS sensor_msgs
 COMPONENTS tf
+
 )
-if (CATKIN_ENABLE_TESTING)
-   find_package(rostest REQUIRED)
-endif()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -118,7 +116,7 @@ endif()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rigid2d 
-  CATKIN_DEPENDS roscpp std_msgs sensor_msgs 
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -131,6 +129,7 @@ catkin_package(
 include_directories(
  include
  ${catkin_INCLUDE_DIRS}
+
 )
 
 ## Declare a C++ library
@@ -180,7 +179,7 @@ target_link_libraries(fake_diff_encoder ${catkin_LIBRARIES} rigid2d)
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
- install(TARGETS rigid2d_node fake_diff_encoder odometer 
+ install(TARGETS rigid2d_node fake_diff_encoder odometer
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -210,7 +209,7 @@ target_link_libraries(fake_diff_encoder ${catkin_LIBRARIES} rigid2d)
 ## Testing ##
 #############
 if (CATKIN_ENABLE_TESTING)
-catkin_add_gtest(mytest test/test.cpp )
+catkin_add_gtest(mytest test/test.cpp)
 target_link_libraries(mytest ${PROJECT_NAME} gtest_main ${catkin_libraries} rigid2d)
 
 

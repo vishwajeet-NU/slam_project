@@ -30,7 +30,7 @@ std::ostream & operator<<(std::ostream & os, const Twist2D & tv)
 
 
 std::ostream & operator<<(std::ostream & os, const Transform2D & tf)
-
+ 
 {
     Transform2D out_1;
     out_1 = tf;

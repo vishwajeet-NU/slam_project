@@ -19,6 +19,33 @@ Vector2D vec2;
 DiffDrive test_diff;
 rigid2d::WheelVelocities testvel;
 
+TEST (rigid2d, operator_overloading)
+{
+	Transform2D test_in;
+	Transform2D unit_tran;
+	Vector2D test_vecin;
+    Vector2D test_vecin_2;
+	Twist2D test_twistin;
+	Twist2D test_twistin_2;
+
+	double radians = deg2rad(60);
+	test_in.m1 = cos(radians);
+	test_in.m2 = -sin(radians);
+	test_in.m3 = 1;
+	test_in.m4 = sin(radians);
+	test_in.m5 = cos(radians);
+	test_in.m6 = 2;
+	test_in.m7 =0;
+	test_in.m8 =0;
+	test_in.m9 =1;
+	ASSERT_EQ((operator*(test_in,unit_tran)).m1,test_in.m1);
+	ASSERT_EQ((operator*(test_in,unit_tran)).m3,test_in.m3);
+	ASSERT_EQ((operator*(test_in,unit_tran)).m6,test_in.m6);
+
+}
+
+
+
 TEST (rigid2d, adjoint)
 {
 	Transform2D test;

@@ -172,6 +172,26 @@ int main(int argc, char **argv)
     ros::init(argc,argv,"turtle_way");
     ros::NodeHandle n;
 
+
+    ros::ServiceClient client2 = n.serviceClient<turtlesim::SetPen>("turtle1/set_pen");
+    turtlesim::SetPen srv2;
+    srv2.request.r =0;
+    srv2.request.g =0;
+    srv2.request.b =0;
+    srv2.request.width =1;
+    srv2.request.off =1;
+    client2.call(srv2);
+    ros::ServiceClient client = n.serviceClient<turtlesim::TeleportAbsolute>("turtle1/teleport_absolute");
+    turtlesim::TeleportAbsolute srv;
+    srv.request.x =5.5;
+    srv.request.y =0;
+    srv.request.theta =0;
+    client.call(srv);
+    srv2.request.off =0;
+    client2.call(srv2);
+    
+    ros::Duration(2.0).sleep();
+
     n.getParam("x0",x0);
     n.getParam("x1",x1);
     n.getParam("x2",x2);
@@ -197,25 +217,6 @@ int main(int argc, char **argv)
     std::vector<double>y_cors = {y0,y1,y2,y3,y4,y5};
     
 
-    ros::ServiceClient client2 = n.serviceClient<turtlesim::SetPen>("turtle1/set_pen");
-    turtlesim::SetPen srv2;
-    srv2.request.r =0;
-    srv2.request.g =0;
-    srv2.request.b =0;
-    srv2.request.width =1;
-    srv2.request.off =1;
-    client2.call(srv2);
-    ros::ServiceClient client = n.serviceClient<turtlesim::TeleportAbsolute>("turtle1/teleport_absolute");
-    turtlesim::TeleportAbsolute srv;
-    srv.request.x =5.5;
-    srv.request.y =0;
-    srv.request.theta =0;
-    client.call(srv);
-    srv2.request.off =0;
-    client2.call(srv2);
-    ros::service::waitForService("turtle1/teleport_absolute");
-   
-    ros::Duration(1).sleep(); 
     ros::Rate rate(60);
 
     while (ros::ok())

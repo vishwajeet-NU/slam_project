@@ -1,8 +1,5 @@
 <launch>
-   <rosparam command="load" file="$(find tsim)/config/waypoint_x.yaml" />  
-   <rosparam command="load" file="$(find tsim)/config/waypoint_y.yaml" />  
-
-   <include file="$(find tsim)/launch/turtle_pent.launch"/>
+    <include file="$(find tsim)/launch/turtle_pent.launch"/>
     <include file="$(find nuturtle_description)/launch/view_diff_drive.launch" />
    
 </launch>

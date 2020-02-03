@@ -1,11 +1,10 @@
 <launch>
    <arg name = "gui" default = "True" doc = " this decides whether to activate the rqt_plot" />
    <param name= "plot_gui" value = "$(arg gui)" />
+   <node name="turtlesim_node" pkg="turtlesim" type="turtlesim_node" />
 
    <rosparam command="load" file="$(find tsim)/config/waypoint_x.yaml" />  
    <rosparam command="load" file="$(find tsim)/config/waypoint_y.yaml" />  
-
-   <node name="turtlesim_node" pkg="turtlesim" type="turtlesim_node" />
 
    <node name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" />
     

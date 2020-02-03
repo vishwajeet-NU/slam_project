@@ -4,9 +4,9 @@
 #wheel base and wheel width are used to find width of chassis of the robot
 # width = wheelbase - wheel width
 # other parameter specify dimensions as per their names
-wheel_width : 0.3
-wheel_radius: 0.5
-wheel_base : 2
-chassis_length : 3
-chassis_thickness: 0.2
+wheel_width : 0.05
+wheel_radius: 0.05
+wheel_base : 0.5
+chassis_length : 1
+chassis_thickness: 0.1
 
