@@ -181,17 +181,7 @@ int main(int argc, char **argv)
     srv2.request.width =1;
     srv2.request.off =1;
     client2.call(srv2);
-    ros::ServiceClient client = n.serviceClient<turtlesim::TeleportAbsolute>("turtle1/teleport_absolute");
-    turtlesim::TeleportAbsolute srv;
-    srv.request.x =5.5;
-    srv.request.y =0;
-    srv.request.theta =0;
-    client.call(srv);
-    srv2.request.off =0;
-    client2.call(srv2);
     
-    ros::Duration(2.0).sleep();
-
     n.getParam("x0",x0);
     n.getParam("x1",x1);
     n.getParam("x2",x2);
@@ -204,6 +194,18 @@ int main(int argc, char **argv)
     n.getParam("y3",y3);
     n.getParam("y4",y4);
     n.getParam("y5",y5);
+
+    ros::ServiceClient client = n.serviceClient<turtlesim::TeleportAbsolute>("turtle1/teleport_absolute");
+    turtlesim::TeleportAbsolute srv;
+    srv.request.x =x0;
+    srv.request.y =y0;
+    srv.request.theta =0;
+    client.call(srv);
+    srv2.request.off =0;
+    client2.call(srv2);
+    
+    ros::Duration(2.0).sleep();
+
     
     ros::Publisher vel_pub = n.advertise<geometry_msgs::Twist>("turtle1/cmd_vel", 1);
     ros::Publisher err_pub = n.advertise<tsim::PoseError>("turtle1/pose_err", 1);

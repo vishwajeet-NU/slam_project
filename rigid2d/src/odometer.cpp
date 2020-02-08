@@ -12,7 +12,13 @@
 #include"rigid2d/rigid2d.hpp"
 #include"rigid2d/diff_drive.hpp"
 #include"rigid2d/waypoints.hpp"
+#include"rigid2d/telep.h"
 
+namespace positions{
+      float x_loc = 0.0;
+      float y_loc = 0.0;
+      float orient = 0.0;
+}
 
 static double incoming_left_wheel;
 static double incoming_right_wheel;
@@ -26,17 +32,31 @@ void jt_callback(const sensor_msgs::JointState JT)
 
 }
 
+bool do_teleport(rigid2d::telep::Request  &req, rigid2d::telep::Response &res)
+{     
+
+     positions::x_loc = req.x;
+     positions::y_loc = req.y;
+     positions::orient = req.theta; 
+     return true;
+}
+
 int main(int argc, char** argv)
 {
-      Twist2D starting_position;
-      starting_position.v_x =5.5;
-      starting_position.v_y =0;
-      starting_position.w =0.0;
-      DiffDrive turtle_odo(starting_position,0.5,0.05);
-      Twist2D Vb;
-
       ros::init(argc, argv, "odometer");
       ros::NodeHandle n;
+
+      ros::ServiceServer service = n.advertiseService("set_pose", do_teleport);
+      Twist2D starting_position;
+      starting_position.v_x =0.0;
+      starting_position.v_y =0.0;
+      starting_position.w =0.0;
+
+      DiffDrive turtle_odo(starting_position,0.160,0.105);
+
+
+      Twist2D Vb;
+
       ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
 
       ros::Subscriber joint_state_subsciber = n.subscribe("/joint_states", 1, jt_callback);
@@ -52,6 +72,14 @@ int main(int argc, char** argv)
       while(n.ok())
       {
             ros::spinOnce();               // check for incoming messages
+            if(service)
+            {
+                  starting_position.v_x =positions::x_loc;
+                  starting_position.v_y =positions::y_loc;
+                  starting_position.w =positions::orient;    
+                  turtle_odo.reset(starting_position);
+            }
+
             current_time = ros::Time::now();
             left_wheel = incoming_left_wheel- left_wheel;
             right_wheel = incoming_right_wheel - right_wheel;
