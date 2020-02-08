@@ -205,12 +205,17 @@ add_dependencies(turtle_way tsim_generate_messages_cpp)
 # )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+ install(DIRECTORY launch/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/launch
 #   FILES_MATCHING PATTERN "*.h"
 #   PATTERN ".svn" EXCLUDE
-# )
+ )
 
+ install(DIRECTORY config/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/config
+#   FILES_MATCHING PATTERN "*.h"
+#   PATTERN ".svn" EXCLUDE
+ )
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
 #   # myfile1

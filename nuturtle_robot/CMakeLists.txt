@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(nuturtle_description)
+project(nuturtle_robot)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -7,11 +7,21 @@ project(nuturtle_description)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
+  rigid2d
   roscpp
-  std_msgs
-)
+  geometry_msgs
+  nuturtlebot
+  message_generation
+  tf)
+
+if (CATKIN_ENABLE_TESTING)
+   find_package(rostest REQUIRED)
+endif()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -70,7 +80,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   geometry_msgs#   std_msgs
+#   std_msgs  # Or other packages containing msgs
 # )
 
 ################################################
@@ -103,12 +113,11 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+CATKIN_DEPENDS roscpp  message_runtime rigid2d geometry_msgs nuturtlebot
 #  INCLUDE_DIRS include
-#  LIBRARIES nuturtle_description
-  CATKIN_DEPENDS geometry_msgs roscpp std_msgs
+#  LIBRARIES nuturtle_robot
+#  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
-
-
 )
 
 ###########
@@ -119,12 +128,12 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 # include
-  ${catkin_INCLUDE_DIRS}
+ ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/nuturtle_description.cpp
+#   src/${PROJECT_NAME}/nuturtle_robot.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -135,7 +144,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/nuturtle_description_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/nuturtle_robot_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -147,10 +156,22 @@ include_directories(
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(turtle_interface src/turtle_interface.cpp )
+target_link_libraries(turtle_interface ${catkin_LIBRARIES} )
+add_dependencies(turtle_interface tsim_generate_messages_cpp)
+
+add_executable(rotate src/rotation.cpp )
+target_link_libraries(rotate ${catkin_LIBRARIES} )
+add_dependencies(rotate tsim_generate_messages_cpp)
+
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+if (CATKIN_ENABLE_TESTING)
+    add_rostest_gtest(robot_test test/test.test test/turtle_interface_test.cpp)
+    target_link_libraries(robot_test ${catkin_LIBRARIES} rigid2d )
+endif()
 
 #############
 ## Install ##
@@ -168,15 +189,10 @@ include_directories(
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-# install(TARGETS ${PROJECT_NAME}_node
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-install(DIRECTORY config/
-   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/config
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
+ install(TARGETS turtle_interface
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
+
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
 # install(TARGETS ${PROJECT_NAME}
@@ -204,7 +220,7 @@ install(DIRECTORY config/
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_nuturtle_description.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_nuturtle_robot.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
