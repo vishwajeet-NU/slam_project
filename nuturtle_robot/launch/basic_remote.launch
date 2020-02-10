@@ -2,19 +2,23 @@
 
 <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
 
+<param name="param" value="$(arg robot)"/>
 
- <group if="$(arg robot)">
+<!-- <group if="param"> 
  <machine name="turtlebot" address="turtlebot5" user="student" env-loader="/home/student/vishwajeet_ws/install/env.sh" />
- </group>
+ </group> -->
 
- <group unless="$(arg robot)">
+ <!--<group unless="param">
  <machine name="turtlebot" address="localhost"   user="student"/>
  </group>
+ <machine name="turtlebot" address="localhost"   user="student"/>
 
 <node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
 <param name="port" value="/dev/ttyACM0"/>
 <param name="baud" value="115200"/>
 </node>
+
+-->
 
 </launch>
 

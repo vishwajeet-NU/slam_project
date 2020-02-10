@@ -7,6 +7,8 @@ project(nuturtle_robot)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+add_compile_options(-Wall -Werror -pipe)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -14,10 +16,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(catkin REQUIRED COMPONENTS
   rigid2d
   roscpp
+  std_msgs
   geometry_msgs
-  nuturtlebot
+  sensor_msgs
   message_generation
-  tf)
+  tf
+)
 
 if (CATKIN_ENABLE_TESTING)
    find_package(rostest REQUIRED)
@@ -64,11 +68,11 @@ endif()
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
+ add_service_files(
+   FILES
+   which_way.srv
 #   Service2.srv
-# )
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -78,10 +82,10 @@ endif()
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
+ generate_messages(
+   DEPENDENCIES
 #   std_msgs  # Or other packages containing msgs
-# )
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -113,10 +117,11 @@ endif()
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-CATKIN_DEPENDS roscpp  message_runtime rigid2d geometry_msgs nuturtlebot
+CATKIN_DEPENDS roscpp  message_runtime rigid2d geometry_msgs 
+
 #  INCLUDE_DIRS include
 #  LIBRARIES nuturtle_robot
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -158,11 +163,11 @@ include_directories(
 
 add_executable(turtle_interface src/turtle_interface.cpp )
 target_link_libraries(turtle_interface ${catkin_LIBRARIES} )
-add_dependencies(turtle_interface tsim_generate_messages_cpp)
+#add_dependencies(turtle_interface tsim_generate_messages_cpp)
 
 add_executable(rotate src/rotation.cpp )
 target_link_libraries(rotate ${catkin_LIBRARIES} )
-add_dependencies(rotate tsim_generate_messages_cpp)
+#add_dependencies(rotate tsim_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node

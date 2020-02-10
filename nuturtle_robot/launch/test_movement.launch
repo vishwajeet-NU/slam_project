@@ -1,0 +1,24 @@
+<launch>
+
+    <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
+
+   <node name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
+
+   <include file="$(find nuturtle_robot)/launch/basic_remote.launch">
+   <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
+   </include>
+
+   <node name="odometer1" pkg="rigid2d" type="odometer" />
+   <node name="odometer2" pkg="rigid2d" type="odometer">
+   <remap from="odom" to="fake/odom"/>
+   </node>
+
+   <node name="rotation" pkg="nuturtle_robot" type="rotate" />
+
+
+   <node name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" >
+   <remap from="joint_states" to="fake/joint_states"/>
+   <remap from="/turtle1/cmd_vel" to="/cmd_vel"/>
+   </node>
+
+</launch>
