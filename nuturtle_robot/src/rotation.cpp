@@ -35,7 +35,7 @@ class rotate_bot
         cmd_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
         speed_out.linear.x = 0;
         speed_out.linear.y = 0;
-        speed_out.linear.z = 0.5* rotation_vector * max_rotation_vel; // remember to change 0.5 to param reading 
+        speed_out.linear.z = 1* rotation_vector * max_rotation_vel; // remember to change 0.5 to param reading 
         ros::spinOnce();
         
     }
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 ros::init(argc,argv,"rotation");
 ros::NodeHandle n;
 rotate_bot turn_me;
-ros::Rate rate(60);
+ros::Rate rate(100);
 
 ros::ServiceServer service = n.advertiseService("/start", &rotate_bot::where, &turn_me);
 ros::ServiceClient client = n.serviceClient<rigid2d::telep>("/set_pose");

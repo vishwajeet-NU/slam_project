@@ -5,7 +5,7 @@
 # width = wheelbase - wheel width
 # other parameter specify dimensions as per their names
 wheel_width : 0.009
-wheel_radius: 0.105
+wheel_radius: 0.033
 wheel_base : 0.160
 chassis_length : 0.138
 chassis_thickness: 0.01

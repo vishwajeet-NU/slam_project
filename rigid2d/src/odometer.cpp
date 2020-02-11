@@ -44,15 +44,20 @@ bool do_teleport(rigid2d::telep::Request  &req, rigid2d::telep::Response &res)
 int main(int argc, char** argv)
 {
       ros::init(argc, argv, "odometer");
-      ros::NodeHandle n;
+      ros::NodeHandle n("~");
+      std::string world;
+      std::string base;
+      n.getParam("world", world);
+      n.getParam("base", base);
+      
 
-      ros::ServiceServer service = n.advertiseService("set_pose", do_teleport);
+      ros::ServiceServer service = n.advertiseService("/set_pose", do_teleport);
       Twist2D starting_position;
       starting_position.v_x =0.0;
       starting_position.v_y =0.0;
       starting_position.w =0.0;
 
-      DiffDrive turtle_odo(starting_position,0.160,0.105);
+      DiffDrive turtle_odo(starting_position,0.160,0.033);
 
 
       Twist2D Vb;
@@ -107,8 +112,8 @@ int main(int argc, char** argv)
             
             geometry_msgs::TransformStamped odom_trans;
             odom_trans.header.stamp = current_time;
-            odom_trans.header.frame_id = "odom";
-            odom_trans.child_frame_id = "base_link";
+            odom_trans.header.frame_id = world;
+            odom_trans.child_frame_id = base;
    
             odom_trans.transform.translation.x = x;
             odom_trans.transform.translation.y = y;

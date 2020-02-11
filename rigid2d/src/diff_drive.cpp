@@ -15,8 +15,8 @@ DiffDrive::DiffDrive(){
     position.v_x =0;
     position.v_y=0;
     position.w=0;
-    wheel_base = 0.5;
-    wheel_radius = 0.05;
+    wheel_base = 0.16;
+    wheel_radius = 0.033;
     T.m1 = cos(position.w);
     T.m2 = -sin(position.w);
     T.m3 = position.v_x;

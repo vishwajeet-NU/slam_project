@@ -1,7 +1,7 @@
 <launch>
 <!--The launch file is used to start multiple nodes and the rviz, loaded with the robot model with only one command-->
 <!--this finds the xacro file and loads it in parameter server --> 
-   <param name="robot_description" command= "$(find xacro)/xacro --inorder '$(find nuturtle_description)/urdf/diff_drive.urdf.xacro'" /> 
+   <param name="robot_description" command= "$(find xacro)/xacro '$(find nuturtle_description)/urdf/diff_drive.urdf.xacro'" /> 
 
 <!-- starts the node- joint state publisher node. it reads robot_description parameter and published Jointstatemessage-->
    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />

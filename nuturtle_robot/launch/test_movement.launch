@@ -2,21 +2,33 @@
 
     <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
 
+   <include file="$(find nuturtle_description)/launch/view_diff_drive.launch"/>
+
+
    <node name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
 
    <include file="$(find nuturtle_robot)/launch/basic_remote.launch">
    <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
    </include>
 
-   <node name="odometer1" pkg="rigid2d" type="odometer" />
-   <node name="odometer2" pkg="rigid2d" type="odometer">
-   <remap from="odom" to="fake/odom"/>
+   <node name="odometer1" pkg="rigid2d" type="odometer" >
+   <param name="world" value="odom" />
+   <param name="base" value="base_link" />
    </node>
 
+   <node name="odometer2" pkg="rigid2d" type="odometer" args = "/fake_odom /fake_base_link">
+   <remap from="odom" to="fake/odom"/>  
+   <param name="world" value="fake_odom"/>
+   <param name="base" value="fake_base_link"/>
+      </node>
+
+
+    <node pkg="tf" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0  odom fake_odom 100" />
    <node name="rotation" pkg="nuturtle_robot" type="rotate" />
 
 
    <node name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" >
+
    <remap from="joint_states" to="fake/joint_states"/>
    <remap from="/turtle1/cmd_vel" to="/cmd_vel"/>
    </node>
