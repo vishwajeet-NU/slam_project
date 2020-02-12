@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
       Twist2D Vb;
 
-      ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
+      ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 1);
 
       ros::Subscriber joint_state_subsciber = n.subscribe("/joint_states", 1, jt_callback);
       tf::TransformBroadcaster odom_broadcaster;

@@ -42,18 +42,18 @@ class ros_stuff
         WheelVelocities go;
         body_twist.v_x = twist.linear.x;
         body_twist.v_y = twist.linear.y;
-        body_twist.w= twist.linear.z;
+        body_twist.w= twist.angular.z;
         go = turtle_real.twistToWheels(body_twist);
         double high = 265.0;
         double low = -265.0;
         // max speed of any wheel can be 3.33 rad/s
         // 3.33 = 265
         // u = x*265/3.33
-        go.U1 = (go.U1*265)/3.33;
-        go.U2 = (go.U2*265)/3.33;
+          go.U1 = (go.U1*265)/6;
+          go.U2 = (go.U2*265)/6;
         
-        go.U1 = std::clamp(go.U1,low,high);
-        go.U2 = std::clamp(go.U2,low,high);
+          go.U1 = std::clamp(go.U1,low,high);
+          go.U2 = std::clamp(go.U2,low,high);
         
         
         msg.left_velocity = go.U1;

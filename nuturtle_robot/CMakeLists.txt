@@ -194,7 +194,7 @@ endif()
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
- install(TARGETS turtle_interface
+ install(TARGETS turtle_interface rotate
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -213,6 +213,12 @@ endif()
 #   PATTERN ".svn" EXCLUDE
 # )
 
+
+ install(DIRECTORY launch/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/launch
+#   FILES_MATCHING PATTERN "*.h"
+#   PATTERN ".svn" EXCLUDE
+ )
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
 #   # myfile1
