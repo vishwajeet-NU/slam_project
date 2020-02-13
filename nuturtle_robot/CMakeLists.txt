@@ -169,6 +169,9 @@ add_executable(rotate src/rotation.cpp )
 target_link_libraries(rotate ${catkin_LIBRARIES} )
 #add_dependencies(rotate tsim_generate_messages_cpp)
 
+add_executable(translate src/translation.cpp )
+target_link_libraries(translate ${catkin_LIBRARIES} )
+
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
@@ -194,7 +197,7 @@ endif()
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
- install(TARGETS turtle_interface rotate
+ install(TARGETS turtle_interface rotate translate 
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

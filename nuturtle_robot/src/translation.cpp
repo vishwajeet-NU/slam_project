@@ -12,7 +12,7 @@
 #include "rigid2d/telep.h"
 
 //max rotation vel = 2.84 rad/s
-#define max_rotation_vel 2.84
+#define max_linear_vel 0.22
 class rotate_bot 
 {
     public:
@@ -75,9 +75,9 @@ class rotate_bot
 
 void timerCallback(const ros::TimerEvent&)
 {
-    speed_out.linear.x = 0;
+    speed_out.linear.x = start_choice_service* stop * frac * rotation_vector * max_linear_vel; 
     speed_out.linear.y = 0;
-    speed_out.angular.z = start_choice_service* stop * frac * rotation_vector * max_rotation_vel; // remember to change 0.5 to param reading 
+    speed_out.angular.z = 0;
 
     cmd_pub.publish(speed_out);
     timer_count = timer_count + 1;
@@ -101,7 +101,7 @@ void delay(double wait_time, rotate_bot temp)
 
 int main(int argc, char **argv)
 {
-ros::init(argc,argv,"rotation");
+ros::init(argc,argv,"translation");
 ros::NodeHandle n;
 
 float frac;
@@ -118,10 +118,10 @@ ros::Timer timer = n.createTimer(ros::Duration(0.01), &rotate_bot::timerCallback
 
 while(ros::ok())
 {
-        while( turn_me.no_rot <20)
+        while( turn_me.no_rot <10)
         {
             ROS_INFO("%d \n",turn_me.no_rot);
-            double rotation_counts_needed = 2*PI*100.0 / (frac*max_rotation_vel);
+            double rotation_counts_needed =0.2*100.0 / (frac*max_linear_vel);
 
             ROS_INFO("%f \n",rotation_counts_needed);
 

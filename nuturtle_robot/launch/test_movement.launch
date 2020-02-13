@@ -2,12 +2,10 @@
 
     <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
  
-
    <include file="$(find nuturtle_description)/launch/view_diff_drive.launch"/>
 
 
-
-    <rosparam command="load" file="$(find nuturtle_robot)/config/nubot_params.yaml"/> 
+  <rosparam command="load" file="$(find nuturtle_robot)/config/nubot_params.yaml"/> 
 
    <include file="$(find nuturtle_robot)/launch/basic_remote.launch">
    <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
@@ -34,8 +32,10 @@
 
 
     <node pkg="tf" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0  /odom /fake_odom 100" />
+   <!--
    <node machine ="turtlebot" name="rotation" pkg="nuturtle_robot" type="rotate" />
-
+-->
+   <node machine ="turtlebot" name="translate" pkg="nuturtle_robot" type="translate" />
    <node machine ="turtlebot" name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
 
 

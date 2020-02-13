@@ -23,7 +23,7 @@
 </group>
 
 <group if="$(eval arg('robot') ==5)"> 
-<machine name="turtlebot" address="turtlebot5" user="student" env-loader="/home/student/vishwajeet_ws/install/env.sh" />
+<machine name="turtlebot" address="turtlebot5" user="student" env-loader="/home/student/install/env.sh" />
 </group>
 
 <node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
