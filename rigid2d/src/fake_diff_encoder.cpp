@@ -24,6 +24,7 @@ void get_vel(const geometry_msgs::Twist velo)
     forward_velocity_body.v_x = velo.linear.x;
     forward_velocity_body.w = velo.angular.z;
     forward_velocity_body.v_y=0;
+    ROS_INFO_STREAM(velo);
 }
 
 int main(int argc, char **argv)

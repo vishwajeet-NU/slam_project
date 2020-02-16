@@ -3,11 +3,13 @@
 <!--this finds the xacro file and loads it in parameter server --> 
    <param name="robot_description" command= "$(find xacro)/xacro '$(find nuturtle_description)/urdf/diff_drive.urdf.xacro'" /> 
 
-<!-- starts the node- joint state publisher node. it reads robot_description parameter and published Jointstatemessage-->
-   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-   <!--use_gui is set to true for joint slider -->
+<!-- starts the node- joint state publisher node. it reads robot_description parameter and published Jointstatemessage
+<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
    <param name="use_gui" value="false" />
 
+-->
+   <!--use_gui is set to true for joint slider -->
+   
 
 <!-- starts the node- robot state publisher. it subscibes to jointstate message and publishes state to the TF library-->
    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />

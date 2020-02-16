@@ -52,8 +52,8 @@ WheelVelocities DiffDrive::twistToWheels(Twist2D Vbs)
     WheelVelocities vels;
     vels.U1 = (1/wheel_radius)*(-D*Vbs.w + Vbs.v_x);
     vels.U2 = (1/wheel_radius)*(D*Vbs.w + Vbs.v_x);
-    std::cout<<"left wheel = "<<vels.U1<<"\n";
-    std::cout<<"right wheel = "<<vels.U2<<"\n";
+    //std::cout<<"left wheel = "<<vels.U1<<"\n";
+    //std::cout<<"right wheel = "<<vels.U2<<"\n";
 
     updateOdometry(vels.U1, vels.U2);
     return vels;
@@ -85,8 +85,8 @@ void DiffDrive::updateOdometry(double left, double right)
 {
     left_wheel_angle = left/100 + left_wheel_angle;
     right_wheel_angle = right/100 + right_wheel_angle; 
-    std::cout<<"left wheel pos = "<<left_wheel_angle<<"\n";
-    std::cout<<"right wheel pos= "<<right_wheel_angle<<"\n";
+    //std::cout<<"left wheel pos = "<<left_wheel_angle<<"\n";
+    //std::cout<<"right wheel pos= "<<right_wheel_angle<<"\n";
 
 }
 

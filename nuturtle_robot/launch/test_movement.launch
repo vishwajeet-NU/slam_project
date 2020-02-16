@@ -1,6 +1,8 @@
 <launch>
-
- <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
+   <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
+   <include file="$(find nuturtle_robot)/launch/basic_remote.launch">
+   <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
+   </include>
    
    <include file="$(find nuturtle_description)/launch/view_diff_drive.launch"/>
 
@@ -8,21 +10,13 @@
    <rosparam command="load" file="$(find tsim)/config/waypoint_y.yaml" />  
    <rosparam command="load" file="$(find nuturtle_robot)/config/nubot_params.yaml"/> 
 
-   <include file="$(find nuturtle_robot)/launch/basic_remote.launch">
-   <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
-   </include>
  
  
    <node machine ="turtlebot" name="odometer1" pkg="rigid2d" type="odometer" >
    <param name="world" value="odom" />
    <param name="base" value="base_link" />
    </node>
-
-   <node machine ="turtlebot" name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" >
-   <remap from="joint_states" to="fake/joint_states"/>
-   </node>
    
-
    <node machine ="turtlebot" name="odometer2" pkg="rigid2d" type="odometer" args = "/fake_odom /fake_base_link">
    <remap from="odom" to="fake/odom"/>  
    <remap from="joint_states" to="fake/joint_states"/>
@@ -30,7 +24,27 @@
    <param name="base" value="fake_base_link"/>
    </node>
 
+   <node machine ="turtlebot"  name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" >
+   <remap from="joint_states" to="fake/joint_states"/>
+   </node>
+
+
+
 <!--
+   <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
+ 
+     <include file="$(find nuturtle_robot)/launch/basic_remote.launch">
+   <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
+   </include>
+ 
+
+
+   <node machine ="turtlebot" name="odometer2" pkg="rigid2d" type="odometer" args = "/fake_odom /fake_base_link">
+   <remap from="odom" to="fake/odom"/>  
+   <remap from="joint_states" to="fake/joint_states"/>
+   <param name="world" value="fake_odom"/>
+   <param name="base" value="fake_base_link"/>
+   </node>
 
    <node machine ="turtlebot" name="odometer2" pkg="rigid2d" type="odometer" args = "/fake_odom /fake_base_link">
    <remap from="odom" to="fake/odom"/>  
@@ -52,19 +66,25 @@
    <node machine ="turtlebot" name="translate" pkg="nuturtle_robot" type="translate" />
 
    <node machine ="turtlebot" name="translate" pkg="nuturtle_robot" type="translate" />
-   <node machine ="turtlebot" name="translate" pkg="nuturtle_robot" type="translate" />
-
-
-   <node name="rotation" pkg="nuturtle_robot" type="rotate" />
-   <node name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
-   <node name="real_waypoint" pkg="nuturtle_robot" type="real_waypoint" />
-
--->
- <node pkg="tf" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0  /odom /fake_odom 100" />
-
-<node machine ="turtlebot" name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
 
 <node machine ="turtlebot" name="rotation" pkg="nuturtle_robot" type="rotate" />
 
+   <node name="rotation" pkg="nuturtle_robot" type="rotate" />
+   <node name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
+ <node pkg="tf" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0  /odom /fake_odom 100" />
+
+<node name="real_waypoint" pkg="nuturtle_robot" type="real_waypoint" />
+<node name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
+
+<node name="real_waypoint" pkg="nuturtle_robot" type="real_waypoint" />
+
+  <node machine ="turtlebot" name="translate" pkg="nuturtle_robot" type="translate" />
+
+
+-->
+ <node pkg="tf" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0  /odom /fake_odom 100" />
+<node  machine ="turtlebot" name="real_waypoint" pkg="nuturtle_robot" type="real_waypoint" output = "screen" />
+ 
+<node name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
 
 </launch>

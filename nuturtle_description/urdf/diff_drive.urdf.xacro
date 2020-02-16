@@ -68,7 +68,7 @@
       </material>
     </visual>
   </link>
-  <joint name="caster_chassis" type="continuous">
+  <joint name="caster_chassis" type="fixed">
     <parent link="base_link"/>
     <child link="caster"/>
     <origin xyz="${a['chassis_length']-(a['wheel_radius']-(a['chassis_thickness']/2))/2 - a['wheel_radius']} 0 ${-1*a['chassis_thickness']/2 + a['wheel_radius']}" /> 

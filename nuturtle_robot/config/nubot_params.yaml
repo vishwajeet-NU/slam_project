@@ -1,1 +1,3 @@
-frac_vel : 1
+frac_vel : 0.6
+kp_linear : 0.5
+kp_angular : 0.35

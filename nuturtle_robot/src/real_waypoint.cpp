@@ -13,8 +13,6 @@
 #include "nav_msgs/Odometry.h"
 
 
-#define max_rotation_vel  2.84
-#define max_linear_vel 0.22
 class waypoint_bot 
 {
     public:
@@ -25,8 +23,10 @@ class waypoint_bot
         ros::Subscriber odom_sub;
         rigid2d::telep srv;
         geometry_msgs::Twist msg;
-        float kp = 0.1;
-
+        double kp_linear;
+        double kp_angular;
+        double max_rotation_vel;
+        double max_linear_vel;
         double roll = 0.0;
         double pitch = 0.0; 
         double yaw = 0.0;
@@ -85,69 +85,79 @@ class waypoint_bot
      }
 
 
-
 void move_angular(float ang_speed)
-{   
+{
     ros::spinOnce();    
-    std::cout<<"speed"<<ang_speed<<"\n";
-    //std::cout<<"max_vel"<<max_rotation_vel<<"\n";
-    //std::cout<<"frac"<<frac<<"\n";
-    
-
-    if(ang_speed ==0 )
+    double angle_tolerance = 0.1;
+    double drive_vel_ang;
+    while(abs(ang_speed- yaw)>angle_tolerance)
     {
-   // add limits
-    while(abs(yaw - ang_speed)>0.01)
+        ros::spinOnce();    
+        if( abs(ang_speed - yaw) > PI)
         {
-            msg.linear.x = 0;
-            msg.angular.z =   kp * (yaw - ang_speed )* frac * rotation_vector * max_rotation_vel;
-
-            ros::spinOnce(); 
-        
-            cmd_pub.publish(msg);
+            drive_vel_ang = kp_angular *(ang_speed- yaw + 2.0*PI);
 
         }
-    msg.angular.z = 0;
-    cmd_pub.publish(msg);
-    
-    }
+        else if (abs(ang_speed - yaw)<=PI)
+        {
+            drive_vel_ang = kp_angular *(ang_speed- yaw);
+        }
 
-    else
-    {
-    while(abs(yaw - ang_speed)>0.01)
-    {
-        msg.linear.x = 0;
-        msg.angular.z = kp * (yaw - ang_speed )* frac * rotation_vector * max_rotation_vel;
-        ros::spinOnce();    
+        drive_vel_ang = std::clamp(drive_vel_ang,(-1.0*max_rotation_vel),(1.0*max_rotation_vel));
+
+        msg.linear.x = 0.0;
+        msg.linear.y = 0.0;
+        msg.angular.z = drive_vel_ang;
+        //std::cout<<"inside yaw = "<<yaw<<"\n";
+        //std::cout<<"inside ang_speed =  "<<ang_speed<<"\n";
+        //std::cout<<"w speed = "<< msg.angular.z<<"\n";
         cmd_pub.publish(msg);
 
     }
-    msg.angular.z = 0;
+    msg.angular.z =  0.0;
     cmd_pub.publish(msg);
-
-    }
+   
 }
+
+
 
 void move_linear(float linear_speed, double x_p, double y_p)
 {
     ros::spinOnce();    
-    msg.linear.x =  frac * rotation_vector * max_linear_vel;
-    msg.angular.z = 0;
+    double tolerance = 0.01;
+    //std::cout<<"req dist = "<< linear_speed<<"\n";
+    
+    //std::cout<<"req dist = "<< linear_speed<<"\n";
 
-    while(abs(sqrt((x_pose-x_p)*(x_pose-x_p) + (y_pose-y_p)*(y_pose-y_p)) - linear_speed) >0.005)
+    //std::cout<<"travel = "<< sqrt((x_pose-x_p)*(x_pose-x_p) + (y_pose-y_p)*(y_pose-y_p))<<"\n";
+    
+
+    while( abs(linear_speed - sqrt((x_pose-x_p)*(x_pose-x_p) + (y_pose-y_p)*(y_pose-y_p))) >tolerance)
     {
-        
-        msg.linear.x = 0;
-        msg.angular.z =   kp * (yaw - linear_speed )* frac * rotation_vector * max_rotation_vel;
         ros::spinOnce();    
+        double drive_vel_linear = kp_linear* (linear_speed - sqrt((x_pose-x_p)*(x_pose-x_p) + (y_pose-y_p)*(y_pose-y_p)));
+        
+        drive_vel_linear = std::clamp(drive_vel_linear,(-1.0*max_linear_vel),(1.0*max_linear_vel));
+        
+        
+//       double error = (linear_speed - sqrt((x_pose-x_p)*(x_pose-x_p) + (y_pose-y_p)*(y_pose-y_p)));
+        msg.linear.x = drive_vel_linear;
+        msg.linear.y = 0.0;
+        msg.angular.z =  0.0;
         cmd_pub.publish(msg);
+        //std::cout<<"error = "<<error<<"\n";
+
+        //std::cout<<"inside linear x pose = "<<x_pose<<"/n";
+        //std::cout<<"inside linear x p = = "<<x_p<<"/n";
+        //std::cout<<"vx speed = "<< msg.linear.x<<"\n";
 
     }
-    msg.linear.x = 0;
+
+    msg.linear.x = 0.0;
+    msg.angular.z = 0.0;
     cmd_pub.publish(msg);
 
 }
-
 void pose_odom_Callback(const nav_msgs::Odometry &odom_pose){
    x_pose = odom_pose.pose.pose.position.x ;
    y_pose = odom_pose.pose.pose.position.y;
@@ -160,7 +170,7 @@ void pose_odom_Callback(const nav_msgs::Odometry &odom_pose){
    tf::Quaternion q(quatx, quaty, quatz, quatw);
    tf::Matrix3x3 m(q);
    m.getRPY(roll, pitch, yaw);
-   std::cout<<"yaw value = "<<yaw<<"\n";
+//   std::cout<<"yaw value = "<<yaw<<"\n";
 }
 };
 
@@ -194,9 +204,24 @@ std::vector<double> x_cors = {x0,x1,x2,x3,x4,x5};
 std::vector<double>y_cors = {y0,y1,y2,y3,y4,y5};
     
 float frac;
+float k_lin;
+float k_ang;
+double mrv;
+double mlv;
+
 ros::param::get("/frac_vel",frac);
+ros::param::get("/kp_linear",k_lin);
+ros::param::get("/kp_angular",k_ang);
+ros::param::get("/max_lvel_robot",mlv);
+ros::param::get("/max_rvel_robot",mrv);
+
+
 waypoint_bot move;
 move.frac = frac;
+move.kp_linear = k_lin;
+move.kp_angular = k_ang;
+move.max_linear_vel = mlv;
+move.max_rotation_vel = mrv;
 
 
 ros::ServiceServer service = n.advertiseService("/start", &waypoint_bot::where, &move);
@@ -222,23 +247,27 @@ while(ros::ok())
             iamhere.v_y = y_cors[i];
             iamhere.w=move.yaw;
         
-       // std::cout<<"v_x"<<iamhere.v_x<<"\n";
-       // std::cout<<"vy"<<iamhere.v_y<<"\n";
-       // std::cout<<"w"<<iamhere.w<<"\n";
+        //std::cout<<"base x"<<iamhere.v_x<<"\n";
+        //std::cout<<"base y"<<iamhere.v_y<<"\n";
+        
+        //std::cout<<"nex x"<<temp_t.x<<"\n";
+        //std::cout<<"next y"<<temp_t.y<<"\n";
   
-            Twist2D whatsthespeed = whereto.nextWaypoint(iamhere);
+   //     std::cout<<"max linear"<<move.max_linear_vel<<"\n";
+   //     std::cout<<"max angular"<<move.max_rotation_vel<<"\n";
+  
+        Twist2D whatsthespeed = whereto.nextWaypoint(iamhere);
 
-    //    std::cout<<whatsthespeed.w<<"\n";
-    //    std::cout<<whatsthespeed.v_x<<"\n";
-
-            move.move_angular(whatsthespeed.w);
-            move.move_linear(whatsthespeed.v_x, iamhere.v_x, iamhere.v_y);
+//        std::cout<<whatsthespeed.w<<"\n";
+//        std::cout<<whatsthespeed.v_x<<"\n";
+        move.move_angular(whatsthespeed.w);
+        move.move_linear(whatsthespeed.v_x, iamhere.v_x, iamhere.v_y);
         }
     i = 0;
     } 
     else
     {
-        std::cout<<"nothing started \n";
+        //std::cout<<"nothing started \n";
     }
         ros::spinOnce();
       

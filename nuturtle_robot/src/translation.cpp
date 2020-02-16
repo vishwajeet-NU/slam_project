@@ -11,8 +11,6 @@
 #include "nuturtle_robot/which_way.h"
 #include "rigid2d/telep.h"
 
-//max rotation vel = 2.84 rad/s
-#define max_linear_vel 0.22
 class rotate_bot 
 {
     public:
@@ -21,6 +19,7 @@ class rotate_bot
         ros::ServiceServer service;
         ros::ServiceClient client;
         rigid2d::telep srv;
+        double max_linear_vel;
         
         int no_rot= 0;
 
@@ -106,8 +105,14 @@ ros::init(argc,argv,"translation");
 ros::NodeHandle n;
 
 float frac;
+double mlv;
+
 ros::param::get("/frac_vel",frac);
+ros::param::get("/max_lvel_robot",mlv);
+
+
 rotate_bot turn_me;
+turn_me.max_linear_vel = mlv;
 turn_me.frac = frac;
 //ros::Rate rate(100);
 
@@ -122,7 +127,7 @@ while(ros::ok())
         while( turn_me.no_rot <10)
         {
             ROS_INFO("%d \n",turn_me.no_rot);
-            double rotation_counts_needed =0.2*100.0 / (frac*max_linear_vel);
+            double rotation_counts_needed =0.2*100.0 / (frac*turn_me.max_linear_vel);
 
             ROS_INFO("%f \n",rotation_counts_needed);
 

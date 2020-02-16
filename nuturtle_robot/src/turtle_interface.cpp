@@ -26,7 +26,11 @@ class ros_stuff
 
         double position_left;
         double position_right;
-       
+        
+        double max_pwr;
+        double max_rv;
+        double encoderticks;
+        
         DiffDrive turtle_real;
 
     ros_stuff()
@@ -49,16 +53,16 @@ class ros_stuff
         body_twist.v_y = twist.linear.y;
         body_twist.w= twist.angular.z;
         go = turtle_real.twistToWheels(body_twist);
-        double high = 265.0;
-        double low = -265.0;
+        double high = max_pwr;
+        double low = -1.0* max_pwr;
         // max speed of any wheel can be 3.33 rad/s
         // 3.33 = 265
         // u = x*265/3.33
-          go.U1 = (go.U1*265)/6;
-          go.U2 = (go.U2*265)/6;
+        go.U1 = (go.U1*max_pwr)/max_rv;
+        go.U2 = (go.U2*max_pwr)/max_rv;
         
-          go.U1 = std::clamp(go.U1,low,high);
-          go.U2 = std::clamp(go.U2,low,high);
+        go.U1 = std::clamp(go.U1,low,high);
+        go.U2 = std::clamp(go.U2,low,high);
         
         
         msg.left_velocity = go.U1;
@@ -92,8 +96,8 @@ class ros_stuff
         std::cout<<"first right = "<<first_time_value_right<<"\n";
         
         j_out.position.resize(2);
-        j_out.position[0] = 2.0*PI* ((sensor.left_encoder- first_time_value_left)/4096.0);
-        j_out.position[1] = 2.0*PI* ((sensor.right_encoder - first_time_value_right)/4096.0);
+        j_out.position[0] = 2.0*PI* ((sensor.left_encoder- first_time_value_left)/encoderticks);
+        j_out.position[1] = 2.0*PI* ((sensor.right_encoder - first_time_value_right)/encoderticks);
 
         //j_out.velocity[0] = left_speed;
         //j_out.velocity[1] = right_speed;
@@ -113,6 +117,18 @@ int main(int argc, char **argv)
 ros::init(argc,argv,"turtle_interface");
 
 ros_stuff burger_turtle;
+double power;
+double rvel;
+double ticks;
+ros::param::get("/max_motor_power",power);
+ros::param::get("/max_rvel_motor",rvel);
+ros::param::get("/encoder_ticks_per_rev",ticks);
+
+
+burger_turtle.max_pwr = power;
+burger_turtle.max_rv = rvel;
+burger_turtle.encoderticks = ticks;
+
 while(ros::ok())
 {
 ros::spinOnce();
