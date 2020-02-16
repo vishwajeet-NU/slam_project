@@ -212,7 +212,6 @@ m7 =0;
 m8 =0;
 m9 =1;
 
-
 }
  
 Transform2D::Transform2D(const Vector2D & trans, double radians) 

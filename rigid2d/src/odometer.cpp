@@ -23,7 +23,9 @@ namespace positions{
 static double incoming_left_wheel;
 static double incoming_right_wheel;
 static double left_wheel = 0;
-static double right_wheel =0;
+static double right_wheel = 0;
+
+static bool called = false;
 
 void jt_callback(const sensor_msgs::JointState JT)
 {
@@ -38,6 +40,7 @@ bool do_teleport(rigid2d::telep::Request  &req, rigid2d::telep::Response &res)
      positions::x_loc = req.x;
      positions::y_loc = req.y;
      positions::orient = req.theta; 
+     called = true;
      return true;
 }
 
@@ -73,16 +76,17 @@ int main(int argc, char** argv)
       ros::Time current_time, last_time;
       current_time = ros::Time::now();
       last_time = ros::Time::now();
-      ros::Rate r(1);
+      ros::Rate r(100);
       while(n.ok())
       {
             ros::spinOnce();               // check for incoming messages
-            if(service)
+            if(called)
             {
                   starting_position.v_x =positions::x_loc;
                   starting_position.v_y =positions::y_loc;
                   starting_position.w =positions::orient;    
                   turtle_odo.reset(starting_position);
+                  called = false;
             }
 
             current_time = ros::Time::now();
@@ -139,8 +143,8 @@ int main(int argc, char** argv)
    
             odom_pub.publish(odom);
    
-           last_time = current_time;
-           r.sleep();
+            last_time = current_time;
+            r.sleep();
      }
     
  

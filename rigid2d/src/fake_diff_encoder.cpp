@@ -33,9 +33,9 @@ int main(int argc, char **argv)
 
     ros::init(argc,argv,"fake_diff_encoder");
     ros::NodeHandle n;
-    ros::Subscriber cmd_sub = n.subscribe("turtle1/cmd_vel", 1, get_vel);
+    ros::Subscriber cmd_sub = n.subscribe("cmd_vel", 1, get_vel);
     ros::Publisher joint_state_publisher = n.advertise<sensor_msgs::JointState>("/joint_states", 1);
-    ros::Rate rate(60);
+    ros::Rate rate(100);
 
     while(n.ok())
     {

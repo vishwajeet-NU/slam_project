@@ -20,14 +20,19 @@ class ros_stuff
         ros::Time current_time, last_time;
         nuturtlebot::WheelCommands msg;
         sensor_msgs::JointState j_out;
+        bool first_time = true;
+        double first_time_value_left;
+        double first_time_value_right;
+
+        double position_left;
+        double position_right;
        
         DiffDrive turtle_real;
 
     ros_stuff()
     {
-       // current_time = ros::Time::now();
-       // last_time = ros::Time::now();
-
+        current_time = ros::Time::now();
+        last_time = ros::Time::now();
 
         wheel_pub = n.advertise<nuturtlebot::WheelCommands>("/wheel_cmd", 1);
         jt_pub = n.advertise<sensor_msgs::JointState>("/joint_states", 1);
@@ -62,25 +67,40 @@ class ros_stuff
     }
 
     void sensor_callback(const nuturtlebot::SensorData &sensor)
-    {        
+    {   
+
+        if(first_time) 
+        {
+          first_time_value_left = sensor.left_encoder;
+          first_time_value_right = sensor.right_encoder;
+          position_left = sensor.left_encoder;
+          position_right = sensor.right_encoder;
+          first_time = false;
+        }    
+
         j_out.header.stamp = ros::Time::now();
         //current_time = ros::Time::now();
         //double dt = (current_time - last_time).toSec();
-        //double left_speed = (sensor.left_encoder - j_out.position[0])/dt;
-        //double right_speed = (sensor.right_encoder - j_out.position[1])/dt;
-
+        //double left_speed = deg2rad((sensor.left_encoder - position_left)/(4096*dt));
+        //double right_speed = deg2rad((sensor.right_encoder - position_right)/(4096*dt));
+        //std::cout<<dt<<"\n";
         j_out.name.resize(2);
         j_out.name[0] = "left_wheel_axle";
         j_out.name[1] = "right_wheel_axle";
 
+        std::cout<<"first left = "<<first_time_value_left<<"\n";
+        std::cout<<"first right = "<<first_time_value_right<<"\n";
+        
         j_out.position.resize(2);
-        j_out.position[0] = sensor.left_encoder;
-        j_out.position[1] = sensor.right_encoder;
+        j_out.position[0] = 2.0*PI* ((sensor.left_encoder- first_time_value_left)/4096.0);
+        j_out.position[1] = 2.0*PI* ((sensor.right_encoder - first_time_value_right)/4096.0);
 
         //j_out.velocity[0] = left_speed;
         //j_out.velocity[1] = right_speed;
 
         jt_pub.publish(j_out);
+        //position_left = sensor.left_encoder;
+        //position_right = sensor.right_encoder;
         //last_time = current_time;
 
     }
@@ -93,10 +113,8 @@ int main(int argc, char **argv)
 ros::init(argc,argv,"turtle_interface");
 
 ros_stuff burger_turtle;
-
 while(ros::ok())
 {
 ros::spinOnce();
-
 }
 }

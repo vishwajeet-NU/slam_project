@@ -70,6 +70,7 @@ class rotate_bot
         start_choice_service = 1.0;
         timer_count = 0;
         no_rot = 0;
+        stop = 1;
         return true;
      }
 

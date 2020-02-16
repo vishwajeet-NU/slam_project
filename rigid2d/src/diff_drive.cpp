@@ -52,6 +52,9 @@ WheelVelocities DiffDrive::twistToWheels(Twist2D Vbs)
     WheelVelocities vels;
     vels.U1 = (1/wheel_radius)*(-D*Vbs.w + Vbs.v_x);
     vels.U2 = (1/wheel_radius)*(D*Vbs.w + Vbs.v_x);
+    std::cout<<"left wheel = "<<vels.U1<<"\n";
+    std::cout<<"right wheel = "<<vels.U2<<"\n";
+
     updateOdometry(vels.U1, vels.U2);
     return vels;
 }
@@ -80,8 +83,11 @@ Twist2D DiffDrive::wheelsToTwist(WheelVelocities vel)
 
 void DiffDrive::updateOdometry(double left, double right)
 {
-    left_wheel_angle = left/60 + left_wheel_angle;
-    right_wheel_angle = right/60 + right_wheel_angle; 
+    left_wheel_angle = left/100 + left_wheel_angle;
+    right_wheel_angle = right/100 + right_wheel_angle; 
+    std::cout<<"left wheel pos = "<<left_wheel_angle<<"\n";
+    std::cout<<"right wheel pos= "<<right_wheel_angle<<"\n";
+
 }
 
 /// \brief Computes odometry to estimate body in the world frame
@@ -122,6 +128,8 @@ delta_qb.w = Vb.w;
 position.v_x = position.v_x + cos(position.w) * delta_qb.v_x - sin(position.w)* delta_qb.v_y;
 position.v_y = position.v_y+ sin(position.w) * delta_qb.v_x + cos(position.w)* delta_qb.v_y;
 position.w = position.w + delta_qb.w;
+
+
 }
 
 /// \brief gives body pose when required 

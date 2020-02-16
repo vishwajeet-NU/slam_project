@@ -172,6 +172,12 @@ target_link_libraries(rotate ${catkin_LIBRARIES} )
 add_executable(translate src/translation.cpp )
 target_link_libraries(translate ${catkin_LIBRARIES} )
 
+
+add_executable(real_waypoint src/real_waypoint.cpp )
+target_link_libraries(real_waypoint ${catkin_LIBRARIES} )
+
+
+
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
@@ -197,7 +203,7 @@ endif()
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
- install(TARGETS turtle_interface rotate translate 
+ install(TARGETS turtle_interface rotate translate real_waypoint
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

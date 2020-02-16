@@ -35,6 +35,12 @@ Waypoints::Waypoints(Vector2D input)
 Twist2D Waypoints::nextWaypoint(Twist2D current_pose)
 {
     Twist2D output_twist;
+    std::cout<< "next_x" << waypoints[0].x<<"\n";
+    std::cout<< "next_y" << waypoints[0].y<<"\n";
+
+    std::cout<< "current_x" <<  current_pose.v_x<<"\n";
+    std::cout<< "current_y" << current_pose.v_y<<"\n";
+
     double angle_req = atan2((waypoints[0].y - current_pose.v_y), (waypoints[0].x - current_pose.v_x));
 
     double v_x_world = waypoints[0].x - current_pose.v_x;

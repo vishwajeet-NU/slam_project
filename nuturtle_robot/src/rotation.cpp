@@ -69,6 +69,7 @@ class rotate_bot
         res.vector = rotation_vector;
         start_choice_service = 1.0;
         timer_count = 0;
+        stop = 1;
         no_rot = 0;
         return true;
      }
@@ -118,10 +119,12 @@ ros::Timer timer = n.createTimer(ros::Duration(0.01), &rotate_bot::timerCallback
 
 while(ros::ok())
 {
+        ros::spinOnce();
+
         while( turn_me.no_rot <20)
         {
             ROS_INFO("%d \n",turn_me.no_rot);
-            double rotation_counts_needed = 2*PI*100.0 / (frac*max_rotation_vel);
+            double rotation_counts_needed = 2.0*PI*100.0 / (frac*max_rotation_vel);
 
             ROS_INFO("%f \n",rotation_counts_needed);
 
