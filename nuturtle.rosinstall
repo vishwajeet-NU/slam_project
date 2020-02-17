@@ -1,0 +1,6 @@
+- git:
+    local-name: src/me495
+    uri: https://github.com/ME495-Navigation/main-assignment-vishwajeet-NU.git
+- git:
+    local-name: src/nuturtle
+    uri: https://github.com/ME495-Navigation/nuturtlebot.git

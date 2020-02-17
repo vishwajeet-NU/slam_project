@@ -8,7 +8,7 @@ wheel_width : 0.009
 wheel_radius: 0.033
 wheel_base : 0.160
 chassis_length : 0.138
-chassis_thickness: 0.01
+chassis_thickness: 0.192
 encoder_ticks_per_rev: 4096
 max_lvel_robot: 0.22
 max_rvel_robot: 2.84
