@@ -1,3 +1,15 @@
+/// \file
+/// \brief This node does the processing needed to generate appropriate wheel velocities for a given 
+///         commanded velocity. It also publishes joint states
+/// PARAMETERS:
+///     It  reads max possible velocity as a fraction of robots maximum , which are also
+///     read as params. It also reads the encoder ticks per 1 rotation
+/// PUBLISHES:
+///     publishes wheel velocities and joint state messages  
+/// SUBSCRIBES:
+///     subscribes to sensor readings (encoders) and the commanded body twist
+/// SERVICES:
+///    none
 #include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
 #include "geometry_msgs/Twist.h"
@@ -9,6 +21,9 @@
 #include"rigid2d/waypoints.hpp"
 #include "tf/transform_broadcaster.h"
 
+
+/// \brief A class that creates all subscribers and publishers 
+/// while also providing methods and variables to do the tasks 
 class ros_stuff 
 {
     public:
@@ -45,6 +60,11 @@ class ros_stuff
         sens = n.subscribe("sensor_data", 1, &ros_stuff::sensor_callback, this);
         
     }
+
+    /// \brief callback that reads commnaded velocity ,and converts them to appropriate wheel commanded 
+    ///         based on the motor power limitations and geometry of the diff drive robot
+    /// \tparam reads twist messages 
+    /// \returns nothing 
     void cmd_callback(const geometry_msgs::Twist &twist)
     {   
         Twist2D body_twist;
@@ -65,6 +85,9 @@ class ros_stuff
         msg.right_velocity = go.U2;
         wheel_pub.publish(msg);
     }
+    /// \brief callback that reads encoder readings and publishes appropriate joint positions and velocities
+    /// \tparam reads sensor messages 
+    /// \returns nothing
 
     void sensor_callback(const nuturtlebot::SensorData &sensor)
     {   
@@ -105,23 +128,22 @@ class ros_stuff
 int main(int argc, char **argv)
 {
 
-ros::init(argc,argv,"turtle_interface");
+    ros::init(argc,argv,"turtle_interface");
 
-ros_stuff burger_turtle;
-double power;
-double rvel;
-double ticks;
-ros::param::get("/max_motor_power",power);
-ros::param::get("/max_rvel_motor",rvel);
-ros::param::get("/encoder_ticks_per_rev",ticks);
+    ros_stuff burger_turtle;
+    double power;
+    double rvel;
+    double ticks;
+    ros::param::get("/max_motor_power",power);
+    ros::param::get("/max_rvel_motor",rvel);
+    ros::param::get("/encoder_ticks_per_rev",ticks);
 
+    burger_turtle.max_pwr = power;
+    burger_turtle.max_rv = rvel;
+    burger_turtle.encoderticks = ticks;
 
-burger_turtle.max_pwr = power;
-burger_turtle.max_rv = rvel;
-burger_turtle.encoderticks = ticks;
-
-while(ros::ok())
-{
-ros::spinOnce();
-}
+    while(ros::ok())
+    {
+        ros::spinOnce();
+    }
 }

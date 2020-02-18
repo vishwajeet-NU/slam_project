@@ -1,3 +1,15 @@
+/// \file
+/// \brief This file gives commands to make a diff drive robot travel 2 meters, 
+///        while stopping for 1/20th time every 0.2m
+/// PARAMETERS:
+///     It  reads max possible velocity as a fraction of robots maximum , which are also
+///     read as params 
+/// PUBLISHES:
+///     publishes velocities to make the turtle follow waypoints 
+/// SUBSCRIBES:
+///     nothing
+/// SERVICES:
+///    start services which decides when to start the bot. This calls set pose which resets the bot to 0,0
 #include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
 #include "geometry_msgs/Twist.h"
@@ -11,6 +23,8 @@
 #include "nuturtle_robot/which_way.h"
 #include "rigid2d/telep.h"
 
+/// \brief A class that creates all subscribers and publishers 
+/// while also providing methods and variables to do the tasks 
 class rotate_bot 
 {
     public:
@@ -40,6 +54,10 @@ class rotate_bot
         ros::spinOnce();
         
     }
+    /// \brief callback that checks start service and calls set pose service, to set turtle to first waypoint
+    ///
+    /// \tparam service request and response
+    /// \returns boolean 
 
     bool where(nuturtle_robot::which_way::Request &req, nuturtle_robot::which_way::Response &res)
     {     
@@ -72,20 +90,26 @@ class rotate_bot
         stop = 1;
         return true;
      }
+    /// \brief timer callback that is used to publish messages at the desired freq(100 hz this case)
+    ///
+    /// \tparam timer event
+    /// \returns nothing 
 
-void timerCallback(const ros::TimerEvent&)
-{
-    speed_out.linear.x = start_choice_service* stop * frac * rotation_vector * max_linear_vel; 
-    speed_out.linear.y = 0;
-    speed_out.angular.z = 0;
+    void timerCallback(const ros::TimerEvent&)
+    {
+        speed_out.linear.x = start_choice_service* stop * frac * rotation_vector * max_linear_vel; 
+        speed_out.linear.y = 0;
+        speed_out.angular.z = 0;
 
-    cmd_pub.publish(speed_out);
-    timer_count = timer_count + 1;
-    std::cout<<"i am timer counts = "<< timer_count << "\n";
-}
-
-
+        cmd_pub.publish(speed_out);
+        timer_count = timer_count + 1;
+        std::cout<<"i am timer counts = "<< timer_count << "\n";
+    }
 };
+
+/// \brief a delay function to stop the bot between every 0.2m iteration
+/// \tparam wait time and the robot class
+/// \returns nothing 
 
 
 void delay(double wait_time, rotate_bot temp)
@@ -101,29 +125,26 @@ void delay(double wait_time, rotate_bot temp)
 
 int main(int argc, char **argv)
 {
-ros::init(argc,argv,"translation");
-ros::NodeHandle n;
+    ros::init(argc,argv,"translation");
+    ros::NodeHandle n;
 
-float frac;
-double mlv;
+    float frac;
+    double mlv;
 
-ros::param::get("/frac_vel",frac);
-ros::param::get("/max_lvel_robot",mlv);
-
-
-rotate_bot turn_me;
-turn_me.max_linear_vel = mlv;
-turn_me.frac = frac;
-//ros::Rate rate(100);
+    ros::param::get("/frac_vel",frac);
+    ros::param::get("/max_lvel_robot",mlv);
 
 
-ros::ServiceServer service = n.advertiseService("/start", &rotate_bot::where, &turn_me);
+    rotate_bot turn_me;
+    turn_me.max_linear_vel = mlv;
+    turn_me.frac = frac;
 
-ros::Timer timer = n.createTimer(ros::Duration(0.01), &rotate_bot::timerCallback, &turn_me);
-//ros::Duration(7).sleep();
+    ros::ServiceServer service = n.advertiseService("/start", &rotate_bot::where, &turn_me);
+
+    ros::Timer timer = n.createTimer(ros::Duration(0.01), &rotate_bot::timerCallback, &turn_me);
 
 while(ros::ok())
-{
+    {
         while( turn_me.no_rot <10)
         {
             ROS_INFO("%d \n",turn_me.no_rot);
@@ -142,9 +163,9 @@ while(ros::ok())
             turn_me.timer_count = 0;
             turn_me.no_rot = turn_me.no_rot + 1;
         }
-    turn_me.stop = 0.0;
-    ros::spinOnce();
-    turn_me.timer_count = 0;
+        turn_me.stop = 0.0;
+        ros::spinOnce();
+        turn_me.timer_count = 0;
     
-}
+    }
 }

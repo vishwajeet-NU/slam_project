@@ -1,3 +1,15 @@
+/// \file
+/// \brief This file creates cylindrical markers for visualizing waypoints on rviz
+///
+/// PARAMETERS:
+///     it takes in waypoints x and y as parameter. 
+/// PUBLISHES:
+///     publishes visualization messages 
+/// SUBSCRIBES:
+///     no subscribers 
+/// SERVICES:
+///     no services used
+
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
