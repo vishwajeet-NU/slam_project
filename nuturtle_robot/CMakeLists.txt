@@ -177,13 +177,16 @@ add_executable(real_waypoint src/real_waypoint.cpp )
 target_link_libraries(real_waypoint ${catkin_LIBRARIES} )
 
 
+add_executable(marker src/markers.cpp )
+target_link_libraries(marker ${catkin_LIBRARIES} )
+
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
 if (CATKIN_ENABLE_TESTING)
-    add_rostest_gtest(robot_test test/test.test test/turtle_interface_test.cpp)
+    add_rostest_gtest(robot_test test/turtle_interface.test test/turtle_interface_test.cpp)
     target_link_libraries(robot_test ${catkin_LIBRARIES} rigid2d )
 endif()
 

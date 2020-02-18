@@ -6,9 +6,9 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TF1/Status1
         - /TF1/Frames1
         - /TF2/Frames1
+        - /Marker1
       Splitter Ratio: 0.5
     Tree Height: 549
   - Class: rviz/Selection
@@ -100,6 +100,10 @@ Visualization Manager:
           Value: true
         caster:
           Value: false
+        fake_base_link:
+          Value: true
+        fake_odom:
+          Value: true
         left_wheel:
           Value: false
         odom:
@@ -120,6 +124,9 @@ Visualization Manager:
               {}
             right_wheel:
               {}
+          fake_odom:
+            fake_base_link:
+              {}
       Update Interval: 0
       Value: true
     - Class: rviz/TF
@@ -131,6 +138,10 @@ Visualization Manager:
           Value: false
         caster:
           Value: false
+        fake_base_link:
+          Value: true
+        fake_odom:
+          Value: true
         left_wheel:
           Value: true
         odom:
@@ -151,7 +162,18 @@ Visualization Manager:
               {}
             right_wheel:
               {}
+          fake_odom:
+            fake_base_link:
+              {}
       Update Interval: 0
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /visualization_marker
+      Name: Marker
+      Namespaces:
+        basic_shapes: true
+      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
@@ -181,7 +203,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 19.008861541748047
+      Distance: 3.2505688667297363
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -196,10 +218,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.995398223400116
+      Pitch: 1.019796371459961
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.5254008769989014
+      Yaw: 3.1254026889801025
     Saved: ~
 Window Geometry:
   Displays:
@@ -218,4 +240,4 @@ Window Geometry:
     collapsed: false
   Width: 1200
   X: 657
-  Y: 27
+  Y: 0

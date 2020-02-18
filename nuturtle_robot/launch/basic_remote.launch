@@ -31,20 +31,6 @@
 <param name="baud" value="115200"/>
 </node>
 
-
-
-
-<!-- <group if="param"> 
- </group> -->
-
- <!--<group unless="param">
- <machine name="turtlebot" address="localhost"   user="student"/>
- </group>
- <machine name="turtlebot" address="localhost"   user="student"/>
-
-
--->
-
 </launch>
 
 

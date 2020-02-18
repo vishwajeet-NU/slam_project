@@ -190,8 +190,8 @@ TEST(DiffDrive, updateOdometry)
 	{	
 		DiffDrive test;
 		test.updateOdometry(10.0,10.0);
-		ASSERT_NEAR(test.left_wheel_angle,0.1666,1.0e-4); 
-		ASSERT_NEAR(test.right_wheel_angle, 0.1666,1.0e-4); 
+		ASSERT_NEAR(test.left_wheel_angle,0.1,1.0e-4); 
+		ASSERT_NEAR(test.right_wheel_angle, 0.1,1.0e-4); 
 
 	}
 

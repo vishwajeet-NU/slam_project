@@ -55,15 +55,11 @@ class ros_stuff
         go = turtle_real.twistToWheels(body_twist);
         double high = max_pwr;
         double low = -1.0* max_pwr;
-        // max speed of any wheel can be 3.33 rad/s
-        // 3.33 = 265
-        // u = x*265/3.33
         go.U1 = (go.U1*max_pwr)/max_rv;
         go.U2 = (go.U2*max_pwr)/max_rv;
         
         go.U1 = std::clamp(go.U1,low,high);
         go.U2 = std::clamp(go.U2,low,high);
-        
         
         msg.left_velocity = go.U1;
         msg.right_velocity = go.U2;
@@ -83,29 +79,24 @@ class ros_stuff
         }    
 
         j_out.header.stamp = ros::Time::now();
-        //current_time = ros::Time::now();
-        //double dt = (current_time - last_time).toSec();
-        //double left_speed = deg2rad((sensor.left_encoder - position_left)/(4096*dt));
-        //double right_speed = deg2rad((sensor.right_encoder - position_right)/(4096*dt));
-        //std::cout<<dt<<"\n";
+        double dt = 0.01;
+        double left_speed = (sensor.left_encoder - position_left)/(encoderticks*dt);
+        double right_speed = (sensor.right_encoder - position_right)/(encoderticks*dt);
         j_out.name.resize(2);
         j_out.name[0] = "left_wheel_axle";
         j_out.name[1] = "right_wheel_axle";
-
-        std::cout<<"first left = "<<first_time_value_left<<"\n";
-        std::cout<<"first right = "<<first_time_value_right<<"\n";
         
         j_out.position.resize(2);
         j_out.position[0] = 2.0*PI* ((sensor.left_encoder- first_time_value_left)/encoderticks);
         j_out.position[1] = 2.0*PI* ((sensor.right_encoder - first_time_value_right)/encoderticks);
 
-        //j_out.velocity[0] = left_speed;
-        //j_out.velocity[1] = right_speed;
+        j_out.velocity.resize(2);
+        j_out.velocity[0] = left_speed;
+        j_out.velocity[1] = right_speed;
 
         jt_pub.publish(j_out);
-        //position_left = sensor.left_encoder;
-        //position_right = sensor.right_encoder;
-        //last_time = current_time;
+        position_left = sensor.left_encoder;
+        position_right = sensor.right_encoder;
 
     }
 

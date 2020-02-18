@@ -7,7 +7,7 @@
  <!-- Base Link -->
   <link name="base_link">
     <visual>
-      <origin xyz="${a['chassis_length']/2 - a['wheel_radius']} 0 ${a['wheel_radius']}" rpy="0 0 0" />
+      <origin xyz="${a['chassis_length']/2 - a['wheel_radius']} 0 ${a['chassis_thickness']/2 + a['wheel_radius']}" rpy="0 0 0" />
       <geometry>
           <box size="${a['chassis_length']} ${a['wheel_base']-a['wheel_width']} ${a['chassis_thickness']} "/>
       </geometry>
@@ -58,9 +58,9 @@
 <!-- caster Wheel -->
 <link name="caster">
     <visual>
-      <origin xyz="0 0 ${-1*(a['wheel_radius']-(a['chassis_thickness']/2))/2}" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-          <sphere radius="${(a['wheel_radius']-(a['chassis_thickness']/2))/2}"/>
+          <sphere radius="${a['wheel_radius'] /2 }"/>
       </geometry>
       <material name="color4">
         <color rgba="0.8 0.12 1 1"/>
@@ -70,7 +70,7 @@
   <joint name="caster_chassis" type="fixed">
     <parent link="base_link"/>
     <child link="caster"/>
-    <origin xyz="${a['chassis_length']-(a['wheel_radius']-(a['chassis_thickness']/2))/2 - a['wheel_radius']} 0 ${-1*a['chassis_thickness']/2 + a['wheel_radius']}" /> 
+    <origin xyz="${a['chassis_length']-a['wheel_radius']- 0.005} 0 ${a['wheel_radius']/2}" /> 
     <axis xyz = '1 1 0'/>
   </joint>
 
