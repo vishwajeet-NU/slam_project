@@ -4,15 +4,15 @@ Author : Vishwajeet Karmarkar </br>
 # F.007, 3
 # Data: 
 
-Name		FV	AV	ET	EX	EY	OT		OX	OY	FT	FX	FY	GT	GX	GY	DT		DX		DY
-Vishwajeet-FWD	1	0.22	0	2	0	0		1.984	0	0	1.976	0	0	1.85	0	0		-0.0134		0
-Vishwajeet-FWD	0.6	0.132	0	2	0	0		2.103	0	0	1.995	0	0	2.08	0	0		-0.0023		0
-Vishwajeet-RWD	1	0.22	0	-2	0	0		-1.894	0	0	-1.984	0	0	-1.9	0	0		-0.0006		0
-Vishwajeet-RWD	0.6	0.132	0	-2	0	0		-2.115	0	0	-1.989	0	0	-2.11	0	0		0.0005		0
-Vishwajeet-CCW	1	2.84	0	0	0	177.619		0	0	-7.776	0	0	135	0	0	-2.13095	0		0
-Vishwajeet-CCW	0.6	1.704	0	0	0	42.214		0	0	-14.284	0	0	30	0	0	-0.6107		0		0
-Vishwajeet-CW	1	2.84	0	0	0	-158.418	0	0	6.148	0	0	-164	0	0	-0.2791		0		0
-Vishwajeet-CW	0.6	1.704	0	0	0	-45.365		0	0	16.237	0	0	-35	0	0	0.51825		0		0'
+Name		FV	AV	ET	EX	EY	OT		OX	OY	FT	FX	FY	GT	GX	GY	DT		DX		DY </br>
+Vishwajeet-FWD	1	0.22	0	2	0	0		1.984	0	0	1.976	0	0	1.85	0	0		-0.0134		0 </br>
+Vishwajeet-FWD	0.6	0.132	0	2	0	0		2.103	0	0	1.995	0	0	2.08	0	0		-0.0023		0 </br>
+Vishwajeet-RWD	1	0.22	0	-2	0	0		-1.894	0	0	-1.984	0	0	-1.9	0	0		-0.0006		0 </br>
+Vishwajeet-RWD	0.6	0.132	0	-2	0	0		-2.115	0	0	-1.989	0	0	-2.11	0	0		0.0005		0 </br>
+Vishwajeet-CCW	1	2.84	0	0	0	177.619		0	0	-7.776	0	0	135	0	0	-2.13095	0		0 </br>
+Vishwajeet-CCW	0.6	1.704	0	0	0	42.214		0	0	-14.284	0	0	30	0	0	-0.6107		0		0 </br>
+Vishwajeet-CW	1	2.84	0	0	0	-158.418	0	0	6.148	0	0	-164	0	0	-0.2791		0		0 </br>
+Vishwajeet-CW	0.6	1.704	0	0	0	-45.365		0	0	16.237	0	0	-35	0	0	0.51825		0		0' </br>
 
 # F.007, 6
 Yes Including encoders does improve the pose estimates drastically. This was seen visually on comparing fake_odom from fake_diff_econders 
@@ -28,5 +28,5 @@ to dt of -0.61 for 0.6 times the full speed, in the same direction of rotation.
 #F.009 
 
 rviz : https://www.youtube.com/watch?v=zViuKk1AgLk
-real : https://www.youtube.com/watch?v=zViuKk1AgLk
+real : https://www.youtube.com/watch?v=BS0KN7_F8DE
 
