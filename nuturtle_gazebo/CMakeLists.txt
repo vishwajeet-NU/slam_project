@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(nuturtle_description)
+project(nuturtle_gazebo)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,14 +12,25 @@ project(nuturtle_description)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
+  rigid2d
   roscpp
   std_msgs
-  
-)
+  geometry_msgs
+  sensor_msgs
+  message_generation
+  tf)
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(gazebo REQUIRED)
+
+
+
+add_library(${PROJECT_NAME}_plugin SHARED src/turtle_drive_plugin.cpp)
+target_link_libraries(${PROJECT_NAME}_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+target_include_directories(${PROJECT_NAME}_plugin PUBLIC ${GAZEBO_INCLUDE_DIRS})
+add_dependencies(${PROJECT_NAME}_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -71,7 +86,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   geometry_msgs#   std_msgs
+#   std_msgs  # Or other packages containing msgs
 # )
 
 ################################################
@@ -104,12 +119,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+CATKIN_DEPENDS roscpp  message_runtime rigid2d geometry_msgs 
+
 #  INCLUDE_DIRS include
-#  LIBRARIES nuturtle_description
-  CATKIN_DEPENDS geometry_msgs roscpp std_msgs
+#  LIBRARIES nuturtle_robot
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs message_runtime
 #  DEPENDS system_lib
-
-
 )
 
 ###########
@@ -120,12 +135,12 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 # include
-  ${catkin_INCLUDE_DIRS}
+ ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/nuturtle_description.cpp
+#   src/${PROJECT_NAME}/nuturtle_gazebo.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -136,7 +151,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/nuturtle_description_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/nuturtle_gazebo_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -173,11 +188,6 @@ include_directories(
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 
-install(DIRECTORY config/
-   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/config
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
- )
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
 # install(TARGETS ${PROJECT_NAME}
@@ -205,7 +215,7 @@ install(DIRECTORY config/
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_nuturtle_description.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_nuturtle_gazebo.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

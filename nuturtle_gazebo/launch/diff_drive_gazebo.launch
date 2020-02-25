@@ -1,0 +1,21 @@
+<launch>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find nuturtle_gazebo)/worlds/emp.world" />
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="debug" value="false"/>
+  </include>
+  
+<rosparam command="load" file="$(find tsim)/config/waypoint_x.yaml" />  
+<rosparam command="load" file="$(find tsim)/config/waypoint_y.yaml" />  
+<rosparam command="load" file="$(find nuturtle_robot)/config/nubot_params.yaml"/> 
+<rosparam command="load" file="$(find nuturtle_description)/config/diff_params.yaml" />  
+
+
+<param name="robot_description" command= "$(find xacro)/xacro '$(find nuturtle_gazebo)/urdf/diff_drive.gazebo.xacro'" /> 
+
+<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model diff_drive"/>
+
+
+</launch>

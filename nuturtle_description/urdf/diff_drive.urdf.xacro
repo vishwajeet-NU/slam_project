@@ -4,10 +4,18 @@
 <xacro:property name="yaml_file" value="$(find nuturtle_description)/config/diff_params.yaml" />
 <xacro:property name="a" value="${load_yaml(yaml_file)}"/>
 
- <!-- Base Link -->
-  <link name="base_link">
+  <link name="base_link"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="body_link"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+
+
+  <link name="body_link">
     <visual>
-      <origin xyz="${a['chassis_length']/2 - a['wheel_radius']} 0 ${a['chassis_thickness']/2 + a['wheel_radius']}" rpy="0 0 0" />
+      <origin xyz="${a['chassis_length']/2 - a['wheel_radius']} 0 ${a['chassis_thickness']/2 + a['wheel_axle_offset']}" rpy="0 0 0" />
       <geometry>
           <box size="${a['chassis_length']} ${a['wheel_base']-a['wheel_width']} ${a['chassis_thickness']} "/>
       </geometry>
@@ -15,22 +23,51 @@
         <color rgba="0.1 0.3 1 0.6"/>
       </material>
     </visual>
-  </link>
+    <collision>
+      <origin xyz="${a['chassis_length']/2 - a['wheel_radius']} 0 ${a['chassis_thickness']/2 + a['wheel_radius']}" rpy="0 0 0" />
+      <geometry>
+         <box size="${a['chassis_length']} ${a['wheel_base']-a['wheel_width']} ${a['chassis_thickness']} "/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.94"/>
+      <inertia ixx="0.1" ixy="0.0" ixz="0.0"
+               iyy="0.1" iyz="0.0"
+               izz="0.1" />
+
+     </inertial>
+</link>
+
+
 
    <!-- Right Wheel -->
   <link name="right_wheel">
     <visual>
       <origin xyz="0 ${-1*a['wheel_width']/2} 0" rpy="1.570795 0 0" />
-      <geometry>
+      <geometry>  
           <cylinder length="${a['wheel_width']}" radius="${a['wheel_radius']}" />
       </geometry>
       <material name="color2">
         <color rgba="0 0 0 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 ${-1*a['wheel_width']/2} 0" rpy="1.570795 0 0" />
+      <geometry>  
+      <cylinder length="${a['wheel_width']}" radius="${a['wheel_radius']}" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.03"/>
+      <inertia ixx="1.1175580e-05" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
+               iyy="1.1192413e-05" iyz="-1.4400107e-11"
+               izz="2.0712558e-05" />
+
+    </inertial>
   </link>
+
   <joint name="right_wheel_axle" type="continuous">
-    <parent link="base_link"/>
+    <parent link="body_link"/>
     <child link="right_wheel"/>
     <origin xyz="0 ${-1*(a['wheel_base']/2-a['wheel_width']/2)} ${a['wheel_radius']}" rpy="0 0 0" /> 
     <axis xyz="0 1 0" />
@@ -47,9 +84,22 @@
         <color rgba="0.3 0.44 0.1 0.6"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 ${1*a['wheel_width']/2} 0" rpy="1.570795 0 0" />
+      <geometry>
+      <cylinder length="${a['wheel_width']}" radius="${a['wheel_radius']}" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.03"/>
+     <inertia ixx="1.1175580e-05" ixy="-4.2369783e-11" ixz="-5.9381719e-09"
+               iyy="1.1192413e-05" iyz="-1.4400107e-11"
+               izz="2.0712558e-05" />
+    </inertial>
+
   </link>
   <joint name="left_wheel_axle" type="continuous">
-    <parent link="base_link"/>
+    <parent link="body_link"/>
     <child link="left_wheel"/>
     <origin xyz="0 ${1*(a['wheel_base']/2-a['wheel_width']/2)} ${a['wheel_radius']}" rpy="0 0 0" /> 
     <axis xyz="0 1 0" />
@@ -66,12 +116,20 @@
         <color rgba="0.8 0.12 1 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+      <sphere radius="${a['wheel_radius'] /2 }"/>
+      </geometry>
+
+    </collision>
   </link>
   <joint name="caster_chassis" type="fixed">
-    <parent link="base_link"/>
+    <parent link="body_link"/>
     <child link="caster"/>
     <origin xyz="${a['chassis_length']-a['wheel_radius']- 0.005} 0 ${a['wheel_radius']/2}" /> 
     <axis xyz = '1 1 0'/>
   </joint>
+
 
 </robot>

@@ -8,9 +8,10 @@ wheel_width : 0.009
 wheel_radius: 0.033
 wheel_base : 0.160
 chassis_length : 0.138
-chassis_thickness: 0.159
+chassis_thickness: 0.140
 encoder_ticks_per_rev: 4096
 max_lvel_robot: 0.22
 max_rvel_robot: 2.84
 max_rvel_motor: 6.35492
 max_motor_power : 265
+wheel_axle_offset: 0.02
