@@ -7,17 +7,17 @@
 <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
    <param name="robot_description" command= "$(find xacro)/xacro '$(find nuturtle_description)/urdf/diff_drive.urdf.xacro'" /> 
 
-   <param name="use_gui" value="false" />
-
+<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <param name="use_gui" value="true" />
 -->
    <!--use_gui is set to true for joint slider -->
-   
+
+
 
 <!-- starts the node- robot state publisher. it subscibes to jointstate message and publishes state to the TF library-->
    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
 <!--starts up the rviz simulator
-
 -->
    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find nuturtle_description)/config/urdf.rviz" required="true" />
 

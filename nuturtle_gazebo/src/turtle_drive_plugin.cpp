@@ -118,9 +118,7 @@ namespace gazebo
      }
 
     update_period= 1/sf;
-    std::cout<< "sf = "<<sf<<"\n";
-    std::cout<< "update period = "<<update_period<<"\n";
-
+    
     this->prevUpdateTime = this->model->GetWorld()->SimTime();
 
     this->rosNode.reset(new ros::NodeHandle("gazebo_client"));
@@ -134,9 +132,6 @@ namespace gazebo
 
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(
     std::bind(&ModelPush::OnUpdate, this));
-
-//    double last_time = common::Time::GetWallTime();
-   // std::cout<<"last time = "<< last_time<<"\n";
     }
 
 
@@ -168,7 +163,6 @@ namespace gazebo
     common::Time currTime = this->model->GetWorld()->SimTime();
     common::Time stepTime = currTime - this->prevUpdateTime;
 
-    std::cout<<"step = "<<stepTime.Double()<<"\n";
     if ( stepTime.Double() > update_period ) 
     {
       this->sensor_pub.publish(msg);

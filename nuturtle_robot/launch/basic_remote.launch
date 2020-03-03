@@ -2,34 +2,64 @@
 
 <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
 
+
+<group if="$(eval arg('robot') ==-1)"> 
+</group>
+
 <group if="$(eval arg('robot') ==0)"> 
 <machine name="turtlebot" address="localhost"   user="student"/>
-</group>
-
-<group if="$(eval arg('robot') ==1)"> 
-<machine name="turtlebot" address="turtlebot1" user="student" env-loader="/home/student/install/env.sh" />
-</group>
-
-<group if="$(eval arg('robot') ==2)"> 
-<machine name="turtlebot" address="turtlebot2" user="student" env-loader="/home/student/install/env.sh" />
-</group>
-
-<group if="$(eval arg('robot') ==3)"> 
-<machine name="turtlebot" address="turtlebot3" user="student" env-loader="/home/student/install/env.sh" />
-</group>
-
-<group if="$(eval arg('robot') ==4)"> 
-<machine name="turtlebot" address="turtlebot4" user="student" env-loader="/home/student/install/env.sh" />
-</group>
-
-<group if="$(eval arg('robot') ==5)"> 
-<machine name="turtlebot" address="turtlebot5" user="student" env-loader="/home/student/install/env.sh" />
-</group>
-
 <node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
 <param name="port" value="/dev/ttyACM0"/>
 <param name="baud" value="115200"/>
 </node>
+
+</group>
+
+<group if="$(eval arg('robot') ==1)"> 
+<machine name="turtlebot" address="turtlebot1" user="student" env-loader="/home/student/install/env.sh" />
+<node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
+<param name="port" value="/dev/ttyACM0"/>
+<param name="baud" value="115200"/>
+</node>
+
+</group>
+
+<group if="$(eval arg('robot') ==2)"> 
+<machine name="turtlebot" address="turtlebot2" user="student" env-loader="/home/student/install/env.sh" />
+<node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
+<param name="port" value="/dev/ttyACM0"/>
+<param name="baud" value="115200"/>
+</node>
+
+</group>
+
+<group if="$(eval arg('robot') ==3)"> 
+<machine name="turtlebot" address="turtlebot3" user="student" env-loader="/home/student/install/env.sh" />
+<node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
+<param name="port" value="/dev/ttyACM0"/>
+<param name="baud" value="115200"/>
+</node>
+
+</group>
+
+<group if="$(eval arg('robot') ==4)"> 
+<machine name="turtlebot" address="turtlebot4" user="student" env-loader="/home/student/install/env.sh" />
+<node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
+<param name="port" value="/dev/ttyACM0"/>
+<param name="baud" value="115200"/>
+</node>
+
+</group>
+
+<group if="$(eval arg('robot') ==5)"> 
+<machine name="turtlebot" address="turtlebot5" user="student" env-loader="/home/student/install/env.sh" />
+<node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
+<param name="port" value="/dev/ttyACM0"/>
+<param name="baud" value="115200"/>
+</node>
+
+</group>
+
 
 </launch>
 

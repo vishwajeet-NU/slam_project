@@ -7,8 +7,8 @@
   <link name="base_link"/>
 
   <joint name="base_joint" type="fixed">
-    <parent link="body_link"/>
-    <child link="base_link"/>
+    <parent link="base_link"/>
+    <child link="body_link"/>
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
@@ -39,6 +39,26 @@
 </link>
 
 
+<link name = "base_scan">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>  
+          <cylinder length="0.005" radius="${(a['wheel_base']-a['wheel_width'])/2}" />
+      </geometry>
+      <material name="color2">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+
+</link> 
+
+   <joint name="scan_joint" type="fixed">
+    <parent link="body_link"/>
+    <child link="base_scan"/>
+    <origin xyz="${a['chassis_length']/2 - a['wheel_radius']} 0 ${a['chassis_thickness'] + a['wheel_axle_offset']}" rpy="0 0 0" /> 
+    <axis xyz="0 1 0" />
+  </joint>
+   
 
    <!-- Right Wheel -->
   <link name="right_wheel">

@@ -9,6 +9,7 @@ Panels:
         - /TF1/Frames1
         - /TF2/Frames1
         - /Marker1
+        - /Marker2
       Splitter Ratio: 0.5
     Tree Height: 549
   - Class: rviz/Selection
@@ -69,6 +70,15 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        base_scan:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        body_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
           Value: true
         caster:
           Alpha: 1
@@ -98,6 +108,10 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: true
+        base_scan:
+          Value: true
+        body_link:
+          Value: true
         caster:
           Value: false
         fake_base_link:
@@ -118,12 +132,15 @@ Visualization Manager:
       Tree:
         odom:
           base_link:
-            caster:
-              {}
-            left_wheel:
-              {}
-            right_wheel:
-              {}
+            body_link:
+              base_scan:
+                {}
+              caster:
+                {}
+              left_wheel:
+                {}
+              right_wheel:
+                {}
           fake_odom:
             fake_base_link:
               {}
@@ -136,6 +153,10 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: false
+        base_scan:
+          Value: true
+        body_link:
+          Value: true
         caster:
           Value: false
         fake_base_link:
@@ -156,20 +177,31 @@ Visualization Manager:
       Tree:
         odom:
           base_link:
-            caster:
-              {}
-            left_wheel:
-              {}
-            right_wheel:
-              {}
+            body_link:
+              base_scan:
+                {}
+              caster:
+                {}
+              left_wheel:
+                {}
+              right_wheel:
+                {}
           fake_odom:
             fake_base_link:
               {}
       Update Interval: 0
       Value: true
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /visualization_marker
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /visualization_marker_scan
       Name: Marker
       Namespaces:
         basic_shapes: true
@@ -240,4 +272,4 @@ Window Geometry:
     collapsed: false
   Width: 1200
   X: 657
-  Y: 0
+  Y: 27

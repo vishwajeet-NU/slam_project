@@ -1,15 +1,13 @@
-cmake_minimum_required(VERSION 3.5.4)
-project(nuturtle_gazebo)
+cmake_minimum_required(VERSION 2.8.3)
+project(nuslam)
 
-
+## Compile as C++11, supported in ROS Kinetic and newer
+# add_compile_options(-std=c++11)
+add_compile_options(-Wall -Werror -pipe)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -21,19 +19,12 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   sensor_msgs
   message_generation
-  tf)
+  tf
+)
+
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system)
-find_package(gazebo REQUIRED)
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
-include_directories(${Eigen3_INCLUDE_DIRS})
-
-add_library(${PROJECT_NAME}_plugin SHARED src/turtle_drive_plugin.cpp)
-target_link_libraries(${PROJECT_NAME}_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
-
-target_include_directories(${PROJECT_NAME}_plugin PUBLIC ${GAZEBO_INCLUDE_DIRS})
-add_dependencies(${PROJECT_NAME}_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -66,18 +57,19 @@ add_dependencies(${PROJECT_NAME}_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${ca
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
+ add_message_files(
+   FILES
+   turtle_map.msg
 #   Message1.msg
 #   Message2.msg
-# )
+ )
 
-## Generate services in the 'srv' folder
 # add_service_files(
 #   FILES
-#   Service1.srv
+#   turtle_map.srv
 #   Service2.srv
 # )
+
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -85,12 +77,11 @@ add_dependencies(${PROJECT_NAME}_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${ca
 #   Action1.action
 #   Action2.action
 # )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs  # Or other packages containing msgs
+ )
 
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -121,6 +112,7 @@ add_dependencies(${PROJECT_NAME}_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${ca
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
+
 catkin_package(
 CATKIN_DEPENDS roscpp  message_runtime rigid2d geometry_msgs 
 
@@ -138,14 +130,24 @@ CATKIN_DEPENDS roscpp  message_runtime rigid2d geometry_msgs
 ## Your package locations should be listed before other locations
 include_directories(
 # include
+# ${catkin_INCLUDE_DIRS}
+)
+include_directories(
+# include
  ${catkin_INCLUDE_DIRS}
-
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/nuturtle_gazebo.cpp
+#   src/${PROJECT_NAME}/nuslam.cpp
 # )
+
+
+
+add_executable(draw_map src/draw_map.cpp )
+target_link_libraries(draw_map ${catkin_LIBRARIES} )
+
+#add_dependencies(turtle_interface tsim_generate_messages_cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -155,12 +157,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(landmarks src/landmarks.cpp)
-target_link_libraries(landmarks ${catkin_LIBRARIES} Eigen3::Eigen)
-
-
-add_executable(what src/test.cpp)
-target_link_libraries(what ${catkin_LIBRARIES} Eigen3::Eigen)
+# add_executable(${PROJECT_NAME}_node src/nuslam_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -224,7 +221,7 @@ target_link_libraries(what ${catkin_LIBRARIES} Eigen3::Eigen)
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_nuturtle_gazebo.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_nuslam.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

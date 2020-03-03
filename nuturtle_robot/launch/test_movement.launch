@@ -12,12 +12,12 @@
 
  
  
-   <node machine ="turtlebot" name="odometer1" pkg="rigid2d" type="odometer" >
+   <node  name="odometer1" pkg="rigid2d" type="odometer" >
    <param name="world" value="odom" />
    <param name="base" value="base_link" />
    </node>
    
-   <node machine ="turtlebot" name="odometer2" pkg="rigid2d" type="odometer" args = "/fake_odom /fake_base_link">
+   <node  name="odometer2" pkg="rigid2d" type="odometer" args = "/fake_odom /fake_base_link">
    <remap from="odom" to="fake/odom"/>  
    <remap from="joint_states" to="fake/joint_states"/>
    <remap from="set_pose" to="fake/set_pose"/>
@@ -25,7 +25,7 @@
    <param name="base" value="fake_base_link"/>
    </node>
 
-   <node machine ="turtlebot"  name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" >
+   <node   name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" >
    <remap from="joint_states" to="fake/joint_states"/>
    </node>
 
@@ -36,7 +36,7 @@
 -->
 
 <node pkg="tf" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0  /odom /fake_odom 100" />
-<node  machine ="turtlebot" name="real_waypoint" pkg="nuturtle_robot" type="real_waypoint" output = "screen" />
+<node  name="real_waypoint" pkg="nuturtle_robot" type="real_waypoint" output = "screen" />
  
 <node name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
 
