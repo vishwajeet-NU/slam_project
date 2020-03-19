@@ -155,12 +155,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(landmarks src/landmarks.cpp)
-target_link_libraries(landmarks ${catkin_LIBRARIES} Eigen3::Eigen)
 
-
-add_executable(what src/test.cpp)
-target_link_libraries(what ${catkin_LIBRARIES} Eigen3::Eigen)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

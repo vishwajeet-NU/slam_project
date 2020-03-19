@@ -7,7 +7,7 @@
     <wheel_cmd_topic>/wheel_cmd</wheel_cmd_topic>
     <left_wheel_joint>left_wheel_axle</left_wheel_joint>
     <right_wheel_joint>right_wheel_axle</right_wheel_joint>
-    <sensor_frequency>250</sensor_frequency> 
+    <sensor_frequency>100</sensor_frequency> 
     </plugin>
   </gazebo>
   <gazebo reference="base_link">
@@ -16,30 +16,37 @@
 
   <gazebo reference="body_link">
     <material>Gazebo/DarkGrey</material>
+    <minDepth>0.001</minDepth>
   </gazebo>
 
 
   <gazebo reference="left_wheel">
-    <mu1>0.1</mu1>
-    <mu2>0.1</mu2>
+    <mu1>0.8</mu1>
+    <mu2>0.8</mu2>
     <minDepth>0.001</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1>
+    <kp>500000</kp>
+    <kd>10</kd>
+    <dampingFactor> 1 </dampingFactor>
     <material>Gazebo/FlatBlack</material>
   </gazebo>
 
   <gazebo reference="right_wheel">
-    <mu1>0.1</mu1>
-    <mu2>0.1</mu2>
+    <mu1>0.8</mu1>
+    <mu2>0.8</mu2>
     <minDepth>0.001</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1>
+    <kp>500000</kp>
+    <kd>10</kd>
+    <dampingFactor> 1 </dampingFactor>
     <material>Gazebo/FlatBlack</material>
   </gazebo>
 
-  <gazebo reference="caster_back_link">
-    <mu1>0.1</mu1>
-    <mu2>0.1</mu2>
+  <gazebo reference="caster">
+    <mu1>0.02</mu1>
+    <mu2>0.02</mu2>
     <minDepth>0.001</minDepth>
     <maxVel>1.0</maxVel>
     <kp>1000000.0</kp>
@@ -70,7 +77,7 @@
       <noise>
         <type>gaussian</type>
         <mean>0.0</mean>
-        <stddev>0.01</stddev>
+        <stddev>0</stddev>
       </noise>
     </ray>
     <plugin name="gazebo_ros_lds_lfcd_controller" filename="libgazebo_ros_laser.so">

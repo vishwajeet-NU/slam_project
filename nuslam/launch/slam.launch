@@ -1,0 +1,11 @@
+<launch>
+   <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
+   <include file="$(find nuturtle_robot)/launch/test_movement.launch">
+   <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
+   </include>
+    <include file="$(find nuturtle_gazebo)/launch/diff_drive_gazebo.launch">
+   </include>
+
+   <!-- <node name="analysis" pkg="nuslam" type="analysis" ouput="screen"/> -->
+   
+</launch>

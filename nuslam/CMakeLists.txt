@@ -22,6 +22,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+include_directories(${Eigen3_INCLUDE_DIRS})
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -142,10 +144,20 @@ include_directories(
 #   src/${PROJECT_NAME}/nuslam.cpp
 # )
 
+add_executable(landmarks src/landmarks.cpp)
+target_link_libraries(landmarks ${catkin_LIBRARIES} Eigen3::Eigen)
 
+add_executable(analysis src/analysis.cpp)
+target_link_libraries(analysis ${catkin_LIBRARIES} Eigen3::Eigen)
+
+add_executable(what src/test.cpp)
+target_link_libraries(what ${catkin_LIBRARIES} Eigen3::Eigen)
 
 add_executable(draw_map src/draw_map.cpp )
 target_link_libraries(draw_map ${catkin_LIBRARIES} )
+
+add_executable(slam src/slam.cpp )
+target_link_libraries(slam ${catkin_LIBRARIES} Eigen3::Eigen )
 
 #add_dependencies(turtle_interface tsim_generate_messages_cpp)
 

@@ -15,3 +15,5 @@ max_rvel_robot: 2.84
 max_rvel_motor: 6.35492
 max_motor_power : 265
 wheel_axle_offset: 0.02
+chassis_mass: 0.94
+wheel_mass: 0.03

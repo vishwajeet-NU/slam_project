@@ -1,0 +1,8 @@
+detection_radius : 20
+noise_variance : 0
+sigma_r : 0.000001
+sigma_theta : 0.000001
+sigma_landmark : 0.000001
+co_var_w : 0.000000001
+co_var_v : 0.000000001
+r_param : 0.00000001

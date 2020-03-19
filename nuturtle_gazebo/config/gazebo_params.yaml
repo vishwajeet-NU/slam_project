@@ -1,0 +1,3 @@
+threshold : 0.22
+cut_off_points : 4
+radius_threshold : 0.08

@@ -1,0 +1,2 @@
+  ros::param::get("/detection_radius",detection_radius);
+
