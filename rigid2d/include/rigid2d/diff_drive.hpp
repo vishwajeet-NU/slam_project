@@ -30,6 +30,10 @@ public:
 
     double wheel_base;
     double wheel_radius;
+        
+    double G_term1 = 0.0;
+    double G_term2 = 0.0;
+    
     
     DiffDrive();
 
@@ -62,6 +66,10 @@ public:
     /// it follows the given body twist for one time  unit
     /// \param cmd - the twist command to send to the robot
     void feedforward(float left_wheel, float right_wheel);
+
+    void slamforward(float left_wheel, float right_wheel);
+
+
 
     /// \brief get the current pose of the robot
     Twist2D pose();

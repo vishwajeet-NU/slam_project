@@ -13,6 +13,8 @@
 #include"rigid2d/diff_drive.hpp"
 #include"rigid2d/waypoints.hpp"
 #include"rigid2d/telep.h"
+#include <geometry_msgs/PoseStamped.h> 
+#include <nav_msgs/Path.h> 
 
 namespace positions{
       float x_loc = 0.0;
@@ -65,10 +67,14 @@ int main(int argc, char** argv)
 
       Twist2D Vb;
 
+
       ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 1);
+      ros::Publisher path_pub = n.advertise<nav_msgs::Path>("/path_odom", 1);
 
       ros::Subscriber joint_state_subsciber = n.subscribe("/joint_states", 1, jt_callback);
       tf::TransformBroadcaster odom_broadcaster;
+      geometry_msgs::PoseStamped current_pose;
+      nav_msgs::Path path_taken;
 
       double x = 0.0;
       double y = 0.0;
@@ -142,7 +148,23 @@ int main(int argc, char** argv)
             odom.twist.twist.angular.z = Vb.w;
    
             odom_pub.publish(odom);
-   
+
+            current_pose.header.stamp = current_time;
+            current_pose.header.frame_id = "odom";
+
+            path_taken.header.stamp = current_time;
+            path_taken.header.frame_id = "odom";
+
+
+            current_pose.pose.position.x = x;
+            current_pose.pose.position.y = y;
+            current_pose.pose.orientation= odom_quat;            
+
+            path_taken.poses.push_back(current_pose);
+            path_pub.publish(path_taken);
+
+
+
             last_time = current_time;
             r.sleep();
      }

@@ -125,11 +125,56 @@ delta_qb.v_y = T_bb.m6;
 delta_qb.w = Vb.w;
 
 
+
+
 position.v_x = position.v_x + cos(position.w) * delta_qb.v_x - sin(position.w)* delta_qb.v_y;
 position.v_y = position.v_y+ sin(position.w) * delta_qb.v_x + cos(position.w)* delta_qb.v_y;
 position.w = position.w + delta_qb.w;
 
 
+}
+
+
+void DiffDrive::slamforward(float left_wheel, float right_wheel)
+{
+    Twist2D Vb;
+    WheelVelocities in; 
+    Twist2D delta_qb;
+    in.U1 = left_wheel;
+    in.U2 = right_wheel;
+    Vb = wheelsToTwist(in);
+
+
+if(Vb.w ==0)
+{
+
+
+position.v_x = position.v_x + cos(position.w) * Vb.v_x;
+position.v_y = position.v_y+ sin(position.w) * Vb.v_x;
+
+
+//add m terms
+// add noise term w
+
+G_term1 = - Vb.v_x * sin(position.w);
+G_term2 = Vb.v_x * cos(position.w);
+}
+
+else{
+
+double term1 = Vb.v_x*sin(position.w)/Vb.w;
+double term2 = Vb.v_x*cos(position.w)/Vb.w;
+
+
+position.w = position.w + Vb.w;
+
+position.v_x = position.v_x  -term1+ Vb.v_x* sin(position.w)/Vb.w;
+position.v_y =  position.v_y + term2 - Vb.v_x* cos(position.w)/Vb.w;  
+
+G_term1 = -term2 + Vb.v_x* cos(position.w)/Vb.w;
+G_term2 = -term1 + Vb.v_x* sin(position.w)/Vb.w;
+
+}
 }
 
 /// \brief gives body pose when required 
@@ -154,4 +199,9 @@ void DiffDrive::reset(Twist2D ps)
   position.v_y = ps.v_y;
   position.w   = ps.w;
 }
+
+
+
+
 }
+
