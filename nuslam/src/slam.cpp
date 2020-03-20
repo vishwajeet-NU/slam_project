@@ -43,8 +43,8 @@ namespace positions{
 namespace turtle_odom_pose{
     float x = 0.0;
     float y = 0.0;
-    float theta = 0.0;
-    geometry_msgs::Quaternion quat; 
+    float th = 0.0;
+    
     
 }
 static double sigma_r = 0 , sigma_theta = 0, sigma_landmark = 0;
@@ -59,7 +59,7 @@ static double y_start= 0.0;
 static double theta_start = 0.0; // change these later , need to accomodate different start positions?
 static bool called = false;
 
-static int m_land =12 ;      // number of landmarks 
+static int m_land = 12;      // number of landmarks 
 static int n_land = m_land * 2;   // 2m for x and y location of landmark
 static int total = n_land + 3;
 
@@ -67,9 +67,6 @@ static double co_var_w;
 static double co_var_v;
 std::vector<float> x_center;
 std::vector<float> y_center; 
-
-static double roll, pitch, yaw;
-
 
 bool land_called = false;
 bool odom_call = false;
@@ -83,14 +80,8 @@ void landmarks(const nuslam::turtle_map &coordinates)
 
 float wrap_angles(float incoming_angle)
 {
-    if(incoming_angle>=(rigid2d::PI))
-    {
-        incoming_angle = incoming_angle - 2.0*rigid2d::PI;
-    }
-    else
-    {
-        incoming_angle = incoming_angle;
-    }
+    incoming_angle = atan2(sin(incoming_angle),cos(incoming_angle));
+
     return incoming_angle;
 }
 
@@ -110,22 +101,6 @@ bool do_teleport(rigid2d::telep::Request  &req, rigid2d::telep::Response &res)
      return true;
 }
 
-void pose_odom_Callback(const nav_msgs::Odometry &odom_pose){
-   turtle_odom_pose::x = odom_pose.pose.pose.position.x ;
-   turtle_odom_pose::y = odom_pose.pose.pose.position.y;
-   turtle_odom_pose::quat = odom_pose.pose.pose.orientation;
-
-   double quatx= odom_pose.pose.pose.orientation.x;
-   double quaty= odom_pose.pose.pose.orientation.y;
-   double quatz= odom_pose.pose.pose.orientation.z;
-   double quatw= odom_pose.pose.pose.orientation.w;
-   tf::Quaternion q(quatx, quaty, quatz, quatw);
-   tf::Matrix3x3 m(q);
-   m.getRPY(roll, pitch, yaw);
-   odom_call = true;
-}
-
-
 int main(int argc, char** argv)
 {
       ros::init(argc, argv, "slam");
@@ -138,9 +113,7 @@ int main(int argc, char** argv)
      ros::param::get("co_var_v",co_var_v);
      ros::param::get("r_param",r_param);
 
-     geometry_msgs::PoseStamped current_pose_map;
-     nav_msgs::Path path_taken_map;
-
+     
     ros::ServiceServer service = n.advertiseService("/set_pose", do_teleport);
     Twist2D starting_position;
     starting_position.v_x =0.0;
@@ -152,49 +125,47 @@ int main(int argc, char** argv)
     ros::Publisher path_pub_map = n.advertise<nav_msgs::Path>("/path_map", 1);
     ros::Subscriber joint_state_subsciber = n.subscribe("/joint_states", 1, jt_callback);
     ros::Subscriber read_landmarks = n.subscribe("landmarks", 1, landmarks);
-    ros::Subscriber odom_sub = n.subscribe("/odom", 1, pose_odom_Callback);
 
+    ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 1);
+    ros::Publisher path_pub = n.advertise<nav_msgs::Path>("/path_odom", 1);
     tf::TransformBroadcaster map_broadcaster;
+    tf::TransformBroadcaster odom_broadcaster;
+    geometry_msgs::PoseStamped current_pose;
+    nav_msgs::Path path_taken;
+    geometry_msgs::PoseStamped current_pose_map;
+    nav_msgs::Path path_taken_map;
 
-    ros::Time current_time, last_time;
-    current_time = ros::Time::now();
-    last_time = ros::Time::now();
-
-
-      Eigen::MatrixXd mu_t_bar(total,1);
-      mu_t_bar.fill(0.0);
-      Eigen::MatrixXd mu_t_posterior(total,1);
-      Eigen::MatrixXd w_t(3,1);
-      Eigen::MatrixXd v_t(2,1);
-      Eigen::MatrixXd g_t(total,total);
-      g_t.fill(0.0);
-      g_t = g_t + Eigen::MatrixXd::Identity(total,total); 
-      
-      Eigen::MatrixXd q_t(total,total);
-      q_t.fill(0.0);
-      q_t.block(0,0,3,3) << sigma_r*sigma_r,0,0,0,sigma_theta*sigma_theta,0,0,0,sigma_landmark*sigma_landmark;
-     
-      Eigen::MatrixXd pose_var_prior(total,total);
-      Eigen::MatrixXd pose_var_bar(total,total);
-      Eigen::MatrixXd pose_var_posterior(total,total);
-      pose_var_prior.fill(0.0);
-      Eigen::MatrixXd temp_covar(n_land,n_land);
-      Eigen::VectorXd temp_temp(n_land);
-      temp_temp.fill(10000);
-      temp_covar.fill(0.0);
-      temp_covar = temp_temp.asDiagonal(); 
-      pose_var_prior.bottomRightCorner(n_land,n_land) = temp_covar;
-
-      Eigen::MatrixXd z_t(2,1);
-      Eigen::MatrixXd small_h(2,1);
-      Eigen::MatrixXd large_h(2,total);
-      large_h.fill(0.0);
-
-      Eigen::MatrixXd k_gain(total,2);
-      Eigen::MatrixXd R(2,2);
-      R << r_param,r_param,r_param,r_param; //parametrize this later
-
-      ros::Rate r(100);
+    Eigen::MatrixXd mu_t_bar(total,1);
+    mu_t_bar.fill(0.0);
+    Eigen::MatrixXd mu_t_posterior(total,1);
+    Eigen::MatrixXd w_t(3,1);
+    Eigen::MatrixXd v_t(2,1);
+    Eigen::MatrixXd g_t(total,total);
+    g_t.fill(0.0);
+    g_t = g_t + Eigen::MatrixXd::Identity(total,total); 
+    
+    Eigen::MatrixXd q_t(total,total);
+    q_t.fill(0.0);
+    q_t.block(0,0,3,3) << sigma_r*sigma_r,0,0,0,sigma_theta*sigma_theta,0,0,0,sigma_landmark*sigma_landmark;
+    
+    Eigen::MatrixXd pose_var_prior(total,total);
+    Eigen::MatrixXd pose_var_bar(total,total);
+    Eigen::MatrixXd pose_var_posterior(total,total);
+    pose_var_prior.fill(0.0);
+    Eigen::MatrixXd temp_covar(n_land,n_land);
+    Eigen::VectorXd temp_temp(n_land);
+    temp_temp.fill(10000);
+    temp_covar.fill(0.0);
+    temp_covar = temp_temp.asDiagonal(); 
+    pose_var_prior.bottomRightCorner(n_land,n_land) = temp_covar;
+    Eigen::MatrixXd z_t(2,1);
+    Eigen::MatrixXd small_h(2,1);
+    Eigen::MatrixXd large_h(2,total);
+    large_h.fill(0.0);
+    Eigen::MatrixXd k_gain(total,2);
+    Eigen::MatrixXd R(2,2);
+    R << r_param,0,0,r_param; //parametrize this later
+    ros::Rate r(100);
       while(n.ok())
       {
           ros::spinOnce();               // check for incoming messages
@@ -207,7 +178,7 @@ int main(int argc, char** argv)
               called = false;
           }
           
-          if(land_called && odom_call)
+          if(land_called)
           {
 
               if(start)
@@ -228,18 +199,71 @@ int main(int argc, char** argv)
               body_in.U1 = left_wheel;
               body_in.U2 = right_wheel;
               body_v = turtle_odo.wheelsToTwist(body_in);
+              turtle_odo.feedforward(left_wheel, right_wheel);
+              WheelVelocities temp_wheel;
+              temp_wheel.U1 = left_wheel;
+              temp_wheel.U2 = right_wheel;
+              left_wheel = incoming_left_wheel;
+              right_wheel = incoming_right_wheel;
+              Twist2D current_position;
+              current_position = turtle_odo.pose();
 
-             left_wheel = incoming_left_wheel;
-             right_wheel = incoming_right_wheel;
-
-            theta_start = mu_t_bar.coeff(0,0);
-            x_start = mu_t_bar.coeff(1,0);
-            y_start = mu_t_bar.coeff(2,0);
-
-            //    std::cout<<"x_start going in = "<<x_start<<"\n";
-            //    std::cout<<"y_start going in = "<<y_start<<"\n";
-
-            //    std::cout<<"w pos = "<<turtle_odo.position.w<<"\n"; 
+              turtle_odom_pose::x = current_position.v_x;
+              turtle_odom_pose::y = current_position.v_y;
+              turtle_odom_pose::th = current_position.w;
+            //   std::cout<<"x"<<turtle_odom_pose::x<<"\n";
+            //   std::cout<<"y"<<turtle_odom_pose::y<<"\n";
+            //   std::cout<<"theta"<<turtle_odom_pose::th<<"\n";
+              
+              geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(turtle_odom_pose::th);   
+              
+              geometry_msgs::TransformStamped odom_trans;
+              odom_trans.header.stamp = ros::Time::now();
+              odom_trans.header.frame_id = "odom";
+              odom_trans.child_frame_id = "base_link";
+     
+              odom_trans.transform.translation.x = turtle_odom_pose::x;
+              odom_trans.transform.translation.y = turtle_odom_pose::y;
+              odom_trans.transform.translation.z = 0.0;
+              odom_trans.transform.rotation = odom_quat;
+     
+              odom_broadcaster.sendTransform(odom_trans);
+     
+              nav_msgs::Odometry odom;
+              odom.header.stamp = ros::Time::now();
+              odom.header.frame_id = "odom";
+     
+              odom.pose.pose.position.x = turtle_odom_pose::x;
+              odom.pose.pose.position.y = turtle_odom_pose::y;
+              odom.pose.pose.position.z = 0.0;
+              odom.pose.pose.orientation = odom_quat;
+    
+              odom.child_frame_id = "base_link";
+              Vb = turtle_odo.wheelsToTwist(temp_wheel);
+              odom.twist.twist.linear.x = Vb.v_x;
+              odom.twist.twist.linear.y = Vb.v_y;
+              odom.twist.twist.angular.z = Vb.w;
+     
+              odom_pub.publish(odom);
+  
+              current_pose.header.stamp = ros::Time::now();
+              current_pose.header.frame_id = "odom";
+  
+              path_taken.header.stamp = ros::Time::now();
+              path_taken.header.frame_id = "odom";
+  
+  
+              current_pose.pose.position.x =  turtle_odom_pose::x;
+              current_pose.pose.position.y =  turtle_odom_pose::y;
+              current_pose.pose.orientation = odom_quat;            
+  
+              path_taken.poses.push_back(current_pose);
+              path_pub.publish(path_taken);
+  
+              theta_start = mu_t_bar.coeff(0,0);
+              x_start = mu_t_bar.coeff(1,0);
+              y_start = mu_t_bar.coeff(2,0);
+  
               if(body_v.w == 0)
               {   
                   x_start = x_start + body_v.v_x*cos(theta_start);
@@ -254,17 +278,9 @@ int main(int argc, char** argv)
                   
               }
 
-            //    std::cout<<"x_start coming out = "<<x_start<<"\n";
-            //    std::cout<<"y_start coming out = "<<y_start<<"\n";
-            // std::cout<<"mu_t_bar before << = "<<mu_t_bar<<"\n";
             mu_t_bar.row(0) << theta_start;
             mu_t_bar.row(1) << x_start;
             mu_t_bar.row(2) << y_start;
-// std::cout<<"xstart"<<x_start<<"\n";
-// std::cout<<"ystart"<<y_start<<"\n";
-// std::cout<<"thetastart"<<theta_start<<"\n";
-
-            // std::cout<<"mu_t_bar after << = "<<mu_t_bar<<"\n";
 
             std::normal_distribution<double> d(0.0, co_var_w);
             std::normal_distribution<double> e(0.0, co_var_v);
@@ -289,11 +305,11 @@ int main(int argc, char** argv)
             w_t << temp_rand_w;
             v_t << temp_rand_v;
 
+            // std::cout<<"wt nosise = \n"<<w_t<<"\n";
 
             mu_t_bar.row(0) = mu_t_bar.row(0) + w_t.row(0);
             mu_t_bar.row(1) = mu_t_bar.row(1) + w_t.row(1);
             mu_t_bar.row(2) = mu_t_bar.row(2) + w_t.row(2);
-
 
             Eigen::VectorXd temp_for_gt(total,1);
             temp_for_gt.fill(0.0);
@@ -309,25 +325,19 @@ int main(int argc, char** argv)
             }
 
             g_t.col(0) << temp_for_gt;
+            pose_var_bar = g_t*pose_var_prior*g_t.transpose() + q_t ;
 
-             std::cout<<"g_t \n= "<<g_t<<"\n \n"; 
-
-   
-            std::cout<<"mu_t_bar before loop\n"<<mu_t_bar<<"\n \n";
-            std::cout<<"pose_var_prior before loop \n ="<<pose_var_prior<<"\n \n";
-            
+            std::cout<<"state post prdedict \n"<< mu_t_bar <<"\n";
+            std::cout<<"variance post predict \n"<< pose_var_bar <<"\n";
             for( int i = 0; i<m_land; i++ )
             {
-                 pose_var_bar = g_t*pose_var_prior*(g_t.transpose()) + q_t ;
       
-                 std::cout<<"landmark number = "<<i<<"\n ";
-                // std::cout<<"x val of land"<<x_center[i]<<"\n";
-                // std::cout<<"y val of land"<<y_center[i]<<"\n";
-              std::cout<<"mu_t_bar in loop \n"<<mu_t_bar<<"\n \n";
+                std::cout<<"landmark number = "<<i<<"\t ";
+                std::cout<<"x val of land"<<x_center[i]<<"\t";
+                std::cout<<"y val of land"<<y_center[i]<<"\n";
+                std::cout<<"mu_t_bar in loop \n"<<mu_t_bar<<"\n \n";
             
-               std::cout<<"pose_var_bar in loop \n="<<pose_var_bar<<"\n \n";
                 
-/// expected values z   
                  double y_del = (mu_t_bar.coeff(2*(i+1)+2,0) - mu_t_bar.coeff(2,0)); 
                  double x_del = (mu_t_bar.coeff(2*(i+1)+1,0) - mu_t_bar.coeff(1,0));
                   std::cout<<"x_del ="<< x_del <<"\n";
@@ -340,8 +350,6 @@ int main(int argc, char** argv)
                 std::cout<<"known_range = "<<known_range<<"\n"; 
                 std::cout<<"known_bearing = "<<known_bearing<<"\n"; 
 
-                 
-/// sensor values z_hat
                 double range = sqrt((x_center[i] - mu_t_bar.coeff(1,0)) * (x_center[i] - mu_t_bar.coeff(1,0)) + (y_center[i] - mu_t_bar.coeff(2,0)) * (y_center[i] - mu_t_bar.coeff(2,0)));
                 double bearing = (wrap_angles(atan2((y_center[i] - mu_t_bar.coeff(2,0)) ,(x_center[i] - mu_t_bar.coeff(1,0))))  - wrap_angles(mu_t_bar.coeff(0,0)));
 
@@ -356,8 +364,10 @@ int main(int argc, char** argv)
 
                  std::cout<<"small_h = "<<small_h<<"\n";  
 
-                double x_delta = mu_t_bar.coeff(1,0) - x_center[i];
-                double y_delta = mu_t_bar.coeff(2,0) - y_center[i];
+                std::cout<< "x value from sensor = "<<x_center[i]<<"\n";
+                std::cout<<"y value from sensor = "<<y_center[i]<<"\n";
+                double x_delta = x_center[i] - mu_t_bar.coeff(1,0) ;
+                double y_delta = y_center[i] - mu_t_bar.coeff(2,0);
 
                 double delta = x_delta * x_delta + y_delta * y_delta;
 
@@ -382,12 +392,18 @@ int main(int argc, char** argv)
                 z_t << known_range,wrap_angles(known_bearing);
 
                 z_t(1) = wrap_angles(z_t(1));
-                std::cout<<"z_t = \n"<<z_t<<"\n"; 
-                std::cout<<"small_h = \n"<<small_h<<"\n";   
+                // std::cout<<"z_t = \n"<<z_t<<"\n"; 
+                // std::cout<<"small_h = \n"<<small_h<<"\n";   
                 Eigen::MatrixXd diff(2,1);
                 diff = z_t - small_h;
                 diff(1) = wrap_angles(diff(1));
                 std::cout<<"diff= "<<diff<<"\n";
+                std::cout<<"pose_var_bar in loop \n="<<pose_var_bar<<"\n \n";
+                std::cout<<"large_h_transpose = \n"<<large_h.transpose()<<"\n";
+                std::cout<<"R = \n"<< R << "\n";
+            
+                std::cout<<"mid term = "<<(large_h * pose_var_bar * large_h.transpose() + R)<<"\n";
+                std::cout<<"inverse of mid term \n"<< (large_h * pose_var_bar * large_h.transpose() + R ).inverse()<<"\n";
                 k_gain = pose_var_bar * large_h.transpose() * (large_h * pose_var_bar * large_h.transpose() + R ).inverse();
         
                 std::cout<<"k_gain = \n"<<k_gain<<"\n"; 
@@ -403,25 +419,27 @@ int main(int argc, char** argv)
 
                  std::cout<<"pose_var_posterior = \n"<<pose_var_posterior<<"\n \n"; 
             mu_t_bar = mu_t_posterior;
-            pose_var_prior = pose_var_posterior;
+            pose_var_bar = pose_var_posterior;
                 
             }   
             // std::cout<<"mu posteriro"<<mu_t_posterior<<"\n";
             k_gain.fill(0.0);
             large_h.fill(0.0);
+            pose_var_prior = pose_var_posterior;
 
-            geometry_msgs::Quaternion map_quat = tf::createQuaternionMsgFromYaw(wrap_angles(mu_t_bar.coeff(0,0)) - wrap_angles(yaw));   
+
+            geometry_msgs::Quaternion map_quat = tf::createQuaternionMsgFromYaw(wrap_angles(mu_t_bar.coeff(0,0)) - wrap_angles(turtle_odom_pose::th));   
             
             geometry_msgs::TransformStamped map_trans;
-            map_trans.header.stamp = current_time;
+            map_trans.header.stamp = ros::Time::now();
             map_trans.header.frame_id = "map";
             map_trans.child_frame_id = "odom";
 
 
             // std::cout<<"coeff x = "<<mu_t_bar.coeff(1,0) <<"\n";
             // std::cout<<"coeff y = "<<mu_t_bar.coeff(2,0) <<"\n";
-            // std::cout<<"x = "<<x<<"\n";
-            // std::cout<<"y = "<<y<<"\n";
+            // std::cout<<"x = "<<turtle_odom_pose::x<<"\n";
+            // std::cout<<"y = "<<turtle_odom_pose::y<<"\n";
         
             map_trans.transform.translation.x = mu_t_bar.coeff(1,0) - turtle_odom_pose::x;
             map_trans.transform.translation.y = mu_t_bar.coeff(2,0) - turtle_odom_pose::y;
@@ -446,7 +464,6 @@ int main(int argc, char** argv)
 
 
             land_called = false;
-            last_time = current_time;
 
       }
           r.sleep();

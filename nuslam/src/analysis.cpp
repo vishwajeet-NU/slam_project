@@ -52,6 +52,10 @@
 
 #include <numeric>
 #include<random>
+
+#include <geometry_msgs/PoseStamped.h> 
+#include <nav_msgs/Path.h> 
+
 using namespace Eigen;
 
  std::mt19937 & get_random()
@@ -72,24 +76,20 @@ static std::vector<float> radii;
 
 static std::vector<std::string> names;
 
+geometry_msgs::PoseStamped ground_truth;
+nav_msgs::Path ground_path;
+
 ros::Publisher map_pub;
+ros::Publisher path_pub_gt;
 nuslam::turtle_map container;
 
 std::string cylinder = "cylinder";
 std::string robot = "diff_drive";
 
-
-
 double wrap_angles(float incoming_angle)
 {
-    if(incoming_angle>=(rigid2d::PI))
-    {
-        incoming_angle = incoming_angle - 2.0*rigid2d::PI;
-    }
-    else
-    {
-        incoming_angle = incoming_angle;
-    }
+    incoming_angle = atan2(sin(incoming_angle),cos(incoming_angle));
+    
     return incoming_angle;
 
 }
@@ -98,6 +98,7 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
     std::normal_distribution<double> d(0.0, nvar);
     ros::NodeHandle n;
     map_pub= n.advertise<nuslam::turtle_map>("landmarks", 1);
+    path_pub_gt = n.advertise<nav_msgs::Path>("/path_ground", 1);
    
     std::vector<int> index_pos;
     unsigned int length = in_var.name.size();
@@ -132,7 +133,16 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
     tf::Matrix3x3 mat(quat);
     mat.getRPY(roll, pitch, yaw);
 //    std::cout<<"angle = "<<yaw<<"/n";
-    
+    ground_truth.header.stamp = ros::Time::now();
+    ground_truth.header.frame_id = "map";
+    ground_path.header.stamp = ros::Time::now();
+    ground_path.header.frame_id = "base_link";
+    ground_truth.pose.position.x =  in_var.pose[robot_index].position.x;
+    ground_truth.pose.position.y =  in_var.pose[robot_index].position.y;
+    ground_truth.pose.orientation= in_var.pose[robot_index].orientation;           
+    ground_path.poses.push_back(ground_truth);
+    path_pub_gt.publish(ground_path);
+  
   for(unsigned int i = 0; i< index_pos.size();i++)
   {
        rigid2d::Vector2D bot;
@@ -144,9 +154,17 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
        land.y = in_var.pose[index_pos[i]].position.y;
 
 
-       double x_delta = in_var.pose[robot_index].position.x - in_var.pose[index_pos[i]].position.x;
-       double y_delta = in_var.pose[robot_index].position.y - in_var.pose[index_pos[i]].position.y;
-       double range = -1* land.distance(bot,land);
+
+
+       double x_delta = in_var.pose[index_pos[i]].position.x - in_var.pose[robot_index].position.x;
+       double y_delta = in_var.pose[index_pos[i]].position.y - in_var.pose[robot_index].position.y;
+       double range = land.distance(bot,land);
+       std::cout<<"atan = "<< atan2(y_delta,x_delta)<<"\n";
+       std::cout<<"wrapped atan"<<wrap_angles(atan2(y_delta,x_delta))<<"\n";
+       
+       std::cout<<"wrapped yaw "<< wrap_angles(yaw)<<"\n";
+       std::cout<<"yaw = "<<yaw<<"\n";
+
        double bearing =  wrap_angles(atan2(y_delta,x_delta)) - wrap_angles(yaw) ;       
 
        if(abs(range)<detection_radius)
@@ -179,24 +197,6 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
 //  std::cout<<"y = "<<"\t";
 
 // // std::cout<<"\n";
-//   for( unsigned int j= 0; j<x_coordinates.size();j++)
-//   {
-//       std::cout<<y_coordinates[j]<<" ";
-      
-//   }
-// std::cout<<"\n";
-
-
-    // x_coordinates.push_back(in_var.pose[2].position.x);
-    // y_coordinates.push_back(in_var.pose[2].position.y);
-    // radii.push_back(0.035);
-
-    // x_coordinates.push_back(in_var.pose[23].position.x);
-    // y_coordinates.push_back(in_var.pose[23].position.y);
-    // radii.push_back(0.160);
-
-    
-
 
     container.radius = radii;
     container.x_center = x_coordinates;
@@ -206,9 +206,6 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
     x_coordinates.clear();
     y_coordinates.clear();
     radii.clear();
-
-//9
-//12
 
 }
 int main(int argc, char **argv)
@@ -222,7 +219,7 @@ int main(int argc, char **argv)
     gazebo_msgs::GetWorldProperties srv;
 //    gazebo_msgs::ModelStates 
 
-     ros::param::get("/detection_radius",detection_radius);
+     ros::param::get("detection_radius",detection_radius);
      ros::param::get("noise_variance", nvar);
 
     client.call(srv);
@@ -233,9 +230,10 @@ int main(int argc, char **argv)
 
     while (ros::ok())
     {
-
     ros::spinOnce();
-
     rate.sleep();
     }   
 }
+
+
+             
