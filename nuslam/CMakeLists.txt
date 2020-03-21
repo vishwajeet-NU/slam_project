@@ -22,6 +22,10 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
+if (CATKIN_ENABLE_TESTING)
+   find_package(rostest REQUIRED)
+endif()
+
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 include_directories(${Eigen3_INCLUDE_DIRS})
 
@@ -62,6 +66,7 @@ include_directories(${Eigen3_INCLUDE_DIRS})
  add_message_files(
    FILES
    turtle_map.msg
+   test.msg
 #   Message1.msg
 #   Message2.msg
  )
@@ -185,6 +190,12 @@ target_link_libraries(slam ${catkin_LIBRARIES} Eigen3::Eigen )
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+
+if (CATKIN_ENABLE_TESTING)
+    add_rostest_gtest(circle_test test/test_circle.test test/circle_tester.cpp)
+    target_link_libraries(circle_test ${catkin_LIBRARIES} rigid2d )
+endif()
 
 #############
 ## Install ##

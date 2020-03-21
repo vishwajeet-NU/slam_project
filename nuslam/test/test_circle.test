@@ -1,0 +1,6 @@
+<launch>
+<node pkg="nuslam" type="landmarks" name="landmarks" output="screen" />
+<rosparam command="load" file="$(find nuslam)/config/slam_params.yaml" />  
+
+<test test-name="circle_test" pkg="nuslam" type="circle_test" />
+</launch>

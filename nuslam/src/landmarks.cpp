@@ -49,9 +49,9 @@
 #include <tf/transform_listener.h>
 
 #include <nuslam/turtle_map.h>
-
+#include <nuslam/test.h>
 #include <numeric>
-
+#include "std_msgs/Empty.h"
 using namespace Eigen;
 
 static double threshold;
@@ -60,13 +60,14 @@ static double radius_threshold;
 ros::Publisher map_pub;
 nuslam::turtle_map container;
 
+bool test = false;
 void fit_circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<float>> &y_in)
 {
   std::vector<float> x_holder;
   std::vector<float> y_holder;
   std::vector<float> r_holder;
 
-  // std::cout<<"classes coming in = "<< x_in.size() << "\n";
+   std::cout<<"classes coming in = "<< x_in.size() << "\n";
   ros::NodeHandle n;
   map_pub= n.advertise<nuslam::turtle_map>("landmarks", 1);
   
@@ -214,39 +215,51 @@ float r = sqrt(r_squared);
 float located_x = small_a + x_mean;
 float located_y = small_b + y_mean;
 
-
-if(r < radius_threshold)
+if(!test)
 {
- std::cout<<"itr no"<<k<<"X= "<<located_x <<" ";
- std::cout<<"itr no"<<k<<"Y= "<<located_y <<" ";
- std::cout<<"itr no"<<k<<"R= "<<r <<"\n";
+  if(r < radius_threshold)
+  {
+    std::cout<<"itr no"<<k<<"X= "<<located_x <<" ";
+    std::cout<<"itr no"<<k<<"Y= "<<located_y <<" ";
+    std::cout<<"itr no"<<k<<"R= "<<r <<"\n";
 
- geometry_msgs::PointStamped laser_point;
- laser_point.header.frame_id = "base_scan";
- laser_point.header.stamp = ros::Time();
- laser_point.point.x = located_x;
- laser_point.point.y = located_y;
- laser_point.point.z = 0.0;
- try
- {
-    geometry_msgs::PointStamped base_point;
-    listener.transformPoint("odom", laser_point, base_point);
- }
+    geometry_msgs::PointStamped laser_point;
+    laser_point.header.frame_id = "base_scan";
+    laser_point.header.stamp = ros::Time();
+    laser_point.point.x = located_x;
+    laser_point.point.y = located_y;
+    laser_point.point.z = 0.0;
+    try
+    {
+      geometry_msgs::PointStamped base_point;
+      listener.transformPoint("odom", laser_point, base_point);
+    }
 
- catch(tf::TransformException& ex)
- {
-   ROS_ERROR("Received an exception trying to transform a point from \"base_scan\" to \"odom\": %s", ex.what());
+    catch(tf::TransformException& ex)
+    {
+      ROS_ERROR("Received an exception trying to transform a point from \"base_scan\" to \"odom\": %s", ex.what()); 
+    }
+    std::cout<<"itr no"<<k<<"laser x= "<<laser_point.point.x <<" ";
+    std::cout<<"itr no"<<k<<"laser Y= "<<laser_point.point.y <<" ";
+    x_holder.push_back(laser_point.point.x);
+    y_holder.push_back(laser_point.point.y);
+    r_holder.push_back(r);
 }
-  std::cout<<"itr no"<<k<<"laser x= "<<laser_point.point.x <<" ";
-  std::cout<<"itr no"<<k<<"laser Y= "<<laser_point.point.y <<" ";
-
- x_holder.push_back(laser_point.point.x);
- y_holder.push_back(laser_point.point.y);
-//  x_holder.push_back(located_x);
-//  y_holder.push_back(located_y);
-
-r_holder.push_back(r);
 }
+
+else
+{
+  std::cout<<"in test \n";
+  std::cout<<"x ="<<located_x;
+  std::cout<<"y ="<<located_y;
+  std::cout<<"r ="<<r;
+  
+  x_holder.push_back(located_x);
+  y_holder.push_back(located_y);
+  r_holder.push_back(r);
+  test = false;
+}
+
 
 
 }
@@ -261,25 +274,47 @@ y_holder.clear();
 r_holder.clear();
 
 }
-void scanCallback(const sensor_msgs::LaserScan & scan_in)
-{
-  
-    std::vector<float> readings;
-//    std::vector<float> aaa_x1= {1.0,2.0,5.0,7.0,9.0,3.0};
-//    std::vector<float> aaa_x2= {-1.0,-0.3,0.3,1.0};
 
-//    std::vector<float> aaa_y1={7.0,6.0,8.0,7.0,5.0,7.0};
-//    std::vector<float> aaa_y2={0.0,-0.06,0.1,0};
+void testCallback(const nuslam::test &array)
+{
+  test = true;
     std::vector<std::vector<float>> all_x;
     std::vector<std::vector<float>> all_y;
 
-  //  all_x.push_back(aaa_x1);
- //   all_x.push_back(aaa_x2);
-    
- //   all_y.push_back(aaa_y1);
- //   all_y.push_back(aaa_y2);
+
+	std::vector<float> xx;
+  std::vector<float> yy;
   
-   readings = scan_in.ranges;
+	xx.insert(xx.begin(), std::begin(array.x_vals), std::end(array.x_vals));
+	yy.insert(yy.begin(), std::begin(array.y_vals), std::end(array.y_vals));
+
+
+  std::cout<<"test callback"<<"\n";
+  std::cout<<xx[2]<<"\n";
+  std::cout<<yy[2]<<"\n";
+
+  std::vector<float> aaa_x1= {1.0,2.0,5.0,7.0,9.0,3.0};
+  // std::vector<float> aaa_x2= {-1.0,-0.3,0.3,1.0};
+  std::vector<float> aaa_y1={7.0,6.0,8.0,7.0,5.0,7.0};
+  // std::vector<float> aaa_y2={0.0,-0.06,0.1,0};
+
+  all_x.push_back(aaa_x1);
+   
+  all_y.push_back(aaa_y1);
+
+  fit_circle(all_x,all_y);
+  all_x.clear();
+  all_y.clear();
+
+}
+void scanCallback(const sensor_msgs::LaserScan & scan_in)
+{
+  std::cout<<"inside main callback"<<"\n";
+  
+    std::vector<float> readings;
+    std::vector<std::vector<float>> all_x;
+    std::vector<std::vector<float>> all_y;
+    readings = scan_in.ranges;
 
 
    double current_val = readings[0];
@@ -381,19 +416,18 @@ void scanCallback(const sensor_msgs::LaserScan & scan_in)
 }   
 
 
-
-
 int main(int argc, char **argv)
 {
     ros::init(argc,argv,"landmarks");
     ros::NodeHandle n;
-
-    ros::Subscriber laser_sub = n.subscribe("scan", 1, scanCallback);
-    ros::Rate rate(5);
- 
     ros::param::get("/threshold",threshold);
     ros::param::get("/cut_off_points",cut_off);
     ros::param::get("/radius_threshold",radius_threshold);
+    ros::Subscriber test_algo = n.subscribe("test",1,testCallback);
+    ros::Subscriber laser_sub = n.subscribe("scan", 1, scanCallback);
+        
+    ros::Rate rate(5);
+ 
     while (ros::ok())
     {
     ros::spinOnce();
