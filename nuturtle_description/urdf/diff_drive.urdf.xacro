@@ -17,17 +17,16 @@
 
   <link name="base_link"/>
 
-
   <joint name="base_joint" type="fixed">
     <parent link="base_link"/>
     <child link="body_link"/>
-    <origin xyz="${l/2 - r} 0.0 ${h/2 +r- w_off}" rpy="0 0 0"/>
+     <origin xyz="${l/2 - r} 0.0 ${h/2 +r- w_off}" rpy="0 0 0"/>
   </joint>
 
 
   <link name="body_link">
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+     <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
           <box size="${l} ${w-wid} ${h} "/>
       </geometry>
@@ -41,23 +40,33 @@
          <box size="${l} ${w-wid} ${h} "/>
       </geometry>
     </collision>
-    <inertial>
+   
+     <inertial>
       <mass value="${mass_c}"/>
-      <inertia  ixx="${mass_c * ((h*h)+ (w-wid)*(w-wid))/12}" ixy="0" ixz="0"
+     <inertia  ixx="${mass_c * ((h*h)+ (w-wid)*(w-wid))/12}" ixy="0" ixz="0"
               iyy="${mass_c * ((w-wid)*(w-wid) + l*l)/12}" iyz="0"
               izz="${mass_c * (h*h + l*l)/12 }"/> />
      </inertial>
 </link>
 
 
+<link name ="base_scan">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>  
+          <cylinder length="0.02" radius="${(w-wid)/4}" />
+      </geometry>
+      <material name="color2">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
 
-<link name = "base_scan">
-  </link> 
+</link> 
 
    <joint name="scan_joint" type="fixed">
     <parent link="body_link"/>
     <child link="base_scan"/>
-    <origin xyz="0 0 ${h/2 +0.01}" rpy="0 0 0" /> 
+    <origin xyz="${l/4} 0 ${h/2 + 0.02/2}" rpy="0 0 0" /> 
     <axis xyz="0 1 0" />
   </joint>
    
@@ -65,7 +74,7 @@
    <!-- Right Wheel -->
   <link name="right_wheel">
     <visual>
-      <origin xyz="0 ${-1*wid/2} 0" rpy="1.570795 0 0" />
+       <origin xyz="0 ${-1*wid/2} 0" rpy="1.570795 0 0" />
       <geometry>  
           <cylinder length="${wid}" radius="${r}" />
       </geometry>
@@ -91,14 +100,14 @@
   <joint name="right_wheel_axle" type="continuous">
     <parent link="body_link"/>
     <child link="right_wheel"/>
-    <origin xyz="${-l/2 + r} ${-1*(w/2-wid/2)} ${-h/2 + w_off}" rpy="0 0 0" /> 
+   <origin xyz="${-l/2 + r} ${-1*(w/2-wid/2)} ${-h/2 + w_off}" rpy="0 0 0" /> 
     <axis xyz="0 1 0" />
   </joint>
 
   <!-- left Wheel -->
   <link name="left_wheel">
     <visual>
-      <origin xyz="0 ${1*wid/2} 0" rpy="1.570795 0 0" />
+   <origin xyz="0 ${1*wid/2} 0" rpy="1.570795 0 0" />
       <geometry>
           <cylinder length="${wid}" radius="${r}" />
       </geometry>
@@ -114,19 +123,18 @@
     </collision>
     <inertial>
       <mass value="${mass_w}"/>
-   <inertia  ixx="${mass_w * ((3*r*r)+ (wid*wid)) / 12.0}"
+     <inertia  ixx="${mass_w * ((3*r*r)+ (wid*wid)) / 12.0}"
               iyy="${mass_w * ((3*r*r)+ (wid*wid)) / 12.0}" iyz="0"
               izz="${0.5 * mass_w * (r*r)}" ixy="0" ixz="0"/>
-   </inertial>
+    </inertial>
 
   </link>
   <joint name="left_wheel_axle" type="continuous">
     <parent link="body_link"/>
     <child link="left_wheel"/>
-    <origin xyz="${-l/2 + r} ${1*(w/2-wid/2)} ${-h/2 + w_off}" rpy="0 0 0" /> 
+   <origin xyz="${-l/2 + r} ${1*(w/2-wid/2)} ${-h/2 + w_off}" rpy="0 0 0" /> 
     <axis xyz="0 1 0" />
   </joint>
-
 
 <!-- caster Wheel -->
 <link name="caster">
@@ -145,12 +153,13 @@
       <sphere radius="${caster_rad}"/>
       </geometry>
     </collision>
-  </link>
+ </link> 
   <joint name="caster_chassis" type="fixed">
     <parent link="body_link"/>
     <child link="caster"/>
-    <origin xyz="${l/2 - caster_rad} 0 ${-h/2 - caster_rad}" /> 
+  <origin xyz="${l/2 - caster_rad} 0 ${-h/2 - caster_rad}" /> 
     <axis xyz = '1 1 1'/>
   </joint>
+
 
 </robot>

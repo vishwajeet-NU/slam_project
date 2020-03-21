@@ -1,44 +1,43 @@
 <launch>
-   <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
-   <include file="$(find nuturtle_robot)/launch/basic_remote.launch">
-   <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
-   </include>
-   
-   <include file="$(find nuturtle_description)/launch/view_diff_drive.launch"/>
 
-   <rosparam command="load" file="$(find tsim)/config/waypoint_x.yaml" />  
-   <rosparam command="load" file="$(find tsim)/config/waypoint_y.yaml" />  
-   <rosparam command="load" file="$(find nuturtle_robot)/config/nubot_params.yaml"/> 
+<arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
+<include file="$(find nuturtle_robot)/launch/basic_remote.launch">
+<arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
+</include>
 
- 
- 
+<include file="$(find nuturtle_description)/launch/view_diff_drive.launch"/>
+<rosparam command="load" file="$(find tsim)/config/waypoint_x.yaml" />  
+<rosparam command="load" file="$(find tsim)/config/waypoint_y.yaml" />  
+<rosparam command="load" file="$(find nuturtle_robot)/config/nubot_params.yaml"/> 
    
 <!--
 <node machine ="turtlebot" name="translate" pkg="nuturtle_robot" type="translate" />
-   
-   <node  name="odometer2" pkg="rigid2d" type="odometer" args = "/fake_odom /fake_base_link">
-   <remap from="odom" to="fake/odom"/>  
-   <remap from="joint_states" to="fake/joint_states"/>
-   <remap from="set_pose" to="fake/set_pose"/>
-   <param name="world" value="fake_odom"/>
-   <param name="base" value="fake_base_link"/>
-   </node>
-
-   <node   name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" >
-   <remap from="joint_states" to="fake/joint_states"/>
-   </node>
-
 <node machine ="turtlebot" name="rotation" pkg="nuturtle_robot" type="rotate" />
-<node pkg="tf" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0  /odom /fake_odom 100" />
-<node  name="real_waypoint" pkg="nuturtle_robot" type="real_waypoint" output = "screen" />
-
-<node  name="odometer1" pkg="rigid2d" type="odometer" >
-   <param name="world" value="odom" />
-   <param name="base" value="base_link" />
-   </node>
 
 -->
- 
+
+<node  name="odometer1" pkg="rigid2d" type="odometer" output = "screen">
+<param name="world" value="odom" />
+<param name="base" value="base_link" />
+</node>
+
+<node  name="odometer2" pkg="rigid2d" type="odometer" args = "/fake_odom /fake_base_link">
+<remap from="odom" to="fake/odom"/>  
+<remap from="joint_states" to="fake/joint_states"/>
+<remap from="set_pose" to="fake/set_pose"/>
+<param name="world" value="fake_odom"/>
+<param name="base" value="fake_base_link"/>
+</node>
+
+<node   name="fake_diff_encoder" pkg="rigid2d" type="fake_diff_encoder" >
+<remap from="joint_states" to="fake/joint_states"/>
+</node> 
+
+<node pkg="tf" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0  /odom /fake_odom 100" />
+
 <node name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface" />
+
+<node  name="real_waypoint" pkg="nuturtle_robot" type="real_waypoint" output = "screen" />
+
 
 </launch>

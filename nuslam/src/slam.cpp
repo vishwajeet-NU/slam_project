@@ -44,9 +44,10 @@ namespace turtle_odom_pose{
     float x = 0.0;
     float y = 0.0;
     float th = 0.0;
-    
-    
 }
+double roll,pitch,yaw= 0.0;    
+geometry_msgs::Quaternion quat; 
+
 static double sigma_r = 0 , sigma_theta = 0, sigma_landmark = 0;
 static double r_param;
 static double incoming_left_wheel;
@@ -57,6 +58,8 @@ static double right_wheel = 0;
 static double x_start = 0.0;
 static double y_start= 0.0;
 static double theta_start = 0.0; // change these later , need to accomodate different start positions?
+
+
 static bool called = false;
 
 static int m_land = 12;      // number of landmarks 
@@ -101,6 +104,23 @@ bool do_teleport(rigid2d::telep::Request  &req, rigid2d::telep::Response &res)
      return true;
 }
 
+
+void pose_odom_Callback(const nav_msgs::Odometry &odom_pose)
+    {
+        turtle_odom_pose::x = odom_pose.pose.pose.position.x ;
+        turtle_odom_pose::y = odom_pose.pose.pose.position.y;
+        quat = odom_pose.pose.pose.orientation;
+
+        double quatx= odom_pose.pose.pose.orientation.x;
+        double quaty= odom_pose.pose.pose.orientation.y;
+        double quatz= odom_pose.pose.pose.orientation.z;
+        double quatw= odom_pose.pose.pose.orientation.w;
+        tf::Quaternion q(quatx, quaty, quatz, quatw);
+        tf::Matrix3x3 m(q);
+        m.getRPY(roll, pitch, yaw);
+    }
+
+
 int main(int argc, char** argv)
 {
       ros::init(argc, argv, "slam");
@@ -125,13 +145,10 @@ int main(int argc, char** argv)
     ros::Publisher path_pub_map = n.advertise<nav_msgs::Path>("/path_map", 1);
     ros::Subscriber joint_state_subsciber = n.subscribe("/joint_states", 1, jt_callback);
     ros::Subscriber read_landmarks = n.subscribe("landmarks", 1, landmarks);
+    ros::Subscriber odom_sub = n.subscribe("odom", 1,pose_odom_Callback);
 
-    ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 1);
-    ros::Publisher path_pub = n.advertise<nav_msgs::Path>("/path_odom", 1);
     tf::TransformBroadcaster map_broadcaster;
-    tf::TransformBroadcaster odom_broadcaster;
-    geometry_msgs::PoseStamped current_pose;
-    nav_msgs::Path path_taken;
+
     geometry_msgs::PoseStamped current_pose_map;
     nav_msgs::Path path_taken_map;
 
@@ -188,7 +205,6 @@ int main(int argc, char** argv)
                       mu_t_bar.row(2+2*(i+1)-1) << x_center[i];
                       mu_t_bar.row(2+2*(i+1)) << y_center[i];
                   }
-                //   std::cout<<"starting mu_t = \n"<<mu_t_bar<<"\n";
                 start = false;  
               }
               left_wheel = incoming_left_wheel- left_wheel;
@@ -199,66 +215,9 @@ int main(int argc, char** argv)
               body_in.U1 = left_wheel;
               body_in.U2 = right_wheel;
               body_v = turtle_odo.wheelsToTwist(body_in);
-              turtle_odo.feedforward(left_wheel, right_wheel);
-              WheelVelocities temp_wheel;
-              temp_wheel.U1 = left_wheel;
-              temp_wheel.U2 = right_wheel;
               left_wheel = incoming_left_wheel;
               right_wheel = incoming_right_wheel;
-              Twist2D current_position;
-              current_position = turtle_odo.pose();
-
-              turtle_odom_pose::x = current_position.v_x;
-              turtle_odom_pose::y = current_position.v_y;
-              turtle_odom_pose::th = current_position.w;
-            //   std::cout<<"x"<<turtle_odom_pose::x<<"\n";
-            //   std::cout<<"y"<<turtle_odom_pose::y<<"\n";
-            //   std::cout<<"theta"<<turtle_odom_pose::th<<"\n";
-              
-              geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(turtle_odom_pose::th);   
-              
-              geometry_msgs::TransformStamped odom_trans;
-              odom_trans.header.stamp = ros::Time::now();
-              odom_trans.header.frame_id = "odom";
-              odom_trans.child_frame_id = "base_link";
-     
-              odom_trans.transform.translation.x = turtle_odom_pose::x;
-              odom_trans.transform.translation.y = turtle_odom_pose::y;
-              odom_trans.transform.translation.z = 0.0;
-              odom_trans.transform.rotation = odom_quat;
-     
-              odom_broadcaster.sendTransform(odom_trans);
-     
-              nav_msgs::Odometry odom;
-              odom.header.stamp = ros::Time::now();
-              odom.header.frame_id = "odom";
-     
-              odom.pose.pose.position.x = turtle_odom_pose::x;
-              odom.pose.pose.position.y = turtle_odom_pose::y;
-              odom.pose.pose.position.z = 0.0;
-              odom.pose.pose.orientation = odom_quat;
-    
-              odom.child_frame_id = "base_link";
-              Vb = turtle_odo.wheelsToTwist(temp_wheel);
-              odom.twist.twist.linear.x = Vb.v_x;
-              odom.twist.twist.linear.y = Vb.v_y;
-              odom.twist.twist.angular.z = Vb.w;
-     
-              odom_pub.publish(odom);
-  
-              current_pose.header.stamp = ros::Time::now();
-              current_pose.header.frame_id = "odom";
-  
-              path_taken.header.stamp = ros::Time::now();
-              path_taken.header.frame_id = "odom";
-  
-  
-              current_pose.pose.position.x =  turtle_odom_pose::x;
-              current_pose.pose.position.y =  turtle_odom_pose::y;
-              current_pose.pose.orientation = odom_quat;            
-  
-              path_taken.poses.push_back(current_pose);
-              path_pub.publish(path_taken);
+        
   
               theta_start = mu_t_bar.coeff(0,0);
               x_start = mu_t_bar.coeff(1,0);
@@ -327,61 +286,61 @@ int main(int argc, char** argv)
             g_t.col(0) << temp_for_gt;
             pose_var_bar = g_t*pose_var_prior*g_t.transpose() + q_t ;
 
-            std::cout<<"state post prdedict \n"<< mu_t_bar <<"\n";
-            std::cout<<"variance post predict \n"<< pose_var_bar <<"\n";
+            // std::cout<<"state post prdedict \n"<< mu_t_bar <<"\n";
+            // std::cout<<"variance post predict \n"<< pose_var_bar <<"\n";
             for( int i = 0; i<m_land; i++ )
             {
       
-                std::cout<<"landmark number = "<<i<<"\t ";
-                std::cout<<"x val of land"<<x_center[i]<<"\t";
-                std::cout<<"y val of land"<<y_center[i]<<"\n";
-                std::cout<<"mu_t_bar in loop \n"<<mu_t_bar<<"\n \n";
+                // std::cout<<"landmark number = "<<i<<"\t ";
+                // std::cout<<"x val of land"<<x_center[i]<<"\t";
+                // std::cout<<"y val of land"<<y_center[i]<<"\n";
+                // std::cout<<"mu_t_bar in loop \n"<<mu_t_bar<<"\n \n";
             
                 
                  double y_del = (mu_t_bar.coeff(2*(i+1)+2,0) - mu_t_bar.coeff(2,0)); 
                  double x_del = (mu_t_bar.coeff(2*(i+1)+1,0) - mu_t_bar.coeff(1,0));
-                  std::cout<<"x_del ="<< x_del <<"\n";
-                  std::cout<<"y_del ="<< y_del <<"\n";
+                //   std::cout<<"x_del ="<< x_del <<"\n";
+                //   std::cout<<"y_del ="<< y_del <<"\n";
 
 
                  double known_range = sqrt(x_del * x_del + y_del * y_del); 
                  double known_bearing = ( wrap_angles(atan2(y_del,x_del)) - wrap_angles(mu_t_bar.coeff(0,0)));
                  
-                std::cout<<"known_range = "<<known_range<<"\n"; 
-                std::cout<<"known_bearing = "<<known_bearing<<"\n"; 
+                // std::cout<<"known_range = "<<known_range<<"\n"; 
+                // std::cout<<"known_bearing = "<<known_bearing<<"\n"; 
 
                 double range = sqrt((x_center[i] - mu_t_bar.coeff(1,0)) * (x_center[i] - mu_t_bar.coeff(1,0)) + (y_center[i] - mu_t_bar.coeff(2,0)) * (y_center[i] - mu_t_bar.coeff(2,0)));
                 double bearing = (wrap_angles(atan2((y_center[i] - mu_t_bar.coeff(2,0)) ,(x_center[i] - mu_t_bar.coeff(1,0))))  - wrap_angles(mu_t_bar.coeff(0,0)));
 
 
-                std::cout<<"range = "<<range<<"\n"; 
-                std::cout<<"bearing = "<<bearing<<"\n"; 
+                // std::cout<<"range = "<<range<<"\n"; 
+                // std::cout<<"bearing = "<<bearing<<"\n"; 
 
                 small_h.row(0) << range;
                 small_h.row(1) << wrap_angles( bearing);
 
                 small_h = small_h + v_t;
 
-                 std::cout<<"small_h = "<<small_h<<"\n";  
+                //  std::cout<<"small_h = "<<small_h<<"\n";  
 
-                std::cout<< "x value from sensor = "<<x_center[i]<<"\n";
-                std::cout<<"y value from sensor = "<<y_center[i]<<"\n";
+                // std::cout<< "x value from sensor = "<<x_center[i]<<"\n";
+                // std::cout<<"y value from sensor = "<<y_center[i]<<"\n";
                 double x_delta = x_center[i] - mu_t_bar.coeff(1,0) ;
                 double y_delta = y_center[i] - mu_t_bar.coeff(2,0);
 
                 double delta = x_delta * x_delta + y_delta * y_delta;
 
-                std::cout<<"x_delta = "<<x_delta<<"\n"; 
+                // std::cout<<"x_delta = "<<x_delta<<"\n"; 
 
-                std::cout<<"y_delta = "<<y_delta<<"\n"; 
-                std::cout<<"delta = "<<delta<<"\n"; 
+                // std::cout<<"y_delta = "<<y_delta<<"\n"; 
+                // std::cout<<"delta = "<<delta<<"\n"; 
                 large_h.col(0) << 0,-1;
                 large_h.col(1) << (-x_delta/sqrt(delta)), (y_delta/(delta));
                 large_h.col(2) << (-y_delta/sqrt(delta)), -(x_delta/(delta));
                 large_h.col(2+2*(i+1)-1) << (x_delta/sqrt(delta)), (-y_delta/delta);
                 large_h.col(2+2*(i+1)) << (y_delta/sqrt(delta)),(x_delta/delta);
 
-                std::cout<<"large h \n="<<large_h<<"\n \n";
+                // std::cout<<"large h \n="<<large_h<<"\n \n";
                 // for(int i =0; i<m_land; i++)
                 // {
                 //     std::cout<<"i = "<< i <<"\t";
@@ -397,27 +356,27 @@ int main(int argc, char** argv)
                 Eigen::MatrixXd diff(2,1);
                 diff = z_t - small_h;
                 diff(1) = wrap_angles(diff(1));
-                std::cout<<"diff= "<<diff<<"\n";
-                std::cout<<"pose_var_bar in loop \n="<<pose_var_bar<<"\n \n";
-                std::cout<<"large_h_transpose = \n"<<large_h.transpose()<<"\n";
-                std::cout<<"R = \n"<< R << "\n";
+                // std::cout<<"diff= "<<diff<<"\n";
+                // std::cout<<"pose_var_bar in loop \n="<<pose_var_bar<<"\n \n";
+                // std::cout<<"large_h_transpose = \n"<<large_h.transpose()<<"\n";
+                // std::cout<<"R = \n"<< R << "\n";
             
-                std::cout<<"mid term = "<<(large_h * pose_var_bar * large_h.transpose() + R)<<"\n";
-                std::cout<<"inverse of mid term \n"<< (large_h * pose_var_bar * large_h.transpose() + R ).inverse()<<"\n";
+                // std::cout<<"mid term = "<<(large_h * pose_var_bar * large_h.transpose() + R)<<"\n";
+                // std::cout<<"inverse of mid term \n"<< (large_h * pose_var_bar * large_h.transpose() + R ).inverse()<<"\n";
                 k_gain = pose_var_bar * large_h.transpose() * (large_h * pose_var_bar * large_h.transpose() + R ).inverse();
         
-                std::cout<<"k_gain = \n"<<k_gain<<"\n"; 
+                // std::cout<<"k_gain = \n"<<k_gain<<"\n"; 
 
                 mu_t_posterior = mu_t_bar + k_gain* diff;
 
-                std::cout<<"mu_t_posterior = \n"<<mu_t_posterior<<"\n \n"; 
+                // std::cout<<"mu_t_posterior = \n"<<mu_t_posterior<<"\n \n"; 
 
 
                 Eigen::MatrixXd identity_temp;
                 identity_temp.setIdentity(total,total);
                 pose_var_posterior = (identity_temp - k_gain*large_h) * pose_var_bar;
 
-                 std::cout<<"pose_var_posterior = \n"<<pose_var_posterior<<"\n \n"; 
+                //  std::cout<<"pose_var_posterior = \n"<<pose_var_posterior<<"\n \n"; 
             mu_t_bar = mu_t_posterior;
             pose_var_bar = pose_var_posterior;
                 
@@ -428,7 +387,7 @@ int main(int argc, char** argv)
             pose_var_prior = pose_var_posterior;
 
 
-            geometry_msgs::Quaternion map_quat = tf::createQuaternionMsgFromYaw(wrap_angles(mu_t_bar.coeff(0,0)) - wrap_angles(turtle_odom_pose::th));   
+            geometry_msgs::Quaternion map_quat = tf::createQuaternionMsgFromYaw(wrap_angles(mu_t_bar.coeff(0,0)) - yaw);   
             
             geometry_msgs::TransformStamped map_trans;
             map_trans.header.stamp = ros::Time::now();
@@ -436,10 +395,10 @@ int main(int argc, char** argv)
             map_trans.child_frame_id = "odom";
 
 
-            // std::cout<<"coeff x = "<<mu_t_bar.coeff(1,0) <<"\n";
-            // std::cout<<"coeff y = "<<mu_t_bar.coeff(2,0) <<"\n";
-            // std::cout<<"x = "<<turtle_odom_pose::x<<"\n";
-            // std::cout<<"y = "<<turtle_odom_pose::y<<"\n";
+            std::cout<<"coeff x = "<<mu_t_bar.coeff(1,0) <<"\n";
+            std::cout<<"coeff y = "<<mu_t_bar.coeff(2,0) <<"\n";
+            std::cout<<"x = "<<turtle_odom_pose::x<<"\n";
+            std::cout<<"y = "<<turtle_odom_pose::y<<"\n";
         
             map_trans.transform.translation.x = mu_t_bar.coeff(1,0) - turtle_odom_pose::x;
             map_trans.transform.translation.y = mu_t_bar.coeff(2,0) - turtle_odom_pose::y;

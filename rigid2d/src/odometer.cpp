@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 
 
       ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 1);
-      ros::Publisher path_pub = n.advertise<nav_msgs::Path>("/path_odom", 1);
+      ros::Publisher path_pub = n.advertise<nav_msgs::Path>("/path_odom", 10);
 
       ros::Subscriber joint_state_subsciber = n.subscribe("/joint_states", 1, jt_callback);
       tf::TransformBroadcaster odom_broadcaster;
@@ -79,9 +79,6 @@ int main(int argc, char** argv)
       double x = 0.0;
       double y = 0.0;
       double th = 0.0;
-      ros::Time current_time, last_time;
-      current_time = ros::Time::now();
-      last_time = ros::Time::now();
       ros::Rate r(100);
       while(n.ok())
       {
@@ -95,7 +92,6 @@ int main(int argc, char** argv)
                   called = false;
             }
 
-            current_time = ros::Time::now();
             left_wheel = incoming_left_wheel- left_wheel;
             right_wheel = incoming_right_wheel - right_wheel;
             turtle_odo.feedforward(left_wheel, right_wheel);
@@ -121,7 +117,7 @@ int main(int argc, char** argv)
             geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);   
             
             geometry_msgs::TransformStamped odom_trans;
-            odom_trans.header.stamp = current_time;
+            odom_trans.header.stamp = ros::Time::now();
             odom_trans.header.frame_id = world;
             odom_trans.child_frame_id = base;
    
@@ -133,7 +129,7 @@ int main(int argc, char** argv)
             odom_broadcaster.sendTransform(odom_trans);
    
             nav_msgs::Odometry odom;
-            odom.header.stamp = current_time;
+            odom.header.stamp = ros::Time::now();
             odom.header.frame_id = "odom";
    
             odom.pose.pose.position.x = x;
@@ -149,10 +145,10 @@ int main(int argc, char** argv)
    
             odom_pub.publish(odom);
 
-            current_pose.header.stamp = current_time;
+            current_pose.header.stamp = ros::Time::now();
             current_pose.header.frame_id = "odom";
 
-            path_taken.header.stamp = current_time;
+            path_taken.header.stamp = ros::Time::now();
             path_taken.header.frame_id = "odom";
 
 
@@ -163,9 +159,6 @@ int main(int argc, char** argv)
             path_taken.poses.push_back(current_pose);
             path_pub.publish(path_taken);
 
-
-
-            last_time = current_time;
             r.sleep();
      }
     

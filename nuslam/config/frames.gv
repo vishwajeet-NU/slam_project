@@ -1,0 +1,14 @@
+digraph G {
+"base_link" -> "body_link"[label="Broadcaster: /robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 366.164 sec old)\nBuffer length: 0.000 sec\n"];
+"odom" -> "base_link"[label="Broadcaster: /odometer1\nAverage rate: 100.671 Hz\nMost recent transform: 366.157 ( 0.007 sec old)\nBuffer length: 1.490 sec\n"];
+"body_link" -> "caster"[label="Broadcaster: /robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 366.164 sec old)\nBuffer length: 0.000 sec\n"];
+"body_link" -> "base_scan"[label="Broadcaster: /robot_state_publisher\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 366.164 sec old)\nBuffer length: 0.000 sec\n"];
+"fake_odom" -> "fake_base_link"[label="Broadcaster: /odometer2\nAverage rate: 100.671 Hz\nMost recent transform: 366.157 ( 0.007 sec old)\nBuffer length: 1.490 sec\n"];
+"odom" -> "fake_odom"[label="Broadcaster: /odom_link_broadcaster\nAverage rate: 10.684 Hz\nMost recent transform: 366.200 ( -0.036 sec old)\nBuffer length: 1.404 sec\n"];
+"body_link" -> "left_wheel"[label="Broadcaster: /robot_state_publisher\nAverage rate: 44.188 Hz\nMost recent transform: 366.148 ( 0.016 sec old)\nBuffer length: 1.471 sec\n"];
+"body_link" -> "right_wheel"[label="Broadcaster: /robot_state_publisher\nAverage rate: 44.188 Hz\nMost recent transform: 366.148 ( 0.016 sec old)\nBuffer length: 1.471 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 366.164"[ shape=plaintext ] ;
+ }->"odom";
+}

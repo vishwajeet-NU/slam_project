@@ -6,6 +6,6 @@ sigma_landmark : 0.000001
 co_var_w : 0.00001
 co_var_v : 0.00001
 r_param : 0.00001
-threshold : 0.22
-cut_off_points : 4
-radius_threshold : 0.08
+threshold : 0.20
+cut_off_points : 5
+radius_threshold : 0.07

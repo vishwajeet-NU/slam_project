@@ -1,8 +1,6 @@
 <launch>
-<!--The launch file is used to start multiple nodes and the rviz, loaded with the robot model with only one command-->
-<!--this finds the xacro file and loads it in parameter server --> 
-<rosparam command="load" file="$(find nuturtle_description)/config/diff_params.yaml" />  
 
+<rosparam command="load" file="$(find nuturtle_description)/config/diff_params.yaml" />  
 <param name="robot_description" command= "$(find xacro)/xacro '$(find nuturtle_description)/urdf/diff_drive.urdf.xacro'" /> 
 
 <!-- starts the node- joint state publisher node. it reads robot_description parameter and published Jointstatemessage
@@ -12,19 +10,8 @@
 <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
   <param name="use_gui" value="true" />
 -->
-   <!--use_gui is set to true for joint slider -->
 
-
-
-<!-- starts the node- robot state publisher. it subscibes to jointstate message and publishes state to the TF library-->
-   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-
-<!--starts up the rviz simulator
--->
-   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find nuturtle_description)/config/urdf.rviz" required="true" />
-
-   <!-- (required = "true") if rviz dies, entire roslaunch will be killed -->
-
-<!--loads parameter from the yaml file into parameter server-->
+<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(find nuturtle_description)/config/urdf.rviz" required="true" />
 
 </launch>

@@ -1,0 +1,10 @@
+<launch>
+
+<rosparam command="load" file="$(find nuturtle_description)/config/diff_params.yaml" />  
+<param name="robot_description" command= "$(find xacro)/xacro '$(find nuturtle_description)/urdf/diff_drive.urdf.xacro'" /> 
+-->
+
+<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(find nuslam)/config/slam.rviz" required="true" />
+
+</launch>

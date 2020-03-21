@@ -1,5 +1,7 @@
 <launch>
-   <include file="$(find nuslam)/launch/movement.launch">
+   <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
+   <include file="$(find nuturtle_robot)/launch/test_movement.launch">
+   <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
    </include>
    <rosparam command="load" file="$(find nuslam)/config/slam_params.yaml" />  
 
