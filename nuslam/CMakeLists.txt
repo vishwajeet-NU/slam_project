@@ -22,12 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
-if (CATKIN_ENABLE_TESTING)
-   find_package(rostest REQUIRED)
-endif()
-
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
-include_directories(${Eigen3_INCLUDE_DIRS})
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -121,14 +116,11 @@ include_directories(${Eigen3_INCLUDE_DIRS})
 ## DEPENDS: system dependencies of this project that dependent projects also need
 
 catkin_package(
-CATKIN_DEPENDS roscpp  message_runtime rigid2d geometry_msgs 
-
-#  INCLUDE_DIRS include
-#  LIBRARIES nuturtle_robot
-  CATKIN_DEPENDS roscpp std_msgs sensor_msgs message_runtime
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME} rigid2d
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs message_runtime Eigen3::Eigen
 #  DEPENDS system_lib
 )
-
 ###########
 ## Build ##
 ###########
@@ -136,35 +128,29 @@ CATKIN_DEPENDS roscpp  message_runtime rigid2d geometry_msgs
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-# ${catkin_INCLUDE_DIRS}
-)
-include_directories(
-# include
- ${catkin_INCLUDE_DIRS}
+include
+${catkin_INCLUDE_DIRS}
+${Eigen3_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/nuslam.cpp
-# )
+ add_library(${PROJECT_NAME} src/nuslam.cpp 
+ )
+
 
 add_executable(landmarks src/landmarks.cpp)
-target_link_libraries(landmarks ${catkin_LIBRARIES} Eigen3::Eigen)
+target_link_libraries(landmarks ${catkin_LIBRARIES} Eigen3::Eigen nuslam)
 
 add_executable(analysis src/analysis.cpp)
-target_link_libraries(analysis ${catkin_LIBRARIES} Eigen3::Eigen)
-
-add_executable(what src/test.cpp)
-target_link_libraries(what ${catkin_LIBRARIES} Eigen3::Eigen)
+target_link_libraries(analysis ${catkin_LIBRARIES} Eigen3::Eigen nuslam)
 
 add_executable(draw_map src/draw_map.cpp )
 target_link_libraries(draw_map ${catkin_LIBRARIES} )
 
-add_executable(slam src/slam.cpp )
-target_link_libraries(slam ${catkin_LIBRARIES} Eigen3::Eigen )
+add_executable(slam src/slam.cpp)
+target_link_libraries(slam ${catkin_LIBRARIES} Eigen3::Eigen  nuslam)
 
-#add_dependencies(turtle_interface tsim_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -186,16 +172,10 @@ target_link_libraries(slam ${catkin_LIBRARIES} Eigen3::Eigen )
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
 
 
-if (CATKIN_ENABLE_TESTING)
-    add_rostest_gtest(circle_test test/test_circle.test test/circle_tester.cpp)
-    target_link_libraries(circle_test ${catkin_LIBRARIES} rigid2d )
-endif()
 
 #############
 ## Install ##
@@ -251,3 +231,9 @@ endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+
+if (CATKIN_ENABLE_TESTING)
+catkin_add_gtest(ctest test/circle_tester.cpp)
+target_link_libraries(ctest ${PROJECT_NAME} gtest_main ${catkin_libraries} rigid2d nuslam)
+endif()

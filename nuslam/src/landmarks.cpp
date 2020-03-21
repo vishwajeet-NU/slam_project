@@ -52,6 +52,8 @@
 #include <nuslam/test.h>
 #include <numeric>
 #include "std_msgs/Empty.h"
+
+#include "nuslam/nuslam.hpp"
 using namespace Eigen;
 
 static double threshold;
@@ -60,174 +62,29 @@ static double radius_threshold;
 ros::Publisher map_pub;
 nuslam::turtle_map container;
 
-bool test = false;
 void fit_circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<float>> &y_in)
 {
+  EKF cir;
+  cir.circle(x_in, y_in);
+
   std::vector<float> x_holder;
   std::vector<float> y_holder;
   std::vector<float> r_holder;
 
-   std::cout<<"classes coming in = "<< x_in.size() << "\n";
   ros::NodeHandle n;
   map_pub= n.advertise<nuslam::turtle_map>("landmarks", 1);
   
   tf::TransformListener listener(ros::Duration(10));
-   
-  for (unsigned int k =0;k<x_in.size(); k++)
+
+  for(unsigned int i =0; i<cir.x_data.size(); i ++)
+  { 
+  if(cir.r_data[i] < radius_threshold)
   {
-  VectorXf  A;
-  
-  float x_mean;
-  float y_mean;
-  float z_mean;
-  
-  std::vector<float> current_x_cluster = x_in[k];
-  std::vector<float> current_y_cluster = y_in[k];
-
-  std::vector<float> current_z_cluster;
-  int n = current_x_cluster.size();
-
-//  std::cout<<"x cluster size = "<<current_x_cluster.size()<<"\n";
-//  std::cout<<"y cluster size = "<<current_y_cluster.size()<<"\n";
-
-  float sum_x = std::accumulate(std::begin(current_x_cluster), std::end(current_x_cluster), 0.0);
-  x_mean =  sum_x / current_x_cluster.size();
-  // std::cout<<"cluser "<<k<<"xmean"<<x_mean<<"\n";
-  float sum_y = std::accumulate(std::begin(current_y_cluster), std::end(current_y_cluster), 0.0);
-  y_mean =  sum_y / current_y_cluster.size();
-  // std::cout<<"cluser "<<k<<"ymean"<<y_mean<<"\n";
-
-  for(unsigned int l = 0;  l< (current_x_cluster.size()); l++ )
-  {
-    current_x_cluster[l] = current_x_cluster[l] - x_mean;   
-    current_y_cluster[l] = current_y_cluster[l] - y_mean;   
-    float z_temp = current_x_cluster[l] * current_x_cluster[l] + current_y_cluster[l] * current_y_cluster[l] ;
-    current_z_cluster.push_back(z_temp); 
-  }
-
-  float sum_z = std::accumulate(std::begin(current_z_cluster), std::end(current_z_cluster), 0.0);
-  z_mean =  sum_z / n;
-  // std::cout<<"cluser "<<k<<"zean"<<z_mean<<"\n";
-
-//  std::cout<<"zmean =" << z_mean << "\n";
-
-  MatrixXf Z(n,4);
-  Map<VectorXf> temp2((&current_x_cluster[0]),current_x_cluster.size());
-  Map<VectorXf> temp1((&current_z_cluster[0]),current_z_cluster.size());
-  Map<VectorXf> temp3((&current_y_cluster[0]),current_y_cluster.size());
-  VectorXf temp4(n,1);
-  temp4 << MatrixXf::Ones(n,1);
-  
-  Z << temp1, temp2, temp3, temp4; 
-  
-  // std::cout<<"Z= "<< Z<<"\n";
-
-  Matrix<float,Dynamic,Dynamic> M;
-  
-  M =  (Z.transpose() * Z )/n;
-
-  Matrix<float,4,4> H;
-  
-  H << 8.0*z_mean,0.0,0.0,2,
-       0.0,1.0,0.0,0.0,
-       0.0,0.0,1.0,0.0,
-       2.0,0.0,0.0,0.0;
-
- Matrix<float,4,4> H_inv;
-
- H_inv << 0.0,0.0,0.0,0.5,
-          0.0,1.0,0.0,0.0,
-          0.0,0.0,1.0,0.0,
-          0.5,0.0,0.0,(-2.0*z_mean);
-
-Matrix<float,Dynamic,Dynamic> U;
-Matrix<float,Dynamic,Dynamic> V;
-std::vector<float> values;
-
-JacobiSVD<MatrixXf> svd(Z, ComputeThinU | ComputeThinV);
-U = svd.matrixU();
-V = svd.matrixV();
-
-VectorXf temp_(4,1);
-MatrixXf ma(4,4);
-nuslam::turtle_map container;
-
-for(unsigned int i =0; i<svd.singularValues().size(); i++)
-{
-  values.push_back(svd.singularValues()[i]);
-
-}
-temp_ << svd.singularValues();
-std::sort(values.begin(),values.end());
-
-ma = temp_.asDiagonal();
-
- 
-if(values[0] < pow(10,-12))
-{
-  A = V.col(3);
-  // std::cout<<"yes"<<"\n";
-}
-
-else 
-
-{
-
-MatrixXf Y;
-MatrixXf Q;
-
-Y = V * ma * V.adjoint();
-Q = Y * H_inv * Y;
-
-// std::cout<<"Y = "<< Y<< "\n";
-// std::cout<<"Q = "<< Q<< "\n";
-
-SelfAdjointEigenSolver<MatrixXf> es(Q);
-
-std::vector<float> temp_a; 
-
-for(unsigned int i =0; i<es.eigenvalues().size(); i++)
-{
-  temp_a.push_back(abs(es.eigenvalues()[i]));
-  // std::cout<<"eigen values = "<< es.eigenvalues()[i]<<"\n";
-}
-
-int minElementIndex = std::min_element(temp_a.begin(),temp_a.end()) - temp_a.begin();
-VectorXf A_star;
-// std::cout<<"index = "<<minElementIndex<<"\n";
-
-// std::cout<<"eigen vector matrix "<< es.eigenvectors()<<"\n";
-A_star = es.eigenvectors().col(minElementIndex);
-// std::cout<<"A_start = "<<es.eigenvectors().col(minElementIndex)<<"\n";
-
-A = Y.colPivHouseholderQr().solve(A_star);
-
-//std::cout<<"in else \n";
-}
-// std::cout<<"A = "<<A <<"\n";
-
-float small_a = A(1)/(2*A(0));
-float small_b = -1.0 * A(2)/(2.0*A(0));
-
-float r_squared =(A(1) * A(1) + A(2) * A(2) - 4*A(0) * A(3)) /(4*A(0)*A(0)) ;
-float r = sqrt(r_squared);
-
-float located_x = small_a + x_mean;
-float located_y = small_b + y_mean;
-
-if(!test)
-{
-  if(r < radius_threshold)
-  {
-    std::cout<<"itr no"<<k<<"X= "<<located_x <<" ";
-    std::cout<<"itr no"<<k<<"Y= "<<located_y <<" ";
-    std::cout<<"itr no"<<k<<"R= "<<r <<"\n";
-
     geometry_msgs::PointStamped laser_point;
     laser_point.header.frame_id = "base_scan";
     laser_point.header.stamp = ros::Time();
-    laser_point.point.x = located_x;
-    laser_point.point.y = located_y;
+    laser_point.point.x = cir.x_data[i];
+    laser_point.point.y = cir.y_data[i];
     laser_point.point.z = 0.0;
     try
     {
@@ -239,28 +96,10 @@ if(!test)
     {
       ROS_ERROR("Received an exception trying to transform a point from \"base_scan\" to \"odom\": %s", ex.what()); 
     }
-    std::cout<<"itr no"<<k<<"laser x= "<<laser_point.point.x <<" ";
-    std::cout<<"itr no"<<k<<"laser Y= "<<laser_point.point.y <<" ";
     x_holder.push_back(laser_point.point.x);
     y_holder.push_back(laser_point.point.y);
-    r_holder.push_back(r);
-}
-}
-
-else
-{
-  std::cout<<"in test \n";
-  std::cout<<"x ="<<located_x;
-  std::cout<<"y ="<<located_y;
-  std::cout<<"r ="<<r;
-  
-  x_holder.push_back(located_x);
-  y_holder.push_back(located_y);
-  r_holder.push_back(r);
-  test = false;
-}
-
-
+    r_holder.push_back(cir.r_data[i]);
+  }
 
 }
 std::cout<<"holdersize "<< x_holder.size() << "\n";
@@ -269,44 +108,15 @@ container.radius = r_holder;
 container.x_center = x_holder;
 container.y_center = y_holder;
 map_pub.publish(container);
+cir.x_data.clear();
+cir.y_data.clear();
+cir.r_data.clear();
 x_holder.clear();
 y_holder.clear();
 r_holder.clear();
 
 }
 
-void testCallback(const nuslam::test &array)
-{
-  test = true;
-    std::vector<std::vector<float>> all_x;
-    std::vector<std::vector<float>> all_y;
-
-
-	std::vector<float> xx;
-  std::vector<float> yy;
-  
-	xx.insert(xx.begin(), std::begin(array.x_vals), std::end(array.x_vals));
-	yy.insert(yy.begin(), std::begin(array.y_vals), std::end(array.y_vals));
-
-
-  std::cout<<"test callback"<<"\n";
-  std::cout<<xx[2]<<"\n";
-  std::cout<<yy[2]<<"\n";
-
-  std::vector<float> aaa_x1= {1.0,2.0,5.0,7.0,9.0,3.0};
-  // std::vector<float> aaa_x2= {-1.0,-0.3,0.3,1.0};
-  std::vector<float> aaa_y1={7.0,6.0,8.0,7.0,5.0,7.0};
-  // std::vector<float> aaa_y2={0.0,-0.06,0.1,0};
-
-  all_x.push_back(aaa_x1);
-   
-  all_y.push_back(aaa_y1);
-
-  fit_circle(all_x,all_y);
-  all_x.clear();
-  all_y.clear();
-
-}
 void scanCallback(const sensor_msgs::LaserScan & scan_in)
 {
   std::cout<<"inside main callback"<<"\n";
@@ -423,7 +233,6 @@ int main(int argc, char **argv)
     ros::param::get("/threshold",threshold);
     ros::param::get("/cut_off_points",cut_off);
     ros::param::get("/radius_threshold",radius_threshold);
-    ros::Subscriber test_algo = n.subscribe("test",1,testCallback);
     ros::Subscriber laser_sub = n.subscribe("scan", 1, scanCallback);
         
     ros::Rate rate(5);
