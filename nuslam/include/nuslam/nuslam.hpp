@@ -45,9 +45,9 @@ class EKF
           void circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<float>> &y_in);
           std::mt19937 & get_random();
           void ekf_predict(rigid2d::Twist2D body_v, double co_var_w, int total);
-          void ekf_update(int m_land, double co_var_v, std::vector<float> x_center, std::vector<float> y_center, int total, double threshold);
+          void ekf_update(int m_land, double co_var_v, std::vector<float> x_center, std::vector<float> y_center, int total, double threshold , double upper_threshold);
           double wrap_angles(double incoming_angle);
-          int which_landmark(double threshold , float x_reading, float y_reading);
+          int which_landmark(double threshold , double upper_threshold, float x_reading, float y_reading);
           void resize_matrices(int current_size,float x_reading, float y_reading);
 
 };  

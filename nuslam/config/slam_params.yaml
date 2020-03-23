@@ -1,4 +1,4 @@
-detection_radius : 1
+detection_radius : 3.5
 noise_variance : 0
 sigma_r : 0.0000001
 sigma_theta : 0.0000001
@@ -10,3 +10,4 @@ threshold : 0.20
 cut_off_points : 5
 radius_threshold : 0.07
 association_threshold : 0.2
+upper_threshold : 0.8

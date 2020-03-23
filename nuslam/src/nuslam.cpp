@@ -141,6 +141,7 @@ void EKF::circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<
         MatrixXf Q;
 
         Y = V * ma * V.adjoint();
+       
         Q = Y * H_inv * Y;
 
         SelfAdjointEigenSolver<MatrixXf> es(Q);
@@ -151,7 +152,6 @@ void EKF::circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<
         {
           temp_a.push_back(abs(es.eigenvalues()[i]));
         }
-
         int minElementIndex = std::min_element(temp_a.begin(),temp_a.end()) - temp_a.begin();
         VectorXf A_star;
         A_star = es.eigenvectors().col(minElementIndex);
@@ -160,7 +160,7 @@ void EKF::circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<
 
         }
         
-        float small_a = A(1)/(2*A(0));
+        float small_a = -1.0* A(1)/(2*A(0));
         float small_b = -1.0 * A(2)/(2.0*A(0));
 
         float r_squared =(A(1) * A(1) + A(2) * A(2) - 4*A(0) * A(3)) /(4*A(0)*A(0)) ;
@@ -247,61 +247,24 @@ double EKF::wrap_angles(double incoming_angle)
     return incoming_angle;
 }
 
-void EKF::ekf_update(int m_land, double co_var_v, std::vector<float> x_center, std::vector<float> y_center, int total, double threshold)
+void EKF::ekf_update(int m_land, double co_var_v, std::vector<float> x_center, std::vector<float> y_center, int total, double threshold, double upper_threshold)
 {
   int number_of_landmarks = (mu_t_bar.rows() - 3)/2;
   for( int i = 0; i<number_of_landmarks; i++ )
    {
-      int id;
-  //     std::cout<<"landmark number = "<<i<<"\n ";
+      // int id;
 
-      id = which_landmark(threshold,x_center[i],y_center[i]);
-      std::cout<<"id coming in"<<id<<"\n";
-      // std::cout<<"theta coming in to update "<<mu_t_bar.coeff(0,0)<<"\n";
+      // id = which_landmark(threshold,upper_threshold,x_center[i],y_center[i]);
+      // std::cout<<"id coming in"<<id<<"\n";
+      int id = 2*(i+1)+1;
       int mat_len = mu_t_bar.rows();
-      // std::cout<<"x  value from sensor"<<x_center[i]<<"\t"<<"x value from state ="<<mu_t_bar.coeff(2*(i+1)+1,0)<<"\n";
-      // std::cout<<"y  value from sensor"<<y_center[i]<<"y value from state ="<<mu_t_bar.coeff(2*(i+1)+2,0)<<"\n";
-      // // std::cout<<"mu_t_bar in loop \n"<<mu_t_bar<<"\n \n";
-      
-      // std::cout<<"robot x pose"<< mu_t_bar.coeff(1,0)<<"\n";
-      // std::cout<<"robot y pose"<< mu_t_bar.coeff(2,0)<<"\n";
-      // std::cout<<"robot thete pose"<< mu_t_bar.coeff(0,0)<<"\n";
-      
-      // double y_del = (mu_t_bar.coeff(2*(i+1)+2,0) -mu_t_bar.coeff(2,0)); 
-      // double x_del = (mu_t_bar.coeff(2*(i+1)+1,0) - mu_t_bar.coeff(1,0));
       double y_del = (mu_t_bar.coeff(id+1,0) -mu_t_bar.coeff(2,0)); 
       double x_del = (mu_t_bar.coeff(id,0) - mu_t_bar.coeff(1,0));
-
-
-    // rigid2d::Vector2D robot(mu_t_bar.coeff(1,0),mu_t_bar.coeff(2,0));
-    // rigid2d::Vector2D sensor(x_center[i], y_center[i]);
-    // rigid2d::Transform2D Tsb(robot,mu_t_bar.coeff(0.0));
-    // rigid2d::Transform2D Tlb(sensor);
-
-    // rigid2d::Transform2D Tsl = operator*(Tsb,Tlb );
-    
-
-    // std::cout<<"Tsl m3 main  = "<<Tsl.m3<<"\n";
-    // std::cout<<"Tsl m6 main  = "<<Tsl.m6<<"\n";
-    
-    // std::cout<<"state x landmark "<< mu_t_bar.coeff(2*(i+1)+1,0)<<"\n";
-    // std::cout<<"state y landmark "<< mu_t_bar.coeff(2*(i+1)+2,0)<<"\n";
-    
-    //  double dist = sqrt((Tsl.m3- mu_t_bar.coeff(2*(i+1)+1,0)) * (Tsl.m3 - mu_t_bar.coeff(2*(i+1)+1,0)) + (Tsl.m6 - mu_t_bar.coeff(2*(i+1)+2,0))*(Tsl.m6 - mu_t_bar.coeff(2*(i+1)+2,0)));
-    //  std::cout<<"dist = "<<dist<<"\n";
-
       double known_range = sqrt(x_del * x_del + y_del * y_del); 
       double known_bearing =  ( wrap_angles(atan2(y_del,x_del)))- wrap_angles(mu_t_bar.coeff(0,0));
                  
-      // std::cout<<"known_range = "<<known_range<<"\n"; 
-      // std::cout<<"known_bearing = "<<known_bearing<<"\n"; 
-
       double range = sqrt((x_center[i] * x_center[i]) + (y_center[i] * y_center[i]));
       double bearing = wrap_angles(atan2(y_center[i],x_center[i])) ;
-
-
-      // std::cout<<"range = "<<range<<"\n"; 
-      // std::cout<<"bearing = "<<bearing<<"\n"; 
 
       small_h.row(0) << known_range;
       small_h.row(1) << known_bearing;
@@ -314,46 +277,23 @@ void EKF::ekf_update(int m_land, double co_var_v, std::vector<float> x_center, s
       }
       Eigen::Map<Eigen::VectorXd> temp_rand_v((&random_nos_v[0]),random_nos_v.size());
       v_t << temp_rand_v;
-      //  std::cout<<"small_h = "<<small_h<<"\n";  
       double x_delta = mu_t_bar.coeff(2*(i+1)+1,0) - mu_t_bar.coeff(1,0) ;
       double y_delta = mu_t_bar.coeff(2*(i+1)+2,0) - mu_t_bar.coeff(2,0);
       double delta = x_delta * x_delta + y_delta * y_delta;
-      // std::cout<<"x_delta = "<<x_delta<<"\n"; 
-      // std::cout<<"y_delta = "<<y_delta<<"\n"; 
-      // std::cout<<"delta = "<<delta<<"\n"; 
       large_h.col(0) << 0,-1.0;
       large_h.col(1) << (-x_delta/sqrt(delta)), (y_delta/(delta));
       large_h.col(2) << (-y_delta/sqrt(delta)), -(x_delta/(delta));
-      // large_h.col(2+2*(i+1)-1) << (x_delta/sqrt(delta)), (-y_delta/delta);
-      // large_h.col(2+2*(i+1)) << (y_delta/sqrt(delta)),(x_delta/delta);
     
       large_h.col(id) << (x_delta/sqrt(delta)), (-y_delta/delta);
       large_h.col(id+1) << (y_delta/sqrt(delta)),(x_delta/delta);
-      // std::cout<<"large h \n="<<large_h<<"\n \n";
-      // for(int i =0; i<m_land; i++)
-      // {
-      //     std::cout<<"i = "<< i <<"\t";
-      //     std::cout<<"large_h = "<< large_h.col(i)<<"\n";
-      // }         
       z_t << range,bearing;
       z_t = z_t + v_t;
-      // std::cout<<"z_t = \n"<<z_t<<"\n"; 
-      // std::cout<<"small_h = \n"<<small_h<<"\n";   
       Eigen::MatrixXd diff(2,1);
       diff = z_t - small_h;
       diff(1) = wrap_angles(diff(1));
-      // std::cout<<"diff= "<<diff<<"\n";
-      // std::cout<<"pose_var_bar in loop \n="<<pose_var_bar<<"\n \n";
-      // std::cout<<"large_h_transpose = \n"<<large_h.transpose()<<"\n";
-      // std::cout<<"R = \n"<< R << "\n";
-      // std::cout<<"mid term = "<<(large_h * pose_var_bar * large_h.transpose() + R)<<"\n";
-      // std::cout<<"inverse of mid term \n"<< (large_h * pose_var_bar * large_h.transpose() + R ).inverse()<<"\n";
       k_gain = pose_var_bar * large_h.transpose() * (large_h * pose_var_bar * large_h.transpose() + R ).inverse();
        
-      // std::cout<<"k_gain = \n"<<k_gain<<"\n"; 
       mu_t_posterior = mu_t_bar + k_gain* diff;
-      // std::cout<<"mu_t_posterior = \n"<<mu_t_posterior<<"\n \n"; 
-      // std::cout<<"theta pose k gain "<<mu_t_bar.coeff(0,0)<<"\n";
 
       Eigen::MatrixXd identity_temp;
       identity_temp.setIdentity(mat_len,mat_len);
@@ -429,10 +369,14 @@ void EKF::resize_matrices(int current_size, float x_reading, float y_reading)
 }
 
 
-int EKF::which_landmark(double threshold , float x_reading, float y_reading)
+int EKF::which_landmark(double threshold, double upper_threshold , float x_reading, float y_reading)
 {
   int index =0;
+  double dist = 0.0;
+  double curr = 100.0;
+  int closest_index= 0;
   int current_size = mu_t_bar.rows();
+  std::vector<float> temp;
   // std::cout<<"mu_t_bar \n"<<mu_t_bar<<"\n \n";
      
   for(int i = 3; i<current_size; i+=2)
@@ -447,8 +391,13 @@ int EKF::which_landmark(double threshold , float x_reading, float y_reading)
 
     rigid2d::Transform2D Tsl = operator*(Tsb,Tlb );
       
-     double dist = sqrt((Tsl.m3- mu_t_bar.coeff(i,0)) * (Tsl.m3 - mu_t_bar.coeff(i,0)) + (Tsl.m6 - mu_t_bar.coeff(i+1,0))*(Tsl.m6 - mu_t_bar.coeff(i+1,0)));
-    if(dist < threshold)
+    dist = sqrt((Tsl.m3- mu_t_bar.coeff(i,0)) * (Tsl.m3 - mu_t_bar.coeff(i,0)) + (Tsl.m6 - mu_t_bar.coeff(i+1,0))*(Tsl.m6 - mu_t_bar.coeff(i+1,0)));
+    if(dist<curr)
+    {
+      closest_index = i;
+      curr = dist;
+    }
+    if(dist < threshold )
     { 
       // found corresponding landmark inside state vector 
       index = i;
@@ -458,14 +407,21 @@ int EKF::which_landmark(double threshold , float x_reading, float y_reading)
     }
   }
 
-  if(!decision)
+  if(!decision && dist < upper_threshold)
   {
     // no corresponding landmark found
     // add this reading as landmark to state
-    std::cout<<"no landmark found, resizing "<<"\n";
-    // resize_matrices(current_size,x_reading,y_reading);
-    // index = current_size;
+     resize_matrices(current_size,x_reading,y_reading);
+     index = current_size;
+     std::cout<<"no landmark found, resizing index = "<<index<<"\n";
   }
+  else
+  {
+    index = closest_index;
+    std::cout<<"too big, asigning new index "<<index<<"\n";
+
+  }
+  
   std::cout<<"index = "<<index<<"\n";  
   decision = false;
 

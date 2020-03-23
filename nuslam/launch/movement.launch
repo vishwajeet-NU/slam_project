@@ -5,7 +5,7 @@
 <rosparam command="load" file="$(find tsim)/config/waypoint_y.yaml" />  
 <rosparam command="load" file="$(find nuturtle_robot)/config/nubot_params.yaml"/> 
    
-<node  name="odometer1" pkg="rigid2d" type="odometer" output = "screen">
+<node  name="odometer1" pkg="rigid2d" type="odometer">
 <param name="world" value="odom" />
 <param name="base" value="base_link" />
 </node>

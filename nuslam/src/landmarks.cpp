@@ -61,6 +61,12 @@ static int cut_off;
 static double radius_threshold;
 ros::Publisher map_pub;
 nuslam::turtle_map container;
+std::string base_scan = "base_scan";
+
+static double red = 50.0;
+static double blue = 100.0;
+static double green = 50.0;
+static double alpha = 0.7;
 
 
 void fit_circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<float>> &y_in)
@@ -75,30 +81,30 @@ void fit_circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<f
   ros::NodeHandle n;
   map_pub= n.advertise<nuslam::turtle_map>("landmarks", 1);
   
-  tf::TransformListener listener(ros::Duration(10));
+  // tf::TransformListener listener(ros::Duration(10));
 
   for(unsigned int i =0; i<cir.x_data.size(); i ++)
   { 
   if(cir.r_data[i] < radius_threshold)
   {
-    geometry_msgs::PointStamped laser_point;
-    laser_point.header.frame_id = "base_scan";
-    laser_point.header.stamp = ros::Time();
-    laser_point.point.x = cir.x_data[i];
-    laser_point.point.y = cir.y_data[i];
-    laser_point.point.z = 0.0;
-    try
-    {
-      geometry_msgs::PointStamped base_point;
-      listener.transformPoint("odom", laser_point, base_point);
-    }
+    // geometry_msgs::PointStamped laser_point;
+    // laser_point.header.frame_id = "base_scan";
+    // laser_point.header.stamp = ros::Time();
+    // laser_point.point.x = cir.x_data[i];
+    // laser_point.point.y = cir.y_data[i];
+    // laser_point.point.z = 0.0;
+    // try
+    // {
+    //   geometry_msgs::PointStamped base_point;
+    //   listener.transformPoint("map", laser_point, base_point);
+    // }
 
-    catch(tf::TransformException& ex)
-    {
-      ROS_ERROR("Received an exception trying to transform a point from \"base_scan\" to \"odom\": %s", ex.what()); 
-    }
-    x_holder.push_back(laser_point.point.x);
-    y_holder.push_back(laser_point.point.y);
+    // catch(tf::TransformException& ex)
+    // {
+    //   ROS_ERROR("Received an exception trying to transform a point from \"base_scan\" to \"odom\": %s", ex.what()); 
+    // }
+    x_holder.push_back(cir.x_data[i]);
+    y_holder.push_back(cir.y_data[i]);
     r_holder.push_back(cir.r_data[i]);
   }
 
@@ -108,6 +114,11 @@ std::cout<<"holdersize "<< x_holder.size() << "\n";
 container.radius = r_holder;
 container.x_center = x_holder;
 container.y_center = y_holder;
+container.red = red;
+container.blue = blue;
+container.green = green;
+container.alpha = alpha;
+container.frame_name = base_scan;
 map_pub.publish(container);
 cir.x_data.clear();
 cir.y_data.clear();
@@ -130,7 +141,6 @@ void scanCallback(const sensor_msgs::LaserScan & scan_in)
 
    double current_val = readings[0];
    double angle_increment = scan_in.angle_increment;
-   double angle_hold = 0.0;
     //double threshold = 0.05; // change as a parameter later
     std::vector<float> temp_x;
     std::vector<float> temp_y;
@@ -143,26 +153,17 @@ void scanCallback(const sensor_msgs::LaserScan & scan_in)
         readings[i] = 10;
       }
     }
-
-    for(unsigned int i=0; i<readings.size(); i++ )
-    {
-//      std::cout<<"reading = "<<i<<" "<< readings[i]<<"\n";
-    }
-
     for(unsigned int i=0; i<readings.size(); i++ )
     {   
 
-      
     while(abs(current_val- readings[i])<=threshold)
     {
-      
        float x = readings[i] * cos(i*angle_increment);
        float y = readings[i] * sin(i*angle_increment);
 
        temp_x.push_back(x);
        temp_y.push_back(y);
        i = i + 1;
-       angle_hold = angle_hold + angle_increment;
     }
       if(temp_x.size() ==0 )
       {
@@ -173,15 +174,13 @@ void scanCallback(const sensor_msgs::LaserScan & scan_in)
 
        temp_x.push_back(x);
        temp_y.push_back(y);
-        }
+      }
       current_val = readings[i];
       all_x.push_back(temp_x);
       all_y.push_back(temp_y);
       temp_x.clear();
       temp_y.clear();
 
-
-       angle_hold = angle_hold + angle_increment;
        float x = readings[i] * cos(i*angle_increment);
        float y = readings[i] * sin(i*angle_increment);
        temp_x.push_back(x);
@@ -202,22 +201,6 @@ void scanCallback(const sensor_msgs::LaserScan & scan_in)
         jj=-1;
       }
 
-    }
-
-
-  //  std::cout<<"clusters formed post "<<all_x.size()<<"\n";
-    for( unsigned int boredom = 0; boredom<all_x.size(); boredom++)
-    {
-               
-        for(unsigned int shit =0; shit<all_x[boredom].size(); shit++)
-        {
-        // std::cout<<"current clsuter"<<boredom<<" ";
-        // std::cout<<"range = "<< sqrt(all_x[boredom][shit] * all_x[boredom][shit] + all_y[boredom][shit] * all_y[boredom][shit])<<"\n";
-    //    std::cout<<"x_post sort =" <<all_x[boredom][shit]<<"  ";
-    //    std::cout<<"y post sort ="<<all_y[boredom][shit] <<"\n";
-          
-        }
-      //  std::cout<<"\n";
     }
    fit_circle(all_x,all_y);
    // circle_or_not_circle(all_x,all_y);

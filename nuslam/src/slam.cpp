@@ -49,6 +49,7 @@ static double incoming_right_wheel;
 static double left_wheel = 0.0;
 static double right_wheel = 0.0;
 static double association_threshold = 0.0;
+static double upper_threshold = 0.0;
 
 
 static double red = 255.0;
@@ -137,6 +138,7 @@ int main(int argc, char** argv)
     ros::param::get("co_var_v",co_var_v);
     ros::param::get("r_param",r_param);
     ros::param::get("association_threshold",association_threshold);
+    ros::param::get("upper_threshold", upper_threshold);
 
      
     ros::ServiceServer service = n.advertiseService("/set_pose", do_teleport);
@@ -197,7 +199,7 @@ int main(int argc, char** argv)
               right_wheel = incoming_right_wheel;
 
               new_bot.ekf_predict(body_v,co_var_w, total); 
-              new_bot.ekf_update(m_land,co_var_v,x_center,y_center,total,association_threshold); 
+              new_bot.ekf_update(m_land,co_var_v,x_center,y_center,total,association_threshold,upper_threshold); 
            
               // std::cout<<"mu posteriro"<<mu_t_posterior<<"\n";
               new_bot.k_gain.fill(0.0);
