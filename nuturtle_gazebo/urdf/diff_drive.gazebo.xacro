@@ -26,26 +26,26 @@
     <minDepth>0.001</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1>
-    <kp>800000</kp>
-    <kd>10</kd>
+    <kp>850000</kp>
+    <kd>2</kd>
     <dampingFactor> 1 </dampingFactor>
   </gazebo>
 
   <gazebo reference="right_wheel">
-    <mu1>100</mu1>
-    <mu2>100</mu2>
+    <mu1>500</mu1>
+    <mu2>500</mu2>
     <minDepth>0.001</minDepth>
     <maxVel>0.1</maxVel>
     <fdir1>1 0 0</fdir1>
     <kp>850000</kp>
-    <kd>10</kd>
+    <kd>2</kd>
     <dampingFactor> 1 </dampingFactor>
     <material>Gazebo/FlatBlack</material>
   </gazebo>
 
   <gazebo reference="caster">
-    <mu1>0.0001</mu1>
-    <mu2>0.0001</mu2>
+    <mu1>0.00001</mu1>
+    <mu2>0.00001</mu2>
     <minDepth>0.001</minDepth>
     <maxVel>1.0</maxVel>
     <kp>1000000.0</kp>

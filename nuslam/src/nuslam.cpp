@@ -1,5 +1,7 @@
 #include "nuslam/nuslam.hpp"
 
+#include"rigid2d/rigid2d.hpp"
+
 using namespace Eigen;
 
 EKF::EKF()
@@ -249,39 +251,44 @@ void EKF::ekf_update(int m_land, double co_var_v, std::vector<float> x_center, s
 {
   int number_of_landmarks = (mu_t_bar.rows() - 3)/2;
   for( int i = 0; i<number_of_landmarks; i++ )
-  {
-      // int id;
-      std::cout<<"landmark number = "<<i<<"\n ";
+   {
+      int id;
+  //     std::cout<<"landmark number = "<<i<<"\n ";
 
-      // id = which_landmark(threshold,x_center[i],y_center[i]);
-
+      id = which_landmark(threshold,x_center[i],y_center[i]);
+      std::cout<<"id coming in"<<id<<"\n";
       // std::cout<<"theta coming in to update "<<mu_t_bar.coeff(0,0)<<"\n";
       int mat_len = mu_t_bar.rows();
-      // std::cout<<"x  value from sensor"<<x_center[i]<<"\t"<<"x value from state ="<<mu_t_bar.coeff(2*(i+1)+1,0)<<"\t";
+      // std::cout<<"x  value from sensor"<<x_center[i]<<"\t"<<"x value from state ="<<mu_t_bar.coeff(2*(i+1)+1,0)<<"\n";
       // std::cout<<"y  value from sensor"<<y_center[i]<<"y value from state ="<<mu_t_bar.coeff(2*(i+1)+2,0)<<"\n";
-      // std::cout<<"mu_t_bar in loop \n"<<mu_t_bar<<"\n \n";
+      // // std::cout<<"mu_t_bar in loop \n"<<mu_t_bar<<"\n \n";
       
-      std::cout<<"robot x pose"<< mu_t_bar.coeff(1,0)<<"\n";
-      std::cout<<"robot y pose"<< mu_t_bar.coeff(2,0)<<"\n";
-      std::cout<<"robot thete pose"<< mu_t_bar.coeff(0,0)<<"\n";
+      // std::cout<<"robot x pose"<< mu_t_bar.coeff(1,0)<<"\n";
+      // std::cout<<"robot y pose"<< mu_t_bar.coeff(2,0)<<"\n";
+      // std::cout<<"robot thete pose"<< mu_t_bar.coeff(0,0)<<"\n";
       
-      double y_del = (mu_t_bar.coeff(2*(i+1)+2,0) -mu_t_bar.coeff(2,0)); 
-      double x_del = (mu_t_bar.coeff(2*(i+1)+1,0) - mu_t_bar.coeff(1,0));
-      // double y_del = (mu_t_bar.coeff(id+1,0) -mu_t_bar.coeff(2,0)); 
-      // double x_del = (mu_t_bar.coeff(id,0) - mu_t_bar.coeff(1,0));
+      // double y_del = (mu_t_bar.coeff(2*(i+1)+2,0) -mu_t_bar.coeff(2,0)); 
+      // double x_del = (mu_t_bar.coeff(2*(i+1)+1,0) - mu_t_bar.coeff(1,0));
+      double y_del = (mu_t_bar.coeff(id+1,0) -mu_t_bar.coeff(2,0)); 
+      double x_del = (mu_t_bar.coeff(id,0) - mu_t_bar.coeff(1,0));
 
-    
-    double global_x_landmark = x_center[i]+mu_t_bar.coeff(1,0);
-    double global_y_landmark = y_center[i]+mu_t_bar.coeff(2,0);
 
-    // std::cout<<"global x = "<<global_x_landmark<<"\n";
-    // std::cout<<"global y = "<<global_y_landmark<<"\n";
+    // rigid2d::Vector2D robot(mu_t_bar.coeff(1,0),mu_t_bar.coeff(2,0));
+    // rigid2d::Vector2D sensor(x_center[i], y_center[i]);
+    // rigid2d::Transform2D Tsb(robot,mu_t_bar.coeff(0.0));
+    // rigid2d::Transform2D Tlb(sensor);
+
+    // rigid2d::Transform2D Tsl = operator*(Tsb,Tlb );
     
-    // std::cout<<"state x landmark "<< mu_t_bar.coeff(2*(i+1)+1)<<"\n";
-    // std::cout<<"state y landmark "<< mu_t_bar.coeff(2*(i+1)+2)<<"\n";
+
+    // std::cout<<"Tsl m3 main  = "<<Tsl.m3<<"\n";
+    // std::cout<<"Tsl m6 main  = "<<Tsl.m6<<"\n";
     
-    double dist = sqrt((global_x_landmark- mu_t_bar.coeff(2*(i+1)+1)) * (global_x_landmark - mu_t_bar.coeff(2*(i+1)+1)) + (global_y_landmark - mu_t_bar.coeff(2*(i+1)+2,0))*(global_y_landmark - mu_t_bar.coeff(2*(i+1)+2,0)));
-    std::cout<<"dist = "<<dist<<"\n";
+    // std::cout<<"state x landmark "<< mu_t_bar.coeff(2*(i+1)+1,0)<<"\n";
+    // std::cout<<"state y landmark "<< mu_t_bar.coeff(2*(i+1)+2,0)<<"\n";
+    
+    //  double dist = sqrt((Tsl.m3- mu_t_bar.coeff(2*(i+1)+1,0)) * (Tsl.m3 - mu_t_bar.coeff(2*(i+1)+1,0)) + (Tsl.m6 - mu_t_bar.coeff(2*(i+1)+2,0))*(Tsl.m6 - mu_t_bar.coeff(2*(i+1)+2,0)));
+    //  std::cout<<"dist = "<<dist<<"\n";
 
       double known_range = sqrt(x_del * x_del + y_del * y_del); 
       double known_bearing =  ( wrap_angles(atan2(y_del,x_del)))- wrap_angles(mu_t_bar.coeff(0,0));
@@ -317,11 +324,11 @@ void EKF::ekf_update(int m_land, double co_var_v, std::vector<float> x_center, s
       large_h.col(0) << 0,-1.0;
       large_h.col(1) << (-x_delta/sqrt(delta)), (y_delta/(delta));
       large_h.col(2) << (-y_delta/sqrt(delta)), -(x_delta/(delta));
-      large_h.col(2+2*(i+1)-1) << (x_delta/sqrt(delta)), (-y_delta/delta);
-      large_h.col(2+2*(i+1)) << (y_delta/sqrt(delta)),(x_delta/delta);
+      // large_h.col(2+2*(i+1)-1) << (x_delta/sqrt(delta)), (-y_delta/delta);
+      // large_h.col(2+2*(i+1)) << (y_delta/sqrt(delta)),(x_delta/delta);
     
-      // large_h.col(id) << (x_delta/sqrt(delta)), (-y_delta/delta);
-      // large_h.col(id+1) << (y_delta/sqrt(delta)),(x_delta/delta);
+      large_h.col(id) << (x_delta/sqrt(delta)), (-y_delta/delta);
+      large_h.col(id+1) << (y_delta/sqrt(delta)),(x_delta/delta);
       // std::cout<<"large h \n="<<large_h<<"\n \n";
       // for(int i =0; i<m_land; i++)
       // {
@@ -426,18 +433,21 @@ int EKF::which_landmark(double threshold , float x_reading, float y_reading)
 {
   int index =0;
   int current_size = mu_t_bar.rows();
-  std::cout<<"mu_t_bar \n"<<mu_t_bar<<"\n \n";
+  // std::cout<<"mu_t_bar \n"<<mu_t_bar<<"\n \n";
      
   for(int i = 3; i<current_size; i+=2)
   {
    std::cout<<"inside for loop i ="<<i<<"\t";
 
-    double x_state = mu_t_bar.coeff(i,0);
-    double y_state = mu_t_bar.coeff(i+1,0);
-    std::cout<<"x state = "<<x_state<<"\t"<<"y state ="<<y_state<<"\n";
-    std::cout<<"x reading = "<<x_reading<<"\t"<<"y reading ="<<y_reading<<"\n";
-    double dist = sqrt((x_state - x_reading) * (x_state - x_reading) + (y_state - y_reading)*(y_state - y_reading));
-    std::cout<<"dist = "<<dist<<"\n";
+
+    rigid2d::Vector2D robot(mu_t_bar.coeff(1,0),mu_t_bar.coeff(2,0));
+    rigid2d::Vector2D sensor(x_reading, y_reading);
+    rigid2d::Transform2D Tsb(robot,mu_t_bar.coeff(0.0));
+    rigid2d::Transform2D Tlb(sensor);
+
+    rigid2d::Transform2D Tsl = operator*(Tsb,Tlb );
+      
+     double dist = sqrt((Tsl.m3- mu_t_bar.coeff(i,0)) * (Tsl.m3 - mu_t_bar.coeff(i,0)) + (Tsl.m6 - mu_t_bar.coeff(i+1,0))*(Tsl.m6 - mu_t_bar.coeff(i+1,0)));
     if(dist < threshold)
     { 
       // found corresponding landmark inside state vector 
@@ -453,8 +463,8 @@ int EKF::which_landmark(double threshold , float x_reading, float y_reading)
     // no corresponding landmark found
     // add this reading as landmark to state
     std::cout<<"no landmark found, resizing "<<"\n";
-    resize_matrices(current_size,x_reading,y_reading);
-    index = current_size;
+    // resize_matrices(current_size,x_reading,y_reading);
+    // index = current_size;
   }
   std::cout<<"index = "<<index<<"\n";  
   decision = false;

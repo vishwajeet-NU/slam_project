@@ -150,6 +150,7 @@ target_link_libraries(draw_map ${catkin_LIBRARIES} )
 add_executable(slam src/slam.cpp)
 target_link_libraries(slam ${catkin_LIBRARIES} Eigen3::Eigen  nuslam)
 
+target_link_libraries(nuslam rigid2d)
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library

@@ -102,6 +102,7 @@ double wrap_angles(float incoming_angle)
 }
 void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
 {
+    
     std::normal_distribution<double> d(0.0, nvar);
     ros::NodeHandle n;
     map_pub= n.advertise<nuslam::turtle_map>("landmarks", 1);

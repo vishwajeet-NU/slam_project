@@ -6,14 +6,10 @@
 #include <numeric>
 #include <eigen3/Eigen/Dense>
 #include<random>
-#include"rigid2d/rigid2d.hpp"
-#include"rigid2d/diff_drive.hpp"
-#include"rigid2d/waypoints.hpp"
-#include"rigid2d/telep.h"
+#include "rigid2d/rigid2d.hpp"
 
 /// \file
 /// \brief Library for two-dimensional rigid body transformations.
-
 class EKF
 { 
     public:
@@ -37,7 +33,9 @@ class EKF
           Eigen::MatrixXd large_h;
           Eigen::MatrixXd k_gain;
           Eigen::MatrixXd R;
+        
 
+          double a = rigid2d::PI;
           std::vector<float> x_data;
           std::vector<float> y_data;
           std::vector<float> r_data;
