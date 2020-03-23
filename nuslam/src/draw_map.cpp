@@ -21,12 +21,23 @@ std::vector<float> y_center;
 std::vector<float> radius;
 
 bool gotreading = false;
+static double red;
+static double green;
+static double blue;
+static double alpha;
+std::string frame;
+
 
 void Callback(const nuslam::turtle_map &coordinates)
 {
     x_center = coordinates.x_center;
     y_center = coordinates.y_center;
     radius = coordinates.radius;
+    red = coordinates.red;
+    blue = coordinates.blue;
+    green = coordinates.green;
+    alpha = coordinates.alpha;
+    frame = coordinates.frame_name;
     gotreading = true;
 }
 
@@ -36,8 +47,8 @@ int main( int argc, char** argv )
   ros::init(argc, argv, "markers");
   ros::NodeHandle n;
 
-  ros::Rate r(10);
   
+  ros::Rate r(10);
   ros::Publisher marker_pub = n.advertise<visualization_msgs::MarkerArray>("visualization_marker_scan_array", 1,true);
   ros::Subscriber marker_sub = n.subscribe("landmarks", 1, Callback);
   uint32_t shape = visualization_msgs::Marker::CYLINDER;
@@ -50,7 +61,7 @@ int main( int argc, char** argv )
     {
     visualization_msgs::MarkerArray array;  
     visualization_msgs::Marker marker;
-    marker.header.frame_id = "/base_scan";     //will need to change this map vs odom?
+    marker.header.frame_id = frame;     //will need to change this map vs odom?
     marker.header.stamp = ros::Time::now();
     marker.ns = "basic_shapes";
     marker.type = shape;
@@ -59,10 +70,10 @@ int main( int argc, char** argv )
     marker.pose.orientation.y = 0.0;
     marker.pose.orientation.z = 0.0;
     marker.pose.orientation.w = 1.0;
-    marker.color.r = 0.0f;
-    marker.color.g = 1.0f;
-    marker.color.b = 0.0f;
-    marker.color.a = 1.0;
+    marker.color.r = red;
+    marker.color.g = green;
+    marker.color.b = blue ;
+    marker.color.a = alpha;
     marker.lifetime = ros::Duration();
 
     unsigned int i =0;    

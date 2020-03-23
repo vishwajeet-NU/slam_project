@@ -5,6 +5,17 @@
 
    <include file="$(find nuturtle_gazebo)/launch/diff_drive_gazebo.launch">
    </include>
-   <!-- <node name="analysis" pkg="nuslam" type="analysis" ouput="screen"/> -->
+<!-- 
+   <node name="analysis" pkg="nuslam" type="analysis"/>
+   <node name="slam" pkg="nuslam" type="slam"/>
+    -->
+
+   <node name="draw_map" pkg="nuslam" type="draw_map"/>
+
+   <node  name="draw_map_slam" pkg="nuslam" type="draw_map">
+   <remap from="landmarks" to="slam/landmarks"/>  
+   <remap from="visualization_marker_scan_array" to="slam/visualization_marker_scan_array"/>  
+   </node>
    
 </launch>
+

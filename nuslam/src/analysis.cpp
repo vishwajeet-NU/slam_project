@@ -74,7 +74,14 @@ static std::vector<float> x_coordinates;
 static std::vector<float> y_coordinates;
 static std::vector<float> radii;
 
+static double red = 0.0;
+static double blue = 100.0;
+static double green = 255.0;
+static double alpha = 0.8;
+
 static std::vector<std::string> names;
+
+std::string base_scan = "base_scan";
 
 geometry_msgs::PoseStamped ground_truth;
 nav_msgs::Path ground_path;
@@ -153,20 +160,15 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
        land.x = in_var.pose[index_pos[i]].position.x;
        land.y = in_var.pose[index_pos[i]].position.y;
 
-
-
-
        double x_delta = in_var.pose[index_pos[i]].position.x - in_var.pose[robot_index].position.x;
        double y_delta = in_var.pose[index_pos[i]].position.y - in_var.pose[robot_index].position.y;
        double range = land.distance(bot,land);
-       std::cout<<"atan = "<< atan2(y_delta,x_delta)<<"\n";
-       std::cout<<"wrapped atan"<<wrap_angles(atan2(y_delta,x_delta))<<"\n";
-       
-       std::cout<<"wrapped yaw "<< wrap_angles(yaw)<<"\n";
-       std::cout<<"yaw = "<<yaw<<"\n";
-
+      
        double bearing =  wrap_angles(atan2(y_delta,x_delta)) - wrap_angles(yaw) ;       
 
+       std::cout<<"atan = "<< atan2(y_delta,x_delta)<<"\n";
+       std::cout<<"yaw = "<<yaw<<"\n";
+       std::cout<<"bearing ="<<bearing<<"\n";
        if(abs(range)<detection_radius)
        {
        std::cout<<"x global = "<<in_var.pose[index_pos[i]].position.x<<"\t";
@@ -201,6 +203,11 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
     container.radius = radii;
     container.x_center = x_coordinates;
     container.y_center = y_coordinates;
+    container.red = red;
+    container.blue = blue;
+    container.green = green;
+    container.alpha = alpha;
+    container.frame_name = base_scan; 
     map_pub.publish(container);
 
     x_coordinates.clear();

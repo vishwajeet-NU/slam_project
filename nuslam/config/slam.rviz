@@ -129,20 +129,19 @@ Visualization Manager:
       Show Names: true
       Tree:
         map:
-          {}
-        odom:
-          base_link:
-            body_link:
-              base_scan:
-                {}
-              caster:
-                {}
-              left_wheel:
-                {}
-              right_wheel:
-                {}
-          fake_odom:
-            {}
+          odom:
+            base_link:
+              body_link:
+                base_scan:
+                  {}
+                caster:
+                  {}
+                left_wheel:
+                  {}
+                right_wheel:
+                  {}
+            fake_odom:
+              {}
       Update Interval: 0
       Value: true
     - Class: rviz/TF
@@ -266,6 +265,14 @@ Visualization Manager:
       Topic: /path_odom
       Unreliable: false
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /slam/visualization_marker_scan_array
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -294,25 +301,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.2842888832092285
+      Distance: 2.218975067138672
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.3284749686717987
-        Y: 0.22780470550060272
-        Z: -0.19380418956279755
+        X: 0.24999012053012848
+        Y: 0.3513605296611786
+        Z: -0.21227188408374786
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9747963547706604
+      Pitch: 0.9297963976860046
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.5204074382781982
+      Yaw: 3.3704073429107666
     Saved: ~
 Window Geometry:
   Displays:

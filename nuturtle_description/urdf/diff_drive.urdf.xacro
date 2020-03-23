@@ -51,22 +51,13 @@
 
 
 <link name ="base_scan">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <geometry>  
-          <cylinder length="0.02" radius="${(w-wid)/4}" />
-      </geometry>
-      <material name="color2">
-        <color rgba="0 0 0 1"/>
-      </material>
-    </visual>
 
 </link> 
 
    <joint name="scan_joint" type="fixed">
-    <parent link="body_link"/>
+    <parent link="base_link"/>
     <child link="base_scan"/>
-    <origin xyz="${l/4} 0 ${h/2 + 0.02/2}" rpy="0 0 0" /> 
+    <origin xyz="0 0 ${h/2 + 0.03/2}" rpy="0 0 0" /> 
     <axis xyz="0 1 0" />
   </joint>
    

@@ -42,19 +42,27 @@ namespace turtle_odom_pose{
 double roll,pitch,yaw= 0.0;    
 geometry_msgs::Quaternion quat; 
 
-static double sigma_r = 0 , sigma_theta = 0, sigma_landmark = 0;
+static double sigma_r = 0.0 , sigma_theta = 0.0, sigma_landmark = 0.0;
 static double r_param;
 static double incoming_left_wheel;
 static double incoming_right_wheel;
-static double left_wheel = 0;
-static double right_wheel = 0;
+static double left_wheel = 0.0;
+static double right_wheel = 0.0;
+static double association_threshold = 0.0;
 
 
+static double red = 255.0;
+static double blue = 0.0;
+static double green = 0.0;
+static double alpha = 0.8;
 static bool called = false;
 
-static int m_land = 12;      // number of landmarks 
-static int n_land = m_land * 2;   // 2m for x and y location of landmark
-static int total = n_land + 3;
+static int m_land = 0;      // number of landmarks 
+static int n_land = 0;   // 2m for x and y location of landmark
+static int total = 0;
+
+
+std::string map = "map";    
 
 static double co_var_w;
 static double co_var_v;
@@ -63,11 +71,17 @@ std::vector<float> y_center;
 
 bool land_called = false;
 bool odom_call = false;
+
+nuslam::turtle_map landmark_positions;
+
 void landmarks(const nuslam::turtle_map &coordinates)
 {
     x_center = coordinates.x_center;
 
     y_center = coordinates.y_center;
+    m_land = x_center.size();
+    n_land = m_land * 2;
+    total = n_land + 3;
     land_called = true;
 }
 
@@ -122,6 +136,7 @@ int main(int argc, char** argv)
     ros::param::get("co_var_w",co_var_w);
     ros::param::get("co_var_v",co_var_v);
     ros::param::get("r_param",r_param);
+    ros::param::get("association_threshold",association_threshold);
 
      
     ros::ServiceServer service = n.advertiseService("/set_pose", do_teleport);
@@ -133,6 +148,7 @@ int main(int argc, char** argv)
 
     Twist2D Vb;
     ros::Publisher path_pub_map = n.advertise<nav_msgs::Path>("/path_map", 1);
+    ros::Publisher map_publisher = n.advertise<nuslam::turtle_map>("slam/landmarks",1);
     ros::Subscriber joint_state_subsciber = n.subscribe("/joint_states", 1, jt_callback);
     ros::Subscriber read_landmarks = n.subscribe("landmarks", 1, landmarks);
     ros::Subscriber odom_sub = n.subscribe("odom", 1,pose_odom_Callback);
@@ -143,7 +159,6 @@ int main(int argc, char** argv)
     nav_msgs::Path path_taken_map;
 
     EKF new_bot;
-    new_bot.initialize_matrices(m_land, sigma_r, sigma_theta, sigma_landmark, r_param);
     ros::Rate r(100);
       while(n.ok())
       {
@@ -160,7 +175,9 @@ int main(int argc, char** argv)
           if(land_called)
           {
               if(start)
-              {
+              { 
+                  std::cout<<"Inside start"<<"\n";
+                  new_bot.initialize_matrices(m_land, sigma_r, sigma_theta, sigma_landmark, r_param);
                   for(int i =0; i<m_land; i++)
                   {
                       new_bot.mu_t_bar.row(2+2*(i+1)-1) << x_center[i];
@@ -180,23 +197,48 @@ int main(int argc, char** argv)
               right_wheel = incoming_right_wheel;
 
               new_bot.ekf_predict(body_v,co_var_w, total); 
-              new_bot.ekf_update(m_land,co_var_v,x_center,y_center,total); 
+              new_bot.ekf_update(m_land,co_var_v,x_center,y_center,total,association_threshold); 
            
               // std::cout<<"mu posteriro"<<mu_t_posterior<<"\n";
               new_bot.k_gain.fill(0.0);
               new_bot.large_h.fill(0.0);
               new_bot.pose_var_prior = new_bot.pose_var_posterior;
-              
+              std::vector<float> x_coordinates;
+              std::vector<float> y_coordinates;
+              std::vector<float> radii;
+
+              for(int i = 3; i<new_bot.mu_t_posterior.rows(); i+=2)
+              {
+                x_coordinates.push_back(new_bot.mu_t_posterior(i));
+                y_coordinates.push_back(new_bot.mu_t_posterior(i+1));
+                radii.push_back(0.035);
+              }
+              landmark_positions.radius = radii;
+              landmark_positions.x_center = x_coordinates;
+              landmark_positions.y_center = y_coordinates;
+              landmark_positions.red = red;
+              landmark_positions.blue = blue;
+              landmark_positions.green = green;
+              landmark_positions.alpha = alpha;
+              landmark_positions.frame_name = map;
+
+              map_publisher.publish(landmark_positions);
+              x_coordinates.clear();
+              y_coordinates.clear();
+              radii.clear();
+
               geometry_msgs::Quaternion map_quat = tf::createQuaternionMsgFromYaw(wrap_angles(new_bot.mu_t_bar.coeff(0,0)) - yaw);   
               geometry_msgs::TransformStamped map_trans;
               map_trans.header.stamp = ros::Time::now();
               map_trans.header.frame_id = "map";
               map_trans.child_frame_id = "odom";
 
-              std::cout<<"coeff x = "<<new_bot.mu_t_bar.coeff(1,0) <<"\n";
-              std::cout<<"coeff y = "<<new_bot.mu_t_bar.coeff(2,0) <<"\n";
-              std::cout<<"x = "<<turtle_odom_pose::x<<"\n";
-              std::cout<<"y = "<<turtle_odom_pose::y<<"\n";
+            //   std::cout<<"coeff x = "<<new_bot.mu_t_bar.coeff(1,0) <<"\n";
+            //   std::cout<<"coeff y = "<<new_bot.mu_t_bar.coeff(2,0) <<"\n";
+            //   std::cout<<"x = "<<turtle_odom_pose::x<<"\n";
+            //   std::cout<<"y = "<<turtle_odom_pose::y<<"\n";
+            //   std::cout<<"mu_t_bar in loop \n"<<new_bot.mu_t_bar<<"\n \n";
+      
         
               map_trans.transform.translation.x = new_bot.mu_t_bar.coeff(1,0) - turtle_odom_pose::x;
               map_trans.transform.translation.y = new_bot.mu_t_bar.coeff(2,0) - turtle_odom_pose::y;

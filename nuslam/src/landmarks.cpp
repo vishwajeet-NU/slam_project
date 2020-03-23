@@ -62,6 +62,7 @@ static double radius_threshold;
 ros::Publisher map_pub;
 nuslam::turtle_map container;
 
+
 void fit_circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<float>> &y_in)
 {
   EKF cir;
