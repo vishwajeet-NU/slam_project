@@ -39,7 +39,6 @@
   <!-- Use build_depend for packages you need at compile time: -->
   <!--   <build_depend>message_generation</build_depend> -->
   <!-- Use build_export_depend for packages you need in order to build against this package: -->
-  <!--   <build_export_depend>message_generation</build_export_depend> -->
   <!-- Use buildtool_depend for build tool packages: -->
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
   <!-- Use exec_depend for packages you need at runtime: -->
@@ -51,15 +50,17 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>roscpp</depend>
   <depend>geometry_msgs</depend>
-<depend>sensor_msgs</depend>
+ <depend>sensor_msgs</depend>
   <build_depend>message_generation</build_depend>
-  <build_depend>rigid2d</build_depend>
- <depend>std_msgs</depend>
+  <build_depend>gazebo</build_depend>
+   <build_depend>rigid2d</build_depend>
+  <depend>std_msgs</depend>
   <build_depend>tf</build_depend>
   <buildtool_depend>catkin</buildtool_depend>
   <exec_depend>rigid2d</exec_depend> 
-<exec_depend>message_runtime</exec_depend> 
-<exec_depend>gazebo_ros</exec_depend>
+ <exec_depend>message_runtime</exec_depend> 
+ <exec_depend>gazebo_ros</exec_depend>
+<build_export_depend>rigid2d</build_export_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

@@ -118,7 +118,7 @@ find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME} rigid2d
-  CATKIN_DEPENDS roscpp std_msgs sensor_msgs message_runtime Eigen3::Eigen
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs message_runtime geometry_msgs
 #  DEPENDS system_lib
 )
 ###########
@@ -154,7 +154,7 @@ add_executable(slam src/slam.cpp)
 target_link_libraries(slam ${catkin_LIBRARIES} Eigen3::Eigen  nuslam)
 
 target_link_libraries(nuslam rigid2d)
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} Eigen3::Eigen)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -197,24 +197,29 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-# install(TARGETS ${PROJECT_NAME}_node
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+ install(TARGETS
+ analysis
+ draw_map
+ gazebo_visual
+ landmarks
+ slam
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+ install(TARGETS ${PROJECT_NAME}
+   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+ )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+ install(DIRECTORY include/${PROJECT_NAME}/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+   FILES_MATCHING PATTERN "*.h"
+   PATTERN ".svn" EXCLUDE
+ )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES

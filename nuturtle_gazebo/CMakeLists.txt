@@ -29,12 +29,6 @@ find_package(gazebo REQUIRED)
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 include_directories(${Eigen3_INCLUDE_DIRS})
 
-add_library(${PROJECT_NAME}_plugin SHARED src/turtle_drive_plugin.cpp)
-target_link_libraries(${PROJECT_NAME}_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
-
-target_include_directories(${PROJECT_NAME}_plugin PUBLIC ${GAZEBO_INCLUDE_DIRS})
-add_dependencies(${PROJECT_NAME}_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -146,6 +140,13 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/nuturtle_gazebo.cpp
 # )
+
+
+add_library(${PROJECT_NAME}_plugin SHARED src/turtle_drive_plugin.cpp)
+target_link_libraries(${PROJECT_NAME}_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+target_include_directories(${PROJECT_NAME}_plugin PUBLIC ${GAZEBO_INCLUDE_DIRS})
+add_dependencies(${PROJECT_NAME}_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
