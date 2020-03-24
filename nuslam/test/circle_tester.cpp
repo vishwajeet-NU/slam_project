@@ -1,4 +1,7 @@
-// tests.cpp
+/// \file
+/// \brief this file has code that runs a test on the circle fit 
+/// algortithm . Two data vectors are tested
+
 #include "ros/ros.h"
 #include <gtest/gtest.h>
 #include "nuslam/nuslam.hpp"

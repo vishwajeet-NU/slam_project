@@ -1,13 +1,13 @@
 <launch>
 
-<arg name = "robot" default = "-1" doc = " 0 makes the machine as turtle, 1 the computer" />
+<arg name = "robot" default = "-1" doc = " -1 to run gazebo simulation, 0 to run on pc 1-5 on turtlebots" />
 
 <include file="$(find nuslam)/launch/view_diff_drive_slam.launch">
 <arg name="config" value="$(find nuslam)/config/landmarks.rviz"/>
 </include>
 
 <include file="$(find nuslam)/launch/movement.launch">
-<arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
+<arg name = "robot" value = "$(arg robot)"  doc = " -1 to run gazebo simulation, 0 to run on pc 1-5 on turtlebots"/>
 </include>
 <rosparam command="load" file="$(find nuslam)/config/slam_params.yaml" /> 
 

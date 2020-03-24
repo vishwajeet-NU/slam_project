@@ -4,7 +4,7 @@ project(tsim)
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
-add_compile_options(-Wall -Werror -pipe)
+add_compile_options(-Wall -Wextra -pipe -Wno-psabi)
 ## Compile at 17 standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

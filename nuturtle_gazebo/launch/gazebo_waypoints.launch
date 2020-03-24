@@ -1,6 +1,6 @@
 <launch>
    <include file="$(find nuturtle_robot)/launch/follow_waypoints.launch">
-   <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
+   <arg name = "robot" value = "$(arg robot)"  doc = " -1 to run gazebo simulation, 0 to run on pc 1-5 on turtlebots"/>
    </include>
    <include file="$(find nuturtle_gazebo)/launch/diff_drive_gazebo.launch">
    </include>

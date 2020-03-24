@@ -1,3 +1,17 @@
+/// \file
+/// \brief This file is a plugin that communicates between ros and gazebo
+/// it helps simulate sensor readings that ros can use as if from an actual robot
+/// and helps pass ros commands to the robot
+/// PARAMETERS:
+/// none
+
+/// PUBLISHES:
+///     sensor_pub (nuturtlebot::SensorData): publishes simulated sensor(encoder data)
+/// SUBSCRIBES:
+///     wheel_sub (nuturtlebot::WheelCommand): subcsribes to wheel commands
+///     
+/// SERVICES:
+///     none
 #include <gazebo/common/Plugin.hh>
 #include <ros/ros.h>
 #include <functional>
@@ -134,7 +148,10 @@ namespace gazebo
     std::bind(&ModelPush::OnUpdate, this));
     }
 
-
+    /// \brief Callback to read wheel commands
+    ///
+    /// \tparam : wheel command topic 
+    /// \returns nothing
     public: void callback_wheel_cmd(const nuturtlebot::WheelCommands &wheelcmd)
     {
       this->incoming_speeds.U1 = wheelcmd.left_velocity * rvel/power ;

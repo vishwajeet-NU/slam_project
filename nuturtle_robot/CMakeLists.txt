@@ -7,8 +7,7 @@ project(nuturtle_robot)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-add_compile_options(-Wall -Werror -pipe)
-
+add_compile_options(-Wall -Wextra -pipe -Wno-psabi)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)

@@ -1,6 +1,6 @@
 /// \file
 /// \brief This file defines the methods that have been 
-/// initialized in the header file.
+/// initialized in the header file called nuslam.hpp.
 
 #include "nuslam/nuslam.hpp"
 

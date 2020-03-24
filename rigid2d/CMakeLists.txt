@@ -6,7 +6,7 @@ project(rigid2d)
 
 #set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror" )
 
-add_compile_options(-Wall -Werror -pipe)
+add_compile_options(-Wall -Wextra -pipe -Wno-psabi)
 ## Compile at 17 standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
