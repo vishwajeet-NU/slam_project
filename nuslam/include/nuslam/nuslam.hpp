@@ -9,7 +9,9 @@
 #include "rigid2d/rigid2d.hpp"
 
 /// \file
-/// \brief Library for two-dimensional rigid body transformations.
+/// \brief Library to support EKF slam, contains circle fitting, ekf measurement update and ekf prediction
+
+          
 class EKF
 { 
     public:
@@ -41,13 +43,59 @@ class EKF
           std::vector<float> r_data;
           int j = 0;
           EKF();
+
+          /// \brief initializes matrices needed for ekf 
+          /// \param number of landmarks and noise parameters
+          /// \returns none
+   
           void initialize_matrices(int landmark_no, double sigma_r,double sigma_theta,double sigma_landmark, double r_param);
+
+          /// \brief A method to determine whether a list of points is a circle or not 
+          /// \param vectors of vectors containing x and y locations
+          /// \returns none
+
+          std::vector<std::vector<std::vector<float>>> circle_or_not_circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<float>> &y_in);
+
+          /// \brief used to fit a circle to given points  
+          /// \param vectors of vectors containing x and y locations
+          /// \returns vector of selected values
+
           void circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<float>> &y_in);
           std::mt19937 & get_random();
+
+          /// \brief performs the prediction step of an EKF algorithm 
+          /// \param twist containig the forward motion twist, noise parameter and state vector size
+          /// \returns none
+
           void ekf_predict(rigid2d::Twist2D body_v, double co_var_w, int total);
+
+          /// \brief performs the measurement step of an EKF algorithm 
+          /// \param noise parameters, sensor x and y readings, state vector size, distance thresholds for identifying new landmarks
+          /// \returns none
+
           void ekf_update(int m_land, double co_var_v, std::vector<float> x_center, std::vector<float> y_center, int total, double threshold , double upper_threshold);
+
+
+          /// \brief wraps angles between PI -PI
+          ///
+          /// \tparam inputs: takes angle to be wrapped in degrees
+          /// \returns wrapped angle
           double wrap_angles(double incoming_angle);
+
+
+          /// \brief decides which landmark the current measurement belongs to. Does data association using only 
+          /// cartesian logic
+          ///
+          /// \tparam inputs: distance thresholds, and the current sensor reading for comparing with state vector
+          /// \returns index of state vector which corresponds to the sensor reading
           int which_landmark(double threshold , double upper_threshold, float x_reading, float y_reading);
+
+          /// \brief used to resize and redifine the matrices that need to be updated after a new landmark is added to
+          /// the state
+          ///
+          /// \tparam current size of state vector, and sensor readings to be appended to vector
+          /// \returns none
+          
           void resize_matrices(int current_size,float x_reading, float y_reading);
 
 };  

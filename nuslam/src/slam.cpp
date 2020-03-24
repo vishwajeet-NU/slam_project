@@ -1,8 +1,29 @@
 /// \file
-/// \brief finds odometry of the robot and publishes it 
+/// \brief This file is builds up a EKF based slam algorithm
 
-/// Publishers : odom
-/// Subscribers : jointstate
+/// PARAMETERS:
+/// sigma_r : noise parameter for Q_t
+/// sigma_theta : noise parameter for Q_t
+/// sigma_landmark : noise parameter for Q_t
+/// co_var_w : Variance for motion model
+/// co_var_v : Variance for measurement model 
+/// r_param  : Parameter to wary R, for finding kalman gain
+/// association_threshold : value beyond which landmark is assumed to be previously known
+/// upper_threshold : higher limit beyond which new landmarks are not added to the state vector
+
+/// PUBLISHES:
+///     path_pub_map (nav_msgs::Path): publishes calculated center and radius of landmark 
+///     map_publisher (nuslam::turtle_map)
+///     map_broadcaster (tf::TransformBroadcaster)
+
+/// SUBSCRIBES:
+///     joint_state_subsciber (sensor_msgs::LaserScan): reads data from the laser scanner
+///     read_landmarks (nuslam::turtle_map) :: reads from landmarks topic 
+///     odom_sub (nav_msgs::Odometry) : reads odom estimate from odometry topic
+///
+
+/// SERVICES:
+///    set_pose: used to set robot pose 
 
 #include "ros/ros.h"
 #include "tf/transform_broadcaster.h"
@@ -75,6 +96,11 @@ bool odom_call = false;
 
 nuslam::turtle_map landmark_positions;
 
+
+/// \brief callback for reading landmark data
+///
+/// \tparam inputs: turtlemap message
+/// \returns none
 void landmarks(const nuslam::turtle_map &coordinates)
 {
     x_center = coordinates.x_center;
@@ -86,6 +112,11 @@ void landmarks(const nuslam::turtle_map &coordinates)
     land_called = true;
 }
 
+
+/// \brief wraps angles between PI -PI
+///
+/// \tparam inputs: takes angle to be wrapped in degrees
+/// \returns wrapped angle
 double wrap_angles(double incoming_angle)
 {
     incoming_angle = atan2(sin(incoming_angle),cos(incoming_angle));
@@ -93,12 +124,21 @@ double wrap_angles(double incoming_angle)
     return incoming_angle;
 }
 
+
+/// \brief callback for reading joint states
+///
+/// \tparam inputs: joint state message
+/// \returns none
  void jt_callback(const sensor_msgs::JointState JT)
  {
        incoming_left_wheel= JT.position[0];
        incoming_right_wheel= JT.position[1];
  }
 
+/// \brief callback for service to reset pose of bot
+///
+/// \tparam inputs
+/// \returns none
 bool do_teleport(rigid2d::telep::Request  &req, rigid2d::telep::Response &res)
 {     
 
@@ -109,6 +149,10 @@ bool do_teleport(rigid2d::telep::Request  &req, rigid2d::telep::Response &res)
      return true;
 }
 
+/// \brief callback for messages over odom topic
+///
+/// \tparam inputs: Odometry message
+/// \returns none
 
 void pose_odom_Callback(const nav_msgs::Odometry &odom_pose)
     {
@@ -235,13 +279,6 @@ int main(int argc, char** argv)
               map_trans.header.frame_id = "map";
               map_trans.child_frame_id = "odom";
 
-            //   std::cout<<"coeff x = "<<new_bot.mu_t_bar.coeff(1,0) <<"\n";
-            //   std::cout<<"coeff y = "<<new_bot.mu_t_bar.coeff(2,0) <<"\n";
-            //   std::cout<<"x = "<<turtle_odom_pose::x<<"\n";
-            //   std::cout<<"y = "<<turtle_odom_pose::y<<"\n";
-            //   std::cout<<"mu_t_bar in loop \n"<<new_bot.mu_t_bar<<"\n \n";
-      
-        
               map_trans.transform.translation.x = new_bot.mu_t_bar.coeff(1,0) - turtle_odom_pose::x;
               map_trans.transform.translation.y = new_bot.mu_t_bar.coeff(2,0) - turtle_odom_pose::y;
               map_trans.transform.translation.z = 0.0;

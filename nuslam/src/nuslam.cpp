@@ -53,6 +53,80 @@ void EKF::initialize_matrices(int landmark_no, double sigma_r,double sigma_theta
 
 }
 
+
+std::vector<std::vector<std::vector<float>>> EKF::circle_or_not_circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<float>> &y_in)
+{
+
+
+  float first_x,last_x,first_y,last_y;
+  
+  std::vector<std::vector<std::vector<float>>> selected_values;
+
+  std::vector<std::vector<float>> selected_x;
+  std::vector<std::vector<float>> selected_y;
+  
+ 
+  for (unsigned int k =0;k<x_in.size(); k++)
+  {
+    std::vector<float> angle_list;
+    std::vector<float> current_x_cluster = x_in[k];
+    std::vector<float> current_y_cluster = y_in[k];
+    
+    first_x = *(current_x_cluster.begin());
+    last_x  = *(current_x_cluster.end()-1);
+
+    first_y = *(current_y_cluster.begin());
+    last_y  = *(current_y_cluster.end()-1);
+
+    for( unsigned int l = 1;  l< (current_x_cluster.size()-1); l++ )
+    {
+
+      float y_delta_first =  (current_y_cluster[l] - first_y);
+      float x_delta_first = (current_x_cluster[l] - first_x);
+
+      float y_delta_last = (current_y_cluster[l] - last_y);
+      float x_delta_last = (current_x_cluster[l] - last_x);
+      
+
+      float first_ang = atan2(x_delta_first,y_delta_first);
+      float last_ang = atan2(x_delta_last,y_delta_last);
+
+      angle_list.push_back(first_ang-last_ang);      
+      
+    }
+
+    double sum = std::accumulate(std::begin(angle_list), std::end(angle_list), 0.0);
+    double m =  sum / angle_list.size();
+    double accum = 0.0;
+    std::for_each (std::begin(angle_list), std::end(angle_list), [&](const double d) 
+    {
+    accum += (d - m) * (d - m);
+    });
+    double stdev = sqrt(accum / (angle_list.size()));
+
+    if(m<0.0)
+    {
+      m = m + 2.0*rigid2d::PI;
+    }
+//    std::cout<<"m out ="<<m<<"\n";
+
+    if((m>=(rigid2d::PI)/2.0) && (m<= (3.0* rigid2d::PI)/4.0)  && stdev <0.15)
+    {
+
+      selected_x.push_back(x_in[k]);
+      selected_y.push_back(y_in[k]);
+    }
+
+    angle_list.clear();
+  }
+  
+  selected_values.push_back(selected_x);
+  selected_values.push_back(selected_y);
+
+return selected_values;
+
+}
+
 void EKF::circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<float>> &y_in)
 { 
     for (unsigned int k =0;k<x_in.size(); k++)

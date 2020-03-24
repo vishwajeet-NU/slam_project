@@ -67,6 +67,10 @@ nuslam::turtle_map container;
 std::string cylinder = "cylinder";
 std::string robot = "diff_drive";
 
+/// \brief wraps angles between PI -PI
+///
+/// \tparam inputs: takes angle to be wrapped in degrees
+/// \returns wrapped angle
 double wrap_angles(float incoming_angle)
 {
     incoming_angle = atan2(sin(incoming_angle),cos(incoming_angle));
@@ -74,6 +78,10 @@ double wrap_angles(float incoming_angle)
     return incoming_angle;
 
 }
+/// \brief callback for gazebo states 
+///
+/// \tparam inputs: model states 
+/// \returns none
 void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
 {
     

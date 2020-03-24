@@ -1,52 +1,25 @@
 /// \file
-/// \brief This file makes a turtle travel in a pentagon, using a feedforward
-/// strategy of control. It also prints the error between its expected position and 
-/// the actual position, and also plots it
+/// \brief Used to plot robots path as reported by gazebo, aka - ground truth
 /// PARAMETERS:
-/// x positions 
-/// y positions 
+/// none
 
 /// PUBLISHES:
-///     vel_pub (cmd_vel): publishes velocity commands to move the turtle 
-///     err_pub (pose_err): this topic takes in error in actual and expected position of the turtle
+///     path_pub_gt (nav_msgs::Path): publishes path for plotting in rviz
 /// SUBSCRIBES:
-///     sub (pose): reads actual position data of the turtle
-///     sub (odom): odometry readings from the /odom topic 
+///     landmark_gt (gazebo_msgs::ModelStates): reads robots pose reported by gazebo
 /// SERVICES:
-///     client2 (SetPen): can be used to change color and transperency of turtle marker
-///     client   (TeleportAbsolute) used to teleport the turtle to desired point and orientation
-///     
+///     client   (gazebo_msgs::GetWorldProperties) reads model names reported by gazebo
+
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include "geometry_msgs/Twist.h"
 #include "nav_msgs/Odometry.h"
-#include <turtlesim/TeleportAbsolute.h>
-#include <turtlesim/SetPen.h>
-#include<std_srvs/Empty.h>
-#include <turtlesim/Pose.h> 
-#include "tsim/PoseError.h"
-#include <math.h>
 #include"rigid2d/rigid2d.hpp"
-#include"rigid2d/diff_drive.hpp"
-#include"rigid2d/waypoints.hpp"
 #include "tf/transform_broadcaster.h"
 #include <vector>
-#include "sensor_msgs/JointState.h"
-#include "geometry_msgs/Twist.h"
-#include "nuturtlebot/WheelCommands.h"
-#include "nuturtlebot/SensorData.h"
-#include "sensor_msgs/LaserScan.h"
 #include <string>
-
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
-#include <algorithm>    // std::sort
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
 
 #include "gazebo_msgs/GetWorldProperties.h"
 #include "gazebo_msgs/ModelStates.h"
-
 
 #include <nuslam/turtle_map.h>
 
@@ -66,6 +39,11 @@ ros::Publisher path_pub_gt;
 
 std::string robot = "diff_drive";
 
+
+/// \brief callback for gazebo states 
+///
+/// \tparam inputs: model states 
+/// \returns none
 void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
 {
     ros::NodeHandle n;

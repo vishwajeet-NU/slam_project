@@ -1,14 +1,16 @@
 /// \file
-/// \brief This file creates cylindrical markers for visualizing waypoints on rviz
-///
+/// \brief This file publishes markers at the reported locations at the landmark topic
+/// it reads frame name and colors from the landmark topic it subscrbes to
 /// PARAMETERS:
-///     it takes in waypoints x and y as parameter. 
+/// none
 /// PUBLISHES:
-///     publishes visualization messages 
+///     marker_pub (visualization_msgs::MarkerArray): publishes an array of cylinders at landmark location
+///     
 /// SUBSCRIBES:
-///     no subscribers 
+///     marker_sub (nuslam::turtle_map): reads landmark location, and receives color and frame of reference
 /// SERVICES:
-///     no services used
+///     none
+///     
 
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
@@ -27,7 +29,10 @@ static double blue;
 static double alpha;
 std::string frame;
 
-
+/// \brief callback for reading landmark topic
+///
+/// \tparam inputs: turtlemap message
+/// \returns none
 void Callback(const nuslam::turtle_map &coordinates)
 {
     x_center = coordinates.x_center;
@@ -61,7 +66,7 @@ int main( int argc, char** argv )
     {
     visualization_msgs::MarkerArray array;  
     visualization_msgs::Marker marker;
-    marker.header.frame_id = frame;     //will need to change this map vs odom?
+    marker.header.frame_id = frame;     
     marker.header.stamp = ros::Time::now();
     marker.ns = "basic_shapes";
     marker.type = shape;
