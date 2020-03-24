@@ -30,10 +30,10 @@ y_error = -0.0373m </br>
 Another run with lower noise and slower movement 
 ![image](nuslam/images/3.png)
 
-Green : slam path
-Brown: ground path
-Blue : odom path
+Green : slam path </br>
+Brown: ground path </br>
+Blue : odom path </br>
 
-Markers:
-blue : landmarks seen by sensor
-red  : landmarks in slams, state vector
+Markers: </br>
+blue : landmarks seen by sensor </br>
+red  : landmarks in slams, state vector </br>
