@@ -1,48 +1,27 @@
 /// \file
-/// \brief This file makes a turtle travel in a pentagon, using a feedforward
-/// strategy of control. It also prints the error between its expected position and 
-/// the actual position, and also plots it
+/// \brief This file takes gazebo state and publishes a landmark data that 
+/// resembles that of landmark node. It run in debug mode to verify EKF slam
 /// PARAMETERS:
-/// x positions 
-/// y positions 
+/// detection radius: landmarks beyond this radius are ignored  
+/// noise_variance: this is used to add gaussian noise to the data 
 
 /// PUBLISHES:
-///     vel_pub (cmd_vel): publishes velocity commands to move the turtle 
-///     err_pub (pose_err): this topic takes in error in actual and expected position of the turtle
+///     map_pub (nuslam::turtle_map): publishes location of landmark wrt to the robot, in x y along with radius 
+///     
 /// SUBSCRIBES:
-///     sub (pose): reads actual position data of the turtle
+///     landmark_gt (gazebo::model_states): reads actual position data of the bot as reported by gazebo
 ///     sub (odom): odometry readings from the /odom topic 
 /// SERVICES:
-///     client2 (SetPen): can be used to change color and transperency of turtle marker
-///     client   (TeleportAbsolute) used to teleport the turtle to desired point and orientation
+///     client (get_world_properties): used to read model names reported by gazebo
 ///     
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include "geometry_msgs/Twist.h"
-#include "nav_msgs/Odometry.h"
-#include <turtlesim/TeleportAbsolute.h>
-#include <turtlesim/SetPen.h>
 #include<std_srvs/Empty.h>
-#include <turtlesim/Pose.h> 
-#include "tsim/PoseError.h"
 #include <math.h>
 #include"rigid2d/rigid2d.hpp"
-#include"rigid2d/diff_drive.hpp"
-#include"rigid2d/waypoints.hpp"
 #include "tf/transform_broadcaster.h"
 #include <vector>
-#include "sensor_msgs/JointState.h"
-#include "geometry_msgs/Twist.h"
-#include "nuturtlebot/WheelCommands.h"
-#include "nuturtlebot/SensorData.h"
-#include "sensor_msgs/LaserScan.h"
 #include <string>
-
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
-#include <algorithm>    // std::sort
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
 
 #include "gazebo_msgs/GetWorldProperties.h"
 #include "gazebo_msgs/ModelStates.h"
@@ -56,7 +35,6 @@
 #include <geometry_msgs/PoseStamped.h> 
 #include <nav_msgs/Path.h> 
 
-using namespace Eigen;
 
  std::mt19937 & get_random()
  {
@@ -109,17 +87,12 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
 
    for(unsigned int i = 0; i< length; i++ )
    {
-    //    std::cout<<"ith val x= "<<i<<in_var.pose[i].position.x<<"\n";
-    //    std::cout<<"ith val y= "<<i<<in_var.pose[i].position.y<<"\n";
 
      std::string name = in_var.name[i];
      std::string temp = name.std::string::substr(0,8);
-    // std::cout<<"temp =  = "<< temp<<"\n";
     
     if(temp.compare(cylinder) == 0)
     {
-        // std::cout<<"in if \t";
-        // std::cout<<temp<<"\n";
         index_pos.push_back(i);
     }
    if(name.compare(robot) == 0)
@@ -135,7 +108,6 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
 
     tf::Matrix3x3 mat(quat);
     mat.getRPY(roll, pitch, yaw);
-//    std::cout<<"angle = "<<yaw<<"/n";
   
   for(unsigned int i = 0; i< index_pos.size();i++)
   {

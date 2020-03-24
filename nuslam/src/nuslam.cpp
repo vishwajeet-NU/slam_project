@@ -1,3 +1,7 @@
+/// \file
+/// \brief This file defines the methods that have been 
+/// initialized in the header file.
+
 #include "nuslam/nuslam.hpp"
 
 #include"rigid2d/rigid2d.hpp"
