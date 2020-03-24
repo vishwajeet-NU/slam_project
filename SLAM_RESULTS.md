@@ -25,3 +25,7 @@ y_error = -0.0373m </br>
 
 ![image](nuslam/images/with_error.png)
 
+</br>
+
+Another run with lower noise and slower movement 
+![image](nuslam/images/3.png)
