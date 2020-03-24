@@ -137,6 +137,9 @@ ${Eigen3_INCLUDE_DIRS}
  add_library(${PROJECT_NAME} src/nuslam.cpp 
  )
 
+add_executable(gazebo_visual src/gazebo_visual.cpp)
+target_link_libraries(gazebo_visual ${catkin_LIBRARIES} Eigen3::Eigen nuslam)
+
 
 add_executable(landmarks src/landmarks.cpp)
 target_link_libraries(landmarks ${catkin_LIBRARIES} Eigen3::Eigen nuslam)

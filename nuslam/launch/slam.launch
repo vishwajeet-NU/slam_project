@@ -1,33 +1,73 @@
 <launch>
-   <include file="$(find nuslam)/launch/movement.launch">
-   </include>
-   <rosparam command="load" file="$(find nuslam)/config/slam_params.yaml" />  
+<arg name = "robot" default = "-1" doc = " 0 makes the machine as turtle, 1 the computer" />
+<arg name="debug" default="False" doc="If true then an analysis node with landmark location from gazebo is launched"/>
 
-   <include file="$(find nuturtle_gazebo)/launch/diff_drive_gazebo.launch">
-   </include>
+<include file="$(find nuslam)/launch/view_diff_drive_slam.launch">
+<arg name="config" value="$(find nuslam)/config/slam.rviz"/>
+</include>
 
-   <!-- <node name="analysis" pkg="nuslam" type="analysis" >
-   <remap from="landmarks" to="real/landmarks"/>  
-   </node>  -->
+<include file="$(find nuslam)/launch/movement.launch">
+<arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
+</include>
+<rosparam command="load" file="$(find nuslam)/config/slam_params.yaml" /> 
 
-   <!-- <node name="slam" pkg="nuslam" type="slam" output = "screen">
-   <remap from="landmarks" to="real/landmarks"/>  
-   </node> -->
+<group if="$(eval arg('robot') != -1)">
+<node machine="turtlebot" name="landmarks_node" pkg="nuslam" type="landmarks"/>
 
-   <node name="draw_map" pkg="nuslam" type="draw_map"/>
+<include file="$(find turtlebot3_teleop)/launch/turtlebot3_teleop_key.launch"/>
+
+</group>
+
+<group if="$(eval arg('robot') == -1)">
+<arg name="world" default="$(find nuturtlebot)/worlds/block.world"/>
+<include file="$(find nuturtle_gazebo)/launch/diff_drive_gazebo.launch">
+<arg name="world" value="$(arg world)"/>
+</include>
+
+<include file="$(find turtlebot3_teleop)/launch/turtlebot3_teleop_key.launch"/>
 
 
-   <!-- <node name="draw_map_real" pkg="nuslam" type="draw_map">
-   <remap from="landmarks" to="real/landmarks"/>  
-   <remap from="visualization_marker_scan_array" to="real/visualization_marker_scan_array"/>  
+<group if="$(eval arg('debug') == False)">
 
-   </node> -->
+<node name="landmarks_node" pkg="nuslam" type="landmarks"/>
 
+<node name="slam" pkg="nuslam" type="slam" output = "screen"/>
+
+<node name="gazebo_visual" pkg="nuslam" type="gazebo_visual"/>
+
+<node name="draw_map" pkg="nuslam" type="draw_map"/>
+
+<node  name="draw_map_slam" pkg="nuslam" type="draw_map">
+<remap from="landmarks" to="slam/landmarks"/>  
+<remap from="visualization_marker_scan_array" to="slam/visualization_marker_scan_array"/>  
+</node>
    
-   <node  name="draw_map_slam" pkg="nuslam" type="draw_map">
-   <remap from="landmarks" to="slam/landmarks"/>  
-   <remap from="visualization_marker_scan_array" to="slam/visualization_marker_scan_array"/>  
-   </node>
-   
+</group> 
+
+<group if="$(eval arg('debug') == True)"> 
+
+ <node name="gazebo_visual" pkg="nuslam" type="gazebo_visual"/>
+
+ <node name="analysis" pkg="nuslam" type="analysis" >
+ <remap from="landmarks" to="real/landmarks"/>  
+ </node> 
+
+ <node name="slam" pkg="nuslam" type="slam" output = "screen">
+ <remap from="landmarks" to="real/landmarks"/>  
+ </node>
+
+<node name="draw_map" pkg="nuslam" type="draw_map">
+<remap from="landmarks" to="slam/landmarks"/>  
+<remap from="visualization_marker_scan_array" to="slam/visualization_marker_scan_array"/>   
+</node>
+
+ <node name="draw_map_real" pkg="nuslam" type="draw_map">
+ <remap from="landmarks" to="real/landmarks"/>  
+ <remap from="visualization_marker_scan_array" to="real/visualization_marker_scan_array"/>   
+ </node>
+
+</group>
+
+</group>
 </launch>
 

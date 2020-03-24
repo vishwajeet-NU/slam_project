@@ -1,12 +1,33 @@
 <launch>
-   <arg name = "robot" doc = " 0 makes the machine as turtle, 1 the computer" />
-   <include file="$(find nuturtle_robot)/launch/test_movement.launch">
-   <arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
-   </include>
-   <rosparam command="load" file="$(find nuslam)/config/slam_params.yaml" />  
 
-   <include file="$(find nuturtle_gazebo)/launch/diff_drive_gazebo.launch">
-   </include>
-   <!-- <node name="analysis" pkg="nuslam" type="analysis" ouput="screen"/> -->
-   
+<arg name = "robot" default = "-1" doc = " 0 makes the machine as turtle, 1 the computer" />
+
+<include file="$(find nuslam)/launch/view_diff_drive_slam.launch">
+<arg name="config" value="$(find nuslam)/config/landmarks.rviz"/>
+</include>
+
+<include file="$(find nuslam)/launch/movement.launch">
+<arg name = "robot" value = "$(arg robot)"  doc = " 0 makes the machine as turtle, 1 the computer"/>
+</include>
+<rosparam command="load" file="$(find nuslam)/config/slam_params.yaml" /> 
+
+<group if="$(eval arg('robot') != -1)">
+<node machine="turtlebot" name="landmarks_node" pkg="nuslam" type="landmarks"/>
+<include file="$(find turtlebot3_teleop)/launch/turtlebot3_teleop_key.launch"/>
+
+</group>
+
+<group if="$(eval arg('robot') == -1)">
+
+<arg name="world" default="$(find nuturtlebot)/worlds/block.world"/>
+<include file="$(find nuturtle_gazebo)/launch/diff_drive_gazebo.launch">
+<arg name="world" value="$(arg world)"/>
+</include>
+
+<include file="$(find turtlebot3_teleop)/launch/turtlebot3_teleop_key.launch"/>
+
+<node name="landmarks_node" pkg="nuslam" type="landmarks"/>
+<node name="draw_map" pkg="nuslam" type="draw_map"/>
+</group>
+
 </launch>

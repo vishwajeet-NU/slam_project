@@ -1,4 +1,4 @@
-detection_radius : 3.5
+detection_radius : 20
 noise_variance : 0
 sigma_r : 0.0000001
 sigma_theta : 0.0000001

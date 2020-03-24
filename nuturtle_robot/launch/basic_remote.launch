@@ -12,7 +12,10 @@
 <param name="port" value="/dev/ttyACM0"/>
 <param name="baud" value="115200"/>
 </node>
-
+<node machine ="turtlebot" pkg="hls_lfcd_lds_driver" type="hlds_laser_publisher" name ="serial">
+<param name="port" value="/dev/ttyUSB0"/>
+<param name="frame_id" value="base_scan"/>
+</node>
 </group>
 
 <group if="$(eval arg('robot') ==1)"> 
@@ -20,6 +23,10 @@
 <node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
 <param name="port" value="/dev/ttyACM0"/>
 <param name="baud" value="115200"/>
+</node>
+<node machine ="turtlebot" pkg="hls_lfcd_lds_driver" type="hlds_laser_publisher" name ="serial">
+<param name="port" value="/dev/ttyUSB0"/>
+<param name="frame_id" value="base_scan"/>
 </node>
 
 </group>
@@ -30,6 +37,10 @@
 <param name="port" value="/dev/ttyACM0"/>
 <param name="baud" value="115200"/>
 </node>
+<node machine ="turtlebot" pkg="hls_lfcd_lds_driver" type="hlds_laser_publisher" name ="serial">
+<param name="port" value="/dev/ttyUSB0"/>
+<param name="frame_id" value="base_scan"/>
+</node>
 
 </group>
 
@@ -38,6 +49,10 @@
 <node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
 <param name="port" value="/dev/ttyACM0"/>
 <param name="baud" value="115200"/>
+</node>
+<node machine ="turtlebot" pkg="hls_lfcd_lds_driver" type="hlds_laser_publisher" name ="serial">
+<param name="port" value="/dev/ttyUSB0"/>
+<param name="frame_id" value="base_scan"/>
 </node>
 
 </group>
@@ -48,6 +63,10 @@
 <param name="port" value="/dev/ttyACM0"/>
 <param name="baud" value="115200"/>
 </node>
+<node machine ="turtlebot" pkg="hls_lfcd_lds_driver" type="hlds_laser_publisher" name ="serial">
+<param name="port" value="/dev/ttyUSB0"/>
+<param name="frame_id" value="base_scan"/>
+</node>
 
 </group>
 
@@ -56,6 +75,10 @@
 <node machine ="turtlebot" pkg="rosserial_python" type="serial_node.py" name ="serial">
 <param name="port" value="/dev/ttyACM0"/>
 <param name="baud" value="115200"/>
+</node>
+<node machine ="turtlebot" pkg="hls_lfcd_lds_driver" type="hlds_laser_publisher" name ="serial">
+<param name="port" value="/dev/ttyUSB0"/>
+<param name="frame_id" value="base_scan"/>
 </node>
 
 </group>

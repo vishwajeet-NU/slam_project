@@ -83,11 +83,7 @@ static std::vector<std::string> names;
 
 std::string base_scan = "base_scan";
 
-geometry_msgs::PoseStamped ground_truth;
-nav_msgs::Path ground_path;
-
 ros::Publisher map_pub;
-ros::Publisher path_pub_gt;
 nuslam::turtle_map container;
 
 std::string cylinder = "cylinder";
@@ -106,7 +102,6 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
     std::normal_distribution<double> d(0.0, nvar);
     ros::NodeHandle n;
     map_pub= n.advertise<nuslam::turtle_map>("landmarks", 1);
-    path_pub_gt = n.advertise<nav_msgs::Path>("/path_ground", 1);
    
     std::vector<int> index_pos;
     unsigned int length = in_var.name.size();
@@ -141,15 +136,6 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
     tf::Matrix3x3 mat(quat);
     mat.getRPY(roll, pitch, yaw);
 //    std::cout<<"angle = "<<yaw<<"/n";
-    ground_truth.header.stamp = ros::Time::now();
-    ground_truth.header.frame_id = "map";
-    ground_path.header.stamp = ros::Time::now();
-    ground_path.header.frame_id = "base_link";
-    ground_truth.pose.position.x =  in_var.pose[robot_index].position.x;
-    ground_truth.pose.position.y =  in_var.pose[robot_index].position.y;
-    ground_truth.pose.orientation= in_var.pose[robot_index].orientation;           
-    ground_path.poses.push_back(ground_truth);
-    path_pub_gt.publish(ground_path);
   
   for(unsigned int i = 0; i< index_pos.size();i++)
   {
@@ -187,19 +173,6 @@ void gazebo_callback(const gazebo_msgs::ModelStates &in_var)
        }
   
   }
-
-
-//   std::cout<<"x = "<<"\t";
-//   for( unsigned int j= 0; j<x_coordinates.size();j++)
-//   {
-//       std::cout<<x_coordinates[j]<<" ";
-      
-//   }
-// std::cout<<"\n";
-
-//  std::cout<<"y = "<<"\t";
-
-// // std::cout<<"\n";
 
     container.radius = radii;
     container.x_center = x_coordinates;
