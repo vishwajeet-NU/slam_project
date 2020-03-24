@@ -33,3 +33,7 @@ Another run with lower noise and slower movement
 Green : slam path
 Brown: ground path
 Blue : odom path
+
+Markers:
+blue : landmarks seen by sensor
+red  : landmarks in slams, state vector
