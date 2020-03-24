@@ -46,8 +46,8 @@
      return mt;
  }
 
-double detection_radius = 0.0;
-double nvar = 0.0; 
+static double detection_radius = 0.0;
+static double nvar = 0.0; 
 static std::vector<float> x_coordinates;
 static std::vector<float> y_coordinates;
 static std::vector<float> radii;

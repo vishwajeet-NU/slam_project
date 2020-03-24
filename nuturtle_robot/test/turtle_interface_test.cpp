@@ -1,4 +1,6 @@
-// tests.cpp
+/// \file
+/// \brief Ros tests to check motion of robot given differnt types of commands
+
 #include "ros/ros.h"
 #include "rigid2d/rigid2d.hpp"
 #include <gtest/gtest.h>

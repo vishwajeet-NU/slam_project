@@ -61,7 +61,6 @@ find_package (Eigen3 3.3 REQUIRED NO_MODULE)
  add_message_files(
    FILES
    turtle_map.msg
-   test.msg
 #   Message1.msg
 #   Message2.msg
  )

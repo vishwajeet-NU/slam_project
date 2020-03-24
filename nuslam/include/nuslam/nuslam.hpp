@@ -11,7 +11,11 @@
 /// \file
 /// \brief Library to support EKF slam, contains circle fitting, ekf measurement update and ekf prediction
 
-          
+
+
+/// \brief A class that houses all necessary methods and 
+/// initializations to perform EKF slam, including landmark classification and circle fit
+
 class EKF
 { 
     public:
@@ -67,13 +71,13 @@ class EKF
           /// \param twist containig the forward motion twist, noise parameter and state vector size
           /// \returns none
 
-          void ekf_predict(rigid2d::Twist2D body_v, double co_var_w, int total);
+          void ekf_predict(rigid2d::Twist2D body_v, double co_var_w);
 
           /// \brief performs the measurement step of an EKF algorithm 
           /// \param noise parameters, sensor x and y readings, state vector size, distance thresholds for identifying new landmarks
           /// \returns none
 
-          void ekf_update(int m_land, double co_var_v, std::vector<float> x_center, std::vector<float> y_center, int total, double threshold , double upper_threshold);
+          void ekf_update(double co_var_v, std::vector<float> x_center, std::vector<float> y_center, double threshold , double upper_threshold);
 
 
           /// \brief wraps angles between PI -PI

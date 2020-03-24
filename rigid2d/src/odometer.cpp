@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 
 
       ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 1);
-      ros::Publisher path_pub = n.advertise<nav_msgs::Path>("/path_odom", 10);
+      ros::Publisher path_pub = n.advertise<nav_msgs::Path>("/path_odom", 1);
 
       ros::Subscriber joint_state_subsciber = n.subscribe("/joint_states", 1, jt_callback);
       tf::TransformBroadcaster odom_broadcaster;

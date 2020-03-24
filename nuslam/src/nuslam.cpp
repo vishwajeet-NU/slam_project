@@ -262,7 +262,7 @@ void EKF::circle(std::vector<std::vector<float>> &x_in, std::vector<std::vector<
      return mt;
  }
 
-void EKF::ekf_predict(rigid2d::Twist2D body_v, double co_var_w, int total)
+void EKF::ekf_predict(rigid2d::Twist2D body_v, double co_var_w)
 {
     theta_start = mu_t_bar.coeff(0,0);
     x_start = mu_t_bar.coeff(1,0);
@@ -325,7 +325,7 @@ double EKF::wrap_angles(double incoming_angle)
     return incoming_angle;
 }
 
-void EKF::ekf_update(int m_land, double co_var_v, std::vector<float> x_center, std::vector<float> y_center, int total, double threshold, double upper_threshold)
+void EKF::ekf_update(double co_var_v, std::vector<float> x_center, std::vector<float> y_center, double threshold, double upper_threshold)
 {
   int number_of_landmarks = (mu_t_bar.rows() - 3)/2;
   for( int i = 0; i<number_of_landmarks; i++ )

@@ -60,7 +60,7 @@ namespace turtle_odom_pose{
     float y = 0.0;
     float th = 0.0;
 }
-double roll,pitch,yaw= 0.0;    
+static double roll,pitch,yaw= 0.0;    
 geometry_msgs::Quaternion quat; 
 
 static double sigma_r = 0.0 , sigma_theta = 0.0, sigma_landmark = 0.0;
@@ -242,8 +242,8 @@ int main(int argc, char** argv)
               left_wheel = incoming_left_wheel;
               right_wheel = incoming_right_wheel;
 
-              new_bot.ekf_predict(body_v,co_var_w, total); 
-              new_bot.ekf_update(m_land,co_var_v,x_center,y_center,total,association_threshold,upper_threshold); 
+              new_bot.ekf_predict(body_v,co_var_w); 
+              new_bot.ekf_update(co_var_v,x_center,y_center,association_threshold,upper_threshold); 
            
               // std::cout<<"mu posteriro"<<mu_t_posterior<<"\n";
               new_bot.k_gain.fill(0.0);
