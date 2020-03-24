@@ -29,3 +29,7 @@ y_error = -0.0373m </br>
 
 Another run with lower noise and slower movement 
 ![image](nuslam/images/3.png)
+
+Green : slam path
+Brown: ground path
+Blue : odom path
