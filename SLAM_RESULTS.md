@@ -7,7 +7,8 @@ Results: </br>
 L.002:</br>
 Detection radius = 2
 sensor co_variance = 0.000001 </br>
-gaussian noise co_var laser scan = 0.01 </br>
+gaussian noise variance laser scan = 0.01 </br>
+motion model noise = 0.0000001 </br>
 
 Error 1, Actual - Slam : </br>
 x_error = -0.0528m </br>
