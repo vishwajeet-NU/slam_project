@@ -1,70 +1,62 @@
 "ME495 Sensing, Navigation, and Machine Learning"
 Author : Vishwajeet Karmarkar </br>
-# Tasks Submitted
-A.004 <br/>
-A.005 <br/>
 
-E.006 <br/>
+This repository houses code for a SLAM class at Northwestern Univerisity, January 2020. 
+```bash
+├── Homework2_Answers.md
+├── nuslam
+├── nuturtle_description
+├── nuturtle_gazebo
+├── nuturtle_robot
+├── README.md
+├── rigid2d
+├── SLAM_RESULTS.md
+└── tsim
+```
 
-F.000 <br/>
-F.001 <br/>
-F.002 <br/>
-F.003 <br/>
-F.004 <br/>
-F.005 <br/>
-F.006 <br/>
-F.007 <br/>
-F.008 <br/>
-F.009 <br/>
+The structure is shown above. <br>
+1) rigid2d: A c++ library for modelling a diff drive robot and kinematics. Also houses helper functions.<br>
+2) nuturtle_description: Urdf files, launch files for starting Rviz visualisation <br>
+3) nuturtle_robot: Robot control code 
+4) nuturtle_gazebo: Xacro files along with sensor plugins for Gazebo simulation <br>
+5) tsim : Waypoint follower for turtlebot <br>
+6) nuslam: Slam code 
 
-G.001 <br/>
-G.002 <br/>
-G.003 <br/>
-G.004 <br/>
-G.005 <br/>
+To run: 
 
-S.000 <br/>
-S.001 <br/>
+``` 
+mkdir src 
+cd src 
+```
 
-L.001 <br/>
-L.002 <br/>
+``` 
+git clone https://github.com/vishwajeet-NU/slam_project.git
+```
+```
+catkin_make
+```
 
-Coded, but commented out <br/>
-untested and buggy <br/>
-L.003 <br/>
+To launch slam <br>
 
-# Tasks Completed 
-0.003 <br/>
+You can launch it in debug mode and normal mode </br>
+In debug mode gazebo model state is used to populate sensor messages </br>
+so that slam can be tested without worrying about data association </br>
 
-A.000 <br/>
-A.001 <br/>
-A.002 <br/>
-A.003 <br/>
-A.004 <br/>
+to launch only landmark detector::</br>
+<pre><code>roslaunch nuslam landmarks.launch robot:=-1 
+</code></pre>
+It looks as follows </br>
 
-B.000 <br/>
-B.001 <br/>
-B.002 <br/>
-B.003 <br/>
-B.004 <br/>
-B.005 <br/>
-B.006 <br/>
+![image](nuslam/images/landmark_detector.png)
 
-C.000 <br/>
-C.001 <br/>
-C.002 <br/>
-C.003 <br/>
-C.004 <br/>
-C.005 <br/>
-C.006 <br/>
-C.007 <br/> 
-C.008 <br/>
-C.009 <br/>
-C.010 <br/>
 
-E.000 <br/>
-E.001 <br/>
-E.002 <br/>
-E.003 <br/>
-E.004 <br/>
-E.005 <br/>
+Robot argument is dependent on choice of platform </br>
+this launch file also starts a keyboard teleop system which can be used to </br>
+navigate the bot</br>
+
+
+to launch slam 
+
+<pre><code>roslaunch nuslam slam.launch robot:=-1 debug:=True </pre></code>
+
+debug argument can be changed as needed
